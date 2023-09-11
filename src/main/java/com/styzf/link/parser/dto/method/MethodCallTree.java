@@ -116,15 +116,8 @@ public class MethodCallTree {
     }
     
     public String getEasyMethodName() {
-        Pattern pattern = compile("(?<=\\.)((.(?!\\.))*.)(?=:)");
+        Pattern pattern = compile("(?<=:).*?(?=\\()");
         Matcher matcher = pattern.matcher(this.rootMethodName);
-        String className = "";
-        if (matcher.find()) {
-            className = matcher.group();
-        }
-    
-        pattern = compile("(?<=:).*?(?=\\()");
-        matcher = pattern.matcher(this.rootMethodName);
         String methodName = "";
         if (matcher.find()) {
             methodName = matcher.group();
@@ -137,7 +130,29 @@ public class MethodCallTree {
             args.append("_").append(matcher.group());
         }
         
-        return className + "_" + methodName + args;
+        return getEasyClassName() + "_" + methodName + args;
+    }
+    
+    public String getEasyClassName() {
+        Pattern pattern = compile("(?<=\\.)((.(?!\\.))*.)(?=:)");
+        Matcher matcher = pattern.matcher(this.rootMethodName);
+        String className = "";
+        if (matcher.find()) {
+            className = matcher.group();
+        }
+    
+        return className;
+    }
+    
+    public String getClassName() {
+        Pattern pattern = compile("(?<=\\.)((.(?!\\.))*.)(?=:)");
+        Matcher matcher = pattern.matcher(this.rootMethodName);
+        String className = "";
+        if (matcher.find()) {
+            className = matcher.group();
+        }
+        
+        return this.rootMethodName.substring(0, this.rootMethodName.indexOf(":"));
     }
     
     public List<MethodCallTree> getNextList() {

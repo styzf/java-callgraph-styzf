@@ -15,6 +15,10 @@ import java.util.stream.Collectors;
  * @date 2023/9/7 22:17
  */
 public class DataParser {
+    
+    /**
+     * 通过配置文件配置要解析的方法名，以及解析的方向进行解析
+     */
     public static void praserMethodCallLinked() {
         String rootMethodName = DataContext.javaCGConfInfo.getRootMethodName();
         MethodCallTree root = MethodCallTree.init(rootMethodName);

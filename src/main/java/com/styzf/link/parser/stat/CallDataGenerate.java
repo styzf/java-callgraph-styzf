@@ -2,7 +2,6 @@ package com.styzf.link.parser.stat;
 
 import com.styzf.link.parser.common.JavaCGConstants;
 import com.styzf.link.parser.common.enums.JavaCGCallTypeEnum;
-import com.styzf.link.parser.common.enums.JavaCGOutPutFileTypeEnum;
 import com.styzf.link.parser.conf.JavaCGConfManager;
 import com.styzf.link.parser.conf.JavaCGConfigureWrapper;
 import com.styzf.link.parser.context.DataContext;
@@ -13,10 +12,10 @@ import com.styzf.link.parser.extensions.annotation_attributes.AnnotationAttribut
 import com.styzf.link.parser.extensions.code_parser.CodeParserInterface;
 import com.styzf.link.parser.extensions.code_parser.SpringXmlBeanParserInterface;
 import com.styzf.link.parser.extensions.manager.ExtensionsManager;
-import com.styzf.link.parser.generator.puml.PumlXmindGenerator;
 import com.styzf.link.parser.generator.xmind.BaseXmindGenerator;
 import com.styzf.link.parser.handler.ExtendsImplHandler;
 import com.styzf.link.parser.parser.DataParser;
+import com.styzf.link.parser.parser.DocParser;
 import com.styzf.link.parser.parser.JarEntryHandleParser;
 import com.styzf.link.parser.parser.JarEntryPreHandle1Parser;
 import com.styzf.link.parser.parser.JarEntryPreHandle2Parser;
@@ -112,13 +111,15 @@ public class CallDataGenerate {
             return false;
         }
     
+    
+//        new DocParser().parser();
         // 解析的逻辑，后续把原先旧的文件输出逻辑也继承基础的接口去实现
-//        DataParser.praserMethodCallLinked();
-//        new BaseXmindGenerator().generate(DataContext.root);
-        DataParser.praserAll();
-        DataContext.rootList.forEach(root -> {
-            new BaseXmindGenerator().generate(root);
-        });
+        DataParser.praserMethodCallLinked();
+        new BaseXmindGenerator().generate(DataContext.root);
+//        DataParser.praserAll();
+//        DataContext.rootList.forEach(root -> {
+//            new BaseXmindGenerator().generate(root);
+//        });
 //        DataParser.praserMethodCallLinked();
 //        new PumlXmindGenerator().generate(DataContext.root);
 //        DataParser.praserAll();

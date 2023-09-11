@@ -5,12 +5,14 @@ import com.styzf.link.parser.conf.JavaCGConfInfo;
 import com.styzf.link.parser.dto.call.MethodCall;
 import com.styzf.link.parser.dto.classes.ClassExtendsMethodInfo;
 import com.styzf.link.parser.dto.classes.ClassImplementsMethodInfo;
+import com.styzf.link.parser.dto.doc.DocDto;
 import com.styzf.link.parser.dto.interfaces.InterfaceExtendsMethodInfo;
 import com.styzf.link.parser.dto.jar.ClassAndJarNum;
 import com.styzf.link.parser.dto.jar.JarInfo;
 import com.styzf.link.parser.dto.method.MethodAndArgs;
 import com.styzf.link.parser.dto.method.MethodCallTree;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -148,6 +150,8 @@ public class DataContext {
      */
     public final static Map<String, List<MethodCall>> METHOD_CALLEE_MAP = new HashMap<>(2^1024);
     
+    public final static Map<String, DocDto> DOC_MAP = new HashMap<>(2^1024);
+    
     /**
      * 根节点数据
      */
@@ -164,7 +168,17 @@ public class DataContext {
             methodCallList = new ArrayList<>();
         }
         methodCallList.add(methodCall);
-        DataContext.METHOD_CALL_MAP.put(methodCall.genCallerFullMethod(), methodCallList);
-        DataContext.METHOD_CALLEE_MAP.put(methodCall.genCalleeFullMethod(), methodCallList);
+    
+        List<MethodCall> methodCalleeList = DataContext.METHOD_CALLEE_MAP.get(methodCall.genCalleeFullMethod());
+        if (methodCalleeList == null) {
+            methodCalleeList = new ArrayList<>();
+        }
+        methodCalleeList.add(methodCall);
+        
+        String callerFullMethod = methodCall.genCallerFullMethod();
+        String calleeFullMethod = methodCall.genCalleeFullMethod();
+        
+        DataContext.METHOD_CALL_MAP.put(callerFullMethod, methodCallList);
+        DataContext.METHOD_CALLEE_MAP.put(calleeFullMethod, methodCalleeList);
     }
 }

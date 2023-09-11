@@ -1,8 +1,11 @@
 package com.styzf.link.parser.generator.xmind;
 
+import cn.hutool.core.util.StrUtil;
 import com.styzf.link.parser.context.DataContext;
+import com.styzf.link.parser.dto.doc.DocDto;
 import com.styzf.link.parser.dto.method.MethodCallTree;
 import com.styzf.link.parser.generator.FileGenerate;
+import com.styzf.link.parser.parser.DocParser;
 import org.xmind.core.*;
 import org.xmind.core.style.IStyleSheet;
 
@@ -24,7 +27,17 @@ public abstract class AbstractXmindGenerator implements FileGenerate<MethodCallT
     protected ITopic generateTopic(MethodCallTree tree) {
         ITopic topic = workbook.createTopic();
         String text = tree.getRootMethodName();
-        topic.setTitleText(text);
+    
+        try {
+            DocParser.parser(tree.getClassName());
+        } catch (Throwable e) { e.printStackTrace(); }
+        DocDto doc = DataContext.DOC_MAP.get(tree.getRootMethodName());
+        if (doc != null && StrUtil.isNotBlank(doc.getDoc())) {
+            topic.setTitleText(doc.getDoc());
+            topic.addMarker(text);
+        } else {
+            topic.setTitleText(text);
+        }
         return topic;
     }
     

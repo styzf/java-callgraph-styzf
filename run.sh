@@ -1,1 +1,0 @@
-java -Dfile.encoding=UTF-8 -cp .:./jar/run_javacg2.jar:./lib/* com.adrninistrator.javacg.stat.JCallGraph
