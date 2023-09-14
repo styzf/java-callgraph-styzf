@@ -5,7 +5,7 @@ import com.styzf.link.parser.context.DataContext;
 import com.styzf.link.parser.dto.doc.DocDto;
 import com.styzf.link.parser.dto.method.MethodCallTree;
 import com.styzf.link.parser.generator.FileGenerate;
-import com.styzf.link.parser.parser.DocParser;
+import com.styzf.link.parser.util.doc.MyJavaDocUtils;
 import org.xmind.core.*;
 import org.xmind.core.style.IStyleSheet;
 
@@ -28,13 +28,10 @@ public abstract class AbstractXmindGenerator implements FileGenerate<MethodCallT
         ITopic topic = workbook.createTopic();
         String text = tree.getRootMethodName();
     
-        try {
-            DocParser.parser(tree.getClassName());
-        } catch (Throwable e) { e.printStackTrace(); }
-        DocDto doc = DataContext.DOC_MAP.get(tree.getRootMethodName());
+        DocDto doc = MyJavaDocUtils.getDoc(tree.getClassName(), tree.getRootMethodName());
         if (doc != null && StrUtil.isNotBlank(doc.getDoc())) {
             topic.setTitleText(doc.getDoc());
-            topic.addMarker(text);
+            topic.addLabel(text);
         } else {
             topic.setTitleText(text);
         }

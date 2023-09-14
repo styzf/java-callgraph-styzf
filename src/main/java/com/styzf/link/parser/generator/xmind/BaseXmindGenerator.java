@@ -2,12 +2,9 @@ package com.styzf.link.parser.generator.xmind;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
-import com.styzf.link.parser.context.DataContext;
 import com.styzf.link.parser.dto.method.MethodCallTree;
-import com.styzf.link.parser.parser.DocParser;
 import org.xmind.core.ITopic;
 
-import java.io.File;
 import java.util.List;
 
 /**
@@ -18,7 +15,6 @@ public class BaseXmindGenerator extends AbstractXmindGenerator {
     
     @Override
     public void generate(MethodCallTree tree) {
-        DocParser.getJarClassLoader();
         addRoot(tree);
         generateXmind(tree);
     }

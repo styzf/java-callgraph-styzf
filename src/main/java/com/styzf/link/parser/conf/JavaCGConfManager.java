@@ -70,6 +70,10 @@ public class JavaCGConfManager {
         List<String> jarDirList = javaCGConfigureWrapper.getOtherConfigList(JavaCGOtherConfigFileUseListEnum.OCFULE_JAR_DIR, true);
         confInfo.setJarDirList(jarDirList);
 
+        // 获取jar_dir.properties中的配置参数
+        List<String> sourcesDirList = javaCGConfigureWrapper.getOtherConfigList(JavaCGOtherConfigFileUseListEnum.OCFULE_SOURCES_DIR, true);
+        confInfo.setSourcesDirList(sourcesDirList);
+
         // 获取packages.properties中的配置参数
         Set<String> needHandlePackageSet = javaCGConfigureWrapper.getOtherConfigSet(JavaCGOtherConfigFileUseSetEnum.OCFUSE_PACKAGES, true);
         confInfo.setNeedHandlePackageSet(needHandlePackageSet);

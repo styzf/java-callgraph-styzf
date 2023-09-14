@@ -9,6 +9,7 @@ import com.styzf.link.parser.common.JavaCGConstants;
  */
 public enum JavaCGOtherConfigFileUseListEnum {
     OCFULE_JAR_DIR(JavaCGConstants.DIR_CONFIG + "/jar_dir.properties", "指定需要处理的jar包，或保存class、jar文件的目录"),
+    OCFULE_SOURCES_DIR(JavaCGConstants.DIR_CONFIG + "/sources_dir.properties", "指定需要处理的sources包"),
     ;
 
     private final String fileName;

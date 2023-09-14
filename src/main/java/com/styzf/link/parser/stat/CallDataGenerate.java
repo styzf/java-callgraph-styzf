@@ -15,7 +15,6 @@ import com.styzf.link.parser.extensions.manager.ExtensionsManager;
 import com.styzf.link.parser.generator.xmind.BaseXmindGenerator;
 import com.styzf.link.parser.handler.ExtendsImplHandler;
 import com.styzf.link.parser.parser.DataParser;
-import com.styzf.link.parser.parser.DocParser;
 import com.styzf.link.parser.parser.JarEntryHandleParser;
 import com.styzf.link.parser.parser.JarEntryPreHandle1Parser;
 import com.styzf.link.parser.parser.JarEntryPreHandle2Parser;

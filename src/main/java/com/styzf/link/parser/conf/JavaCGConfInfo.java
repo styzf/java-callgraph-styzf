@@ -12,6 +12,9 @@ public class JavaCGConfInfo {
 
     // 需要处理的jar包或目录
     private List<String> jarDirList;
+    
+    // 需要处理的jar包或目录
+    private List<String> sourcesDirList;
 
     // 需要处理的的包名
     private Set<String> needHandlePackageSet;
@@ -148,5 +151,13 @@ public class JavaCGConfInfo {
 
     public void setOutputFileExt(String outputFileExt) {
         this.outputFileExt = outputFileExt;
+    }
+    
+    public List<String> getSourcesDirList() {
+        return sourcesDirList;
+    }
+    
+    public void setSourcesDirList(List<String> sourcesDirList) {
+        this.sourcesDirList = sourcesDirList;
     }
 }
