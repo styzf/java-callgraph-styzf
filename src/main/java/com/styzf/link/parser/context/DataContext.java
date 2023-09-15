@@ -162,6 +162,11 @@ public class DataContext {
      */
     public static List<MethodCallTree> rootList = new LinkedList<>();
     
+    /**
+     * 用于去重的set
+     */
+    public static final Set<String> METHOD_SET = new HashSet<>();
+    
     public static void putMethodCallMap(MethodCall methodCall) {
         List<MethodCall> methodCallList = DataContext.METHOD_CALL_MAP.get(methodCall.genCallerFullMethod());
         if (methodCallList == null) {

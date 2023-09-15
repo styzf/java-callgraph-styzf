@@ -15,7 +15,6 @@ import com.styzf.link.parser.extensions.manager.ExtensionsManager;
 import com.styzf.link.parser.generator.txt.MethodCallTxtGeneratot;
 import com.styzf.link.parser.generator.xmind.BaseXmindGenerator;
 import com.styzf.link.parser.handler.ExtendsImplHandler;
-import com.styzf.link.parser.parser.DataParser;
 import com.styzf.link.parser.parser.JarEntryHandleParser;
 import com.styzf.link.parser.parser.JarEntryPreHandle1Parser;
 import com.styzf.link.parser.parser.JarEntryPreHandle2Parser;
@@ -111,21 +110,8 @@ public class CallDataGenerate {
             return false;
         }
     
-        new MethodCallTxtGeneratot().generate();
-//        new DocParser().parser();
-        // 解析的逻辑，后续把原先旧的文件输出逻辑也继承基础的接口去实现
-//        DataParser.praserMethodCallLinked();
-//        new BaseXmindGenerator().generate();
-//        DataParser.praserAll();
-//        DataContext.rootList.forEach(root -> {
-//            new BaseXmindGenerator().generate(root);
-//        });
-//        DataParser.praserMethodCallLinked();
-//        new PumlXmindGenerator().generate(DataContext.root);
-//        DataParser.praserAll();
-//        DataContext.rootList.forEach(root -> {
-//            new PumlXmindGenerator().generate(root);
-//        });
+//        new MethodCallTxtGeneratot().generate();
+        new BaseXmindGenerator().generate();
         
         long spendTime = System.currentTimeMillis() - startTime;
         String printInfo = "执行完毕，处理数量，类： " + classNumCounter.getCount() +

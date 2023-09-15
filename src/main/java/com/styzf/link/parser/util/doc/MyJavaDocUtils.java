@@ -7,6 +7,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.ZipUtil;
 import com.styzf.link.parser.context.DataContext;
 import com.styzf.link.parser.dto.doc.DocDto;
+import com.styzf.link.parser.util.BaseUtil;
 import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.MethodDoc;
 import com.sun.javadoc.RootDoc;
@@ -21,6 +22,10 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static java.util.regex.Pattern.compile;
 
 /**
  * by com.sun.javadoc
@@ -45,7 +50,11 @@ public class MyJavaDocUtils {
         MyJavaDocUtils.rootDoc = rootDoc;
         return true;
     }
-
+    
+    public static DocDto getDoc(String methodName) {
+        return getDoc(BaseUtil.getClassName(methodName), methodName);
+    }
+    
     public static DocDto getDoc(String className, String methodName) {
         if (! Class_SET.add(className)) {
             return getDocByMethodName(methodName);
