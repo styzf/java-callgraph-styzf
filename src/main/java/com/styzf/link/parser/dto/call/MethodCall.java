@@ -12,7 +12,7 @@ import org.apache.commons.lang3.StringUtils;
  * @date 2022/9/20
  * @description: 方法之间调用关系
  */
-public class MethodCall {
+public class MethodCall implements Comparable<MethodCall> {
 
     // 方法调用序号
     private int callId;
@@ -147,5 +147,14 @@ public class MethodCall {
 
     public String getCalleeClassName() {
         return calleeClassName;
+    }
+    
+    public String getCallerClassName() {
+        return callerClassName;
+    }
+    
+    @Override
+    public int compareTo(MethodCall o) {
+        return Integer.compare(this.callId, o.callId);
     }
 }

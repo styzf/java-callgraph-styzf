@@ -10,10 +10,9 @@ import java.util.List;
  * @author styzf
  * @date 2021/12/15 20:42
  */
-public interface FileGenerate<T extends MethodCallTree> {
+public interface FileGenerate {
     /**
      * 文件生成
-     * @param t 要生成的解析结果数据
      */
-    void generate(T t);
+    void generate();
 }

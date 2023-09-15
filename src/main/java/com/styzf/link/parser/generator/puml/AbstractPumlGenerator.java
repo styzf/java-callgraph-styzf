@@ -13,7 +13,7 @@ import java.util.List;
  * @author styzf
  * @date 2023/9/9 3:09
  */
-public abstract class AbstractPumlGenerator implements FileGenerate<MethodCallTree> {
+public abstract class AbstractPumlGenerator implements FileGenerate {
     
     protected List<String> lines = new LinkedList<>();
     

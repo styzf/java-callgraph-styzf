@@ -2,6 +2,7 @@ package com.styzf.link.parser.generator.xmind;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
+import com.styzf.link.parser.context.DataContext;
 import com.styzf.link.parser.dto.method.MethodCallTree;
 import org.xmind.core.ITopic;
 
@@ -14,13 +15,10 @@ import java.util.List;
 public class BaseXmindGenerator extends AbstractXmindGenerator {
     
     @Override
-    public void generate(MethodCallTree tree) {
+    public void generate() {
+        MethodCallTree tree = DataContext.root;
         addRoot(tree);
         generateXmind(tree);
-    }
-    
-    public void generate(List<MethodCallTree> list) {
-        list.forEach(this::generate);
     }
     
     private void addRoot(MethodCallTree tree) {

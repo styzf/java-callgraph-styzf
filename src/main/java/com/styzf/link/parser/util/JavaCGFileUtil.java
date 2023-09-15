@@ -1,5 +1,6 @@
 package com.styzf.link.parser.util;
 
+import cn.hutool.core.io.IoUtil;
 import com.styzf.link.parser.common.JavaCGConstants;
 import com.styzf.link.parser.exceptions.JavaCGRuntimeException;
 import org.apache.commons.lang3.StringUtils;
@@ -56,11 +57,13 @@ public class JavaCGFileUtil {
      * @param data
      * @throws IOException
      */
-    public static void write2FileWithTab(Writer writer, String... data) throws IOException {
+    public static void write2FileWithTab(Writer writer, String... data) {
         if (writer == null) {
             return;
         }
-        writer.write(StringUtils.join(data, JavaCGConstants.FILE_COLUMN_SEPARATOR) + JavaCGConstants.NEW_LINE);
+        try {
+            writer.write(StringUtils.join(data, JavaCGConstants.FILE_COLUMN_SEPARATOR) + JavaCGConstants.NEW_LINE);
+        } catch (Exception ignored){}
     }
 
     /**

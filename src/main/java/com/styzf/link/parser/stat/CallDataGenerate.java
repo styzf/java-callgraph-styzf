@@ -12,6 +12,7 @@ import com.styzf.link.parser.extensions.annotation_attributes.AnnotationAttribut
 import com.styzf.link.parser.extensions.code_parser.CodeParserInterface;
 import com.styzf.link.parser.extensions.code_parser.SpringXmlBeanParserInterface;
 import com.styzf.link.parser.extensions.manager.ExtensionsManager;
+import com.styzf.link.parser.generator.txt.MethodCallTxtGeneratot;
 import com.styzf.link.parser.generator.xmind.BaseXmindGenerator;
 import com.styzf.link.parser.handler.ExtendsImplHandler;
 import com.styzf.link.parser.parser.DataParser;
@@ -110,11 +111,11 @@ public class CallDataGenerate {
             return false;
         }
     
-    
+        new MethodCallTxtGeneratot().generate();
 //        new DocParser().parser();
         // 解析的逻辑，后续把原先旧的文件输出逻辑也继承基础的接口去实现
-        DataParser.praserMethodCallLinked();
-        new BaseXmindGenerator().generate(DataContext.root);
+//        DataParser.praserMethodCallLinked();
+//        new BaseXmindGenerator().generate();
 //        DataParser.praserAll();
 //        DataContext.rootList.forEach(root -> {
 //            new BaseXmindGenerator().generate(root);
