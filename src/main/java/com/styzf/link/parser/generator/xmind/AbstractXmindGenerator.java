@@ -21,7 +21,7 @@ import java.io.File;
  * @author styzf
  * @date 2021/12/15 21:18
  */
-public abstract class AbstractXmindGenerator extends AbstractLinkParser implements FileGenerate {
+public abstract class AbstractXmindGenerator implements FileGenerate {
     
     protected final IWorkbookBuilder workbookBuilder = Core.getWorkbookBuilder();
     protected final IWorkbook workbook = workbookBuilder.createWorkbook();

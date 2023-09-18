@@ -101,6 +101,7 @@ public class MethodCall implements Comparable<MethodCall> {
         this.objTypeEnum = objTypeEnum;
         this.rawReturnType = rawReturnType;
         this.actualReturnType = actualReturnType;
+        DataContext.putMethodCallMap(this);
     }
 
     // 返回调用者完整方法
@@ -123,7 +124,6 @@ public class MethodCall implements Comparable<MethodCall> {
 
     // 生成在调用关系文件中的内容
     public String genCallContent(String callerJarNum, String calleeJarNum) {
-        DataContext.putMethodCallMap(this);
         return StringUtils.joinWith(JavaCGConstants.FILE_COLUMN_SEPARATOR,
                 callId,
                 genCallerFullMethod(),

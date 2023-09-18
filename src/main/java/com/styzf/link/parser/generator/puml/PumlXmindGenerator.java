@@ -3,7 +3,10 @@ package com.styzf.link.parser.generator.puml;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.styzf.link.parser.context.DataContext;
+import com.styzf.link.parser.dto.call.MethodCall;
 import com.styzf.link.parser.dto.method.MethodCallTree;
+import com.styzf.link.parser.parser.AbstractLinkParser;
+import com.styzf.link.parser.util.BaseUtil;
 import org.xmind.core.ITopic;
 
 import java.util.List;
@@ -16,47 +19,63 @@ public class PumlXmindGenerator extends AbstractPumlGenerator {
     
     @Override
     public void generate() {
-        MethodCallTree tree = DataContext.root;
         lines.add("@startmindmap");
-        addData(tree);
-        generateCall(tree);
+        PumlXmindParser pumlXmindParser = new PumlXmindParser();
+        pumlXmindParser.parser();
         lines.add("@endmindmap");
-        writer(tree);
+        writer(pumlXmindParser.getEasyMethodName());
     }
     
-    private void addData(MethodCallTree tree) {
-        String line = StrUtil.fillBefore("", '*', tree.getLevel() + 1);
-        if (tree.getLevel() > 1) {
-            line = line + "_ ";
-        } else if (tree.getLevel() == 0) {
-            line = line + "[#orange] ";
-        } else if (tree.getLevel() == 1) {
-            line = line + "[#66ccff] ";
-        }
-        lines.add(line + tree.getRootMethodName());
-    }
-    
-    private void generateCall(MethodCallTree data) {
-        List<MethodCallTree> nextList = data.getNextList();
-        if (CollUtil.isEmpty(nextList)) {
-            return;
+    /**
+     * 链路解析器
+     */
+    private class PumlXmindParser extends AbstractLinkParser {
+        protected String rootMethodName;
+        
+        @Override
+        protected String rootHandle(String rootMethodName) {
+            this.rootMethodName = DataContext.getRootMethodName(rootMethodName);
+            addData(this.rootMethodName, 0);
+            return this.rootMethodName;
         }
         
-        for (MethodCallTree next: nextList) {
-            String rootMethodName = next.getRootMethodName();
-            // object实现的方法不做解析，字符串拼接也不解析
-            if (StrUtil.isNotBlank(rootMethodName)
-                    && rootMethodName.matches("^(java.lang.Object|java.lang.StringBuilder).+")) {
-                continue;
+        @Override
+        protected boolean prevHandle(String nextMethodName, MethodCall prev, int level) {
+            if (StrUtil.isNotBlank(prev.genCallerFullMethod())
+                    && prev.genCallerFullMethod().matches("^(java.lang.Object|java.lang.StringBuilder).+")) {
+                return false;
             }
-            addData(next);
+            addData(prev.genCallerFullMethod(), level);
+            
+            return true;
+        }
+        
+        @Override
+        protected boolean nextHandle(String prevMethodName, MethodCall next, int level) {
+            if (StrUtil.isNotBlank(next.genCalleeFullMethod())
+                    && next.genCalleeFullMethod().matches("^(java|java.lang.Object|java.lang.StringBuilder).+")) {
+                return false;
+            }
+            addData(next.genCalleeFullMethod(), level);
             
             // java原生的方法不进行下一层解析，理论上来说也不存在这种情况
-            if (StrUtil.isNotBlank(rootMethodName)
-                    && rootMethodName.matches("^(java|styzf).+")) {
-                continue;
-            }
-            generateCall(next);
+            return !next.genCalleeFullMethod().matches("^(java|styzf).+");
         }
-    }
+        
+        protected String getEasyMethodName() {
+            return BaseUtil.getEasyMethodName(this.rootMethodName);
+        }
+    
+        private void addData(String methodName, int level) {
+            String line = StrUtil.fillBefore("", '*', level + 1);
+            if (level > 1) {
+                line = line + "_ ";
+            } else if (level == 0) {
+                line = line + "[#orange] ";
+            } else if (level == 1) {
+                line = line + "[#66ccff] ";
+            }
+            lines.add(line + methodName);
+        }
+    };
 }

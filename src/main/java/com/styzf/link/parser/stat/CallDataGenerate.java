@@ -12,6 +12,7 @@ import com.styzf.link.parser.extensions.annotation_attributes.AnnotationAttribut
 import com.styzf.link.parser.extensions.code_parser.CodeParserInterface;
 import com.styzf.link.parser.extensions.code_parser.SpringXmlBeanParserInterface;
 import com.styzf.link.parser.extensions.manager.ExtensionsManager;
+import com.styzf.link.parser.generator.puml.PumlXmindGenerator;
 import com.styzf.link.parser.generator.txt.MethodCallTxtGeneratot;
 import com.styzf.link.parser.generator.xmind.BaseXmindGenerator;
 import com.styzf.link.parser.handler.ExtendsImplHandler;
@@ -111,6 +112,7 @@ public class CallDataGenerate {
         }
     
         new MethodCallTxtGeneratot().generate();
+        new PumlXmindGenerator().generate();
         new BaseXmindGenerator().generate();
         
         long spendTime = System.currentTimeMillis() - startTime;

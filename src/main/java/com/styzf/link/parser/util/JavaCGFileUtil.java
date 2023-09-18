@@ -63,7 +63,10 @@ public class JavaCGFileUtil {
         }
         try {
             writer.write(StringUtils.join(data, JavaCGConstants.FILE_COLUMN_SEPARATOR) + JavaCGConstants.NEW_LINE);
-        } catch (Exception ignored){}
+            writer.flush();
+        } catch (Exception ignored){
+            System.out.println(ignored);
+        }
     }
 
     /**

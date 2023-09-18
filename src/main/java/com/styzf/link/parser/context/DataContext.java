@@ -1,5 +1,6 @@
 package com.styzf.link.parser.context;
 
+import cn.hutool.core.collection.CollUtil;
 import com.styzf.link.parser.common.JavaCGConstants;
 import com.styzf.link.parser.conf.JavaCGConfInfo;
 import com.styzf.link.parser.dto.call.MethodCall;
@@ -185,5 +186,19 @@ public class DataContext {
         
         DataContext.METHOD_CALL_MAP.put(callerFullMethod, methodCallList);
         DataContext.METHOD_CALLEE_MAP.put(calleeFullMethod, methodCalleeList);
+    }
+    
+    public static String getRootMethodName(String rootMethodName) {
+        List<MethodCall> list = DataContext.METHOD_CALL_MAP.get(rootMethodName);
+        String methodName;
+        if (CollUtil.isEmpty(list)) {
+            methodName = DataContext.METHOD_CALL_MAP.keySet().stream()
+                    .filter(key -> key.startsWith(rootMethodName))
+                    .findFirst()
+                    .orElse(rootMethodName);
+        } else {
+            methodName = rootMethodName;
+        }
+        return methodName;
     }
 }
