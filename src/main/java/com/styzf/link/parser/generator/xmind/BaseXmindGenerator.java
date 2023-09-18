@@ -31,10 +31,21 @@ public class BaseXmindGenerator extends AbstractXmindGenerator {
     }
     
     @Override
-    protected void rootHandle(String rootMethodName) {
-        this.rootMethodName = rootMethodName;
+    protected String rootHandle(String rootMethodName) {
+        List<MethodCall> list = DataContext.METHOD_CALL_MAP.get(rootMethodName);
+        if (CollUtil.isEmpty(list)) {
+            this.rootMethodName = DataContext.METHOD_CALL_MAP.keySet().stream()
+                    .filter(key -> key.startsWith(rootMethodName))
+                    .findFirst()
+                    .orElse(rootMethodName);
+        } else {
+            this.rootMethodName = rootMethodName;
+        }
+        
         lastTopic.put(0, rootTopic);
-        addTopic(rootMethodName, 0);
+        addTopic(this.rootMethodName, 0);
+        
+        return this.rootMethodName;
     }
     
     @Override
@@ -58,7 +69,7 @@ public class BaseXmindGenerator extends AbstractXmindGenerator {
     @Override
     protected boolean nextHandle(String prevMethodName, MethodCall next, int level) {
         if (StrUtil.isNotBlank(next.genCalleeFullMethod())
-                && next.genCalleeFullMethod().matches("^(java.lang.Object|java.lang.StringBuilder).+")) {
+                && next.genCalleeFullMethod().matches("^(java|java.lang.Object|java.lang.StringBuilder).+")) {
             return false;
         }
         addTopic(next.genCalleeFullMethod(), level);

@@ -33,9 +33,8 @@ public class JarEntryPreHandle1Parser extends AbstractJarEntryParser {
 
     private final DefineSpringBeanByAnnotationHandler defineSpringBeanByAnnotationHandler;
 
-    public JarEntryPreHandle1Parser(JavaCGConfInfo javaCGConfInfo, DefineSpringBeanByAnnotationHandler defineSpringBeanByAnnotationHandler,
+    public JarEntryPreHandle1Parser(DefineSpringBeanByAnnotationHandler defineSpringBeanByAnnotationHandler,
                                     ExtensionsManager extensionsManager) {
-        super(javaCGConfInfo);
         this.defineSpringBeanByAnnotationHandler = defineSpringBeanByAnnotationHandler;
         this.extensionsManager = extensionsManager;
     }

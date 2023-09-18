@@ -25,7 +25,7 @@ public abstract class AbstractJarEntryParser {
 
     protected String simpleClassName = this.getClass().getSimpleName();
 
-    protected JavaCGConfInfo javaCGConfInfo;
+    protected JavaCGConfInfo javaCGConfInfo = DataContext.javaCGConfInfo;
 
     /*
         保存jar包或目录的名称对应的jar包信息
@@ -39,10 +39,6 @@ public abstract class AbstractJarEntryParser {
 
     // 最近一次处理的jar信息
     protected JarInfo lastJarInfo;
-
-    protected AbstractJarEntryParser(JavaCGConfInfo javaCGConfInfo) {
-        this.javaCGConfInfo = javaCGConfInfo;
-    }
 
     /**
      * 解析指定的jar包

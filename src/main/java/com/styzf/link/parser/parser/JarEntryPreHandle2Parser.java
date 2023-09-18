@@ -28,8 +28,7 @@ public class JarEntryPreHandle2Parser extends AbstractJarEntryParser {
 
     private final UseSpringBeanByAnnotationHandler useSpringBeanByAnnotationHandler;
 
-    public JarEntryPreHandle2Parser(JavaCGConfInfo javaCGConfInfo,  UseSpringBeanByAnnotationHandler useSpringBeanByAnnotationHandler) {
-        super(javaCGConfInfo);
+    public JarEntryPreHandle2Parser(UseSpringBeanByAnnotationHandler useSpringBeanByAnnotationHandler) {
         this.useSpringBeanByAnnotationHandler = useSpringBeanByAnnotationHandler;
     }
 

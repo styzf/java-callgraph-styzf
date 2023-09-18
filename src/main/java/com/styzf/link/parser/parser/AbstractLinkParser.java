@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
+ * 基础链路解析代码
  * @author styzf
  * @date 2023/9/7 22:17
  */
@@ -23,7 +24,7 @@ public abstract class AbstractLinkParser implements ParserInterface {
     @Override
     public void parser() {
         String rootMethodName = DataContext.javaCGConfInfo.getRootMethodName();
-        rootHandle(rootMethodName);
+        rootMethodName = rootHandle(rootMethodName);
         if (DataContext.javaCGConfInfo.isRootMethodNext()) {
             nextParser(rootMethodName, 0);
         } else {
@@ -35,7 +36,7 @@ public abstract class AbstractLinkParser implements ParserInterface {
      * 根方法的处理
      * @param rootMethodName 根方法名
      */
-    protected abstract void rootHandle(String rootMethodName);
+    protected abstract String rootHandle(String rootMethodName);
     
     /**
      * 向上解析

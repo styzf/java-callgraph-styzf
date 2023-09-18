@@ -59,7 +59,7 @@ public class CallDataGenerate {
     
     private UseSpringBeanByAnnotationHandler useSpringBeanByAnnotationHandler;
     
-    private Map<String, List<String>> duplicateClassNameMap = new HashMap<>();
+    private Map<String, List<String>> duplicateClassNameMap = DataContext.DUPLICATE_CLASS_NAME_MAP;;
     
     private DataContext dataContext = new DataContext();
     
@@ -110,7 +110,7 @@ public class CallDataGenerate {
             return false;
         }
     
-//        new MethodCallTxtGeneratot().generate();
+        new MethodCallTxtGeneratot().generate();
         new BaseXmindGenerator().generate();
         
         long spendTime = System.currentTimeMillis() - startTime;
@@ -175,17 +175,17 @@ public class CallDataGenerate {
         if (DataContext.javaCGConfInfo.isParseMethodCallTypeValue()) {
             defineSpringBeanByAnnotationHandler = new DefineSpringBeanByAnnotationHandler(DataContext.javaCGConfInfo);
         }
-        jarEntryPreHandle1Parser = new JarEntryPreHandle1Parser(DataContext.javaCGConfInfo, defineSpringBeanByAnnotationHandler, extensionsManager);
+        jarEntryPreHandle1Parser = new JarEntryPreHandle1Parser(defineSpringBeanByAnnotationHandler, extensionsManager);
         
         if (DataContext.javaCGConfInfo.isParseMethodCallTypeValue()) {
             useSpringBeanByAnnotationHandler = new UseSpringBeanByAnnotationHandler(
                     defineSpringBeanByAnnotationHandler,
                     extensionsManager.getSpringXmlBeanParser());
         }
-        jarEntryPreHandle2Parser = new JarEntryPreHandle2Parser(DataContext.javaCGConfInfo, useSpringBeanByAnnotationHandler);
+        jarEntryPreHandle2Parser = new JarEntryPreHandle2Parser(useSpringBeanByAnnotationHandler);
         
         // 正式处理相关
-        jarEntryHandleParser = new JarEntryHandleParser(DataContext.javaCGConfInfo);
+        jarEntryHandleParser = new JarEntryHandleParser();
         jarEntryHandleParser.setUseSpringBeanByAnnotationHandler(useSpringBeanByAnnotationHandler);
         jarEntryHandleParser.setExtensionsManager(extensionsManager);
         jarEntryHandleParser.setCallIdCounter(callIdCounter);
@@ -217,12 +217,11 @@ public class CallDataGenerate {
                 return false;
             }
             
-            duplicateClassNameMap = DataContext.DUPLICATE_CLASS_NAME_MAP;
             // 打印重复的类名
             printDuplicateClasses();
             
             // 处理继承及实现相关的方法
-            extendsImplHandler.handle(null);
+            extendsImplHandler.handle();
             
             // 记录Spring Bean的名称及类型
             recordSpringBeanNameAndType();

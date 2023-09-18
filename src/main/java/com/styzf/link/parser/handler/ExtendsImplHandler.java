@@ -37,15 +37,8 @@ public class ExtendsImplHandler {
     private JavaCGConfInfo javaCGConfInfo;
 
     private JavaCGCounter callIdCounter;
-
-    private Writer methodCallWriter;
     
-    public void setMethodCallWriter(Writer methodCallWriter) {
-        this.methodCallWriter = methodCallWriter;
-    }
-    
-    public void handle(Writer methodCallWriter) throws IOException {
-        setMethodCallWriter(methodCallWriter);
+    public void handle() throws IOException {
         // 将父接口中的方法添加到子接口中
         addSuperInterfaceMethod4ChildrenInterface();
 
@@ -420,8 +413,6 @@ public class ExtendsImplHandler {
                 null,
                 null
         );
-        
-        JavaCGFileUtil.write2FileWithTab(methodCallWriter, methodCall.genCallContent(callerClassJarNum, calleeClassJarNum));
     }
 
     public void setJavaCGConfInfo(JavaCGConfInfo javaCGConfInfo) {

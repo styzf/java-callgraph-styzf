@@ -65,10 +65,6 @@ public class JarEntryHandleParser extends AbstractJarEntryParser {
     private JavaCGCounter classNumCounter;
     private JavaCGCounter methodNumCounter;
 
-    public JarEntryHandleParser(JavaCGConfInfo javaCGConfInfo) {
-        super(javaCGConfInfo);
-    }
-
     @Override
     protected boolean handleEntry(JarInputStream jarInputStream, String jarEntryName) throws IOException {
         // 尝试记录Jar包信息
