@@ -5,6 +5,7 @@ import cn.hutool.core.util.StrUtil;
 import com.styzf.link.parser.context.DataContext;
 import com.styzf.link.parser.dto.call.MethodCall;
 import com.styzf.link.parser.dto.method.MethodCallTree;
+import com.styzf.link.parser.generator.FilterUtil;
 import com.styzf.link.parser.parser.AbstractLinkParser;
 import com.styzf.link.parser.util.BaseUtil;
 import org.xmind.core.ITopic;
@@ -41,27 +42,29 @@ public class PumlXmindGenerator extends AbstractPumlGenerator {
         
         @Override
         protected boolean prevHandle(String nextMethodName, MethodCall prev, int level) {
-            if (StrUtil.isNotBlank(prev.genCallerFullMethod())
-                    && prev.genCallerFullMethod().matches("^(java.lang.Object|java.lang.StringBuilder).+")) {
+            if (!FilterUtil.filter(prev.genCallerFullMethod())) {
                 return false;
             }
             addData(prev.genCallerFullMethod(), level);
             
-            return true;
+            return FilterUtil.filterNext(prev.genCallerFullMethod());
         }
         
         @Override
         protected boolean nextHandle(String prevMethodName, MethodCall next, int level) {
-            if (StrUtil.isNotBlank(next.genCalleeFullMethod())
-                    && next.genCalleeFullMethod().matches("^(java|java.lang.Object|java.lang.StringBuilder).+")) {
+            if (!FilterUtil.filter(next.genCalleeFullMethod())) {
                 return false;
             }
             addData(next.genCalleeFullMethod(), level);
             
-            // java原生的方法不进行下一层解析，理论上来说也不存在这种情况
-            return !next.genCalleeFullMethod().matches("^(java|styzf).+");
+            return FilterUtil.filterNext(next.genCalleeFullMethod());
         }
-        
+    
+        @Override
+        protected void loopHandle(String methodName, int level) {
+            addData(methodName + "\uD83D\uDD04", level);
+        }
+    
         protected String getEasyMethodName() {
             return BaseUtil.getEasyMethodName(this.rootMethodName);
         }

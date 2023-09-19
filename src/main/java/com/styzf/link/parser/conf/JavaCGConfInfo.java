@@ -53,6 +53,31 @@ public class JavaCGConfInfo {
      */
     private boolean rootMethodNext;
     
+    /**
+     * 过滤不需要解析的正则表达式
+     */
+    private String filterRegEx;
+    /**
+     * 过滤不需要向下解析的正则表达式
+     */
+    private String filterNextRegEx;
+    
+    public String getFilterNextRegEx() {
+        return filterNextRegEx;
+    }
+    
+    public void setFilterNextRegEx(String filterNextRegEx) {
+        this.filterNextRegEx = filterNextRegEx;
+    }
+    
+    public String getFilterRegEx() {
+        return filterRegEx;
+    }
+    
+    public void setFilterRegEx(String filterRegEx) {
+        this.filterRegEx = filterRegEx;
+    }
+    
     public String getRootMethodName() {
         return rootMethodName;
     }

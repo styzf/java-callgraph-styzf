@@ -15,6 +15,8 @@ public enum JavaCGConfigKeyEnum {
     CKE_OUTPUT_FILE_EXT("output.file.ext", "生成文件后缀名（默认为.txt）"),
     PARSER_ROOT_METHOD("parser.root.method", "要解析得根方法"),
     PARSER_ROOT_METHOD_NEXT("parser.root.method.next", "要解析得根方法的方向"),
+    PARSER_FILTER_REGEX("parser.filter.regEx", "过滤不需要解析的正则表达式"),
+    PARSER_FILTER_NEXT_REGEX("parser.filter.next.regEx", "过滤不需要向下解析的正则表达式"),
     ;
 
     private final String key;

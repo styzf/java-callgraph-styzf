@@ -60,7 +60,7 @@ public class CallDataGenerate {
     
     private UseSpringBeanByAnnotationHandler useSpringBeanByAnnotationHandler;
     
-    private Map<String, List<String>> duplicateClassNameMap = DataContext.DUPLICATE_CLASS_NAME_MAP;;
+    private final Map<String, List<String>> duplicateClassNameMap = DataContext.DUPLICATE_CLASS_NAME_MAP;;
     
     private DataContext dataContext = new DataContext();
     
@@ -116,6 +116,7 @@ public class CallDataGenerate {
                 " ，方法: " + methodNumCounter.getCount() +
                 " ，方法调用: " + callIdCounter.getCount() +
                 " ，耗时: " + (spendTime / 1000.0D) + " S";
+        System.out.println(printInfo);
         
         new MethodCallTxtGeneratot().generateCalcTime();
         new PumlXmindGenerator().generateCalcTime();

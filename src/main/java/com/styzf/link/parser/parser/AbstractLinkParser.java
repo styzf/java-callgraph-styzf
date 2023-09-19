@@ -49,7 +49,9 @@ public abstract class AbstractLinkParser implements ParserInterface {
             DataContext.METHOD_SET.remove(nextMethodName);
             return;
         }
+        // 判断是否循环调用
         if (!DataContext.METHOD_SET.add(nextMethodName)) {
+            loopHandle(nextMethodName, level);
             return;
         }
     
@@ -71,6 +73,13 @@ public abstract class AbstractLinkParser implements ParserInterface {
     }
     
     /**
+     * 循环调用处理，默认不处理
+     * @param methodName 循环调用的名字
+     * @param level 调用层级
+     */
+    protected void loopHandle(String methodName, int level) {};
+    
+    /**
      * 向上解析调用链路
      * @param nextMethodName 被调方的全名
      * @param prev 调用方的处理
@@ -89,6 +98,7 @@ public abstract class AbstractLinkParser implements ParserInterface {
             return;
         }
         if (!DataContext.METHOD_SET.add(prevMethodName)) {
+            loopHandle(prevMethodName, level);
             return;
         }
         
