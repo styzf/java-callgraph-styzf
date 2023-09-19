@@ -1,6 +1,8 @@
 package com.styzf.link.parser.generator.puml;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.StrUtil;
 import com.styzf.link.parser.context.DataContext;
 import com.styzf.link.parser.dto.call.MethodCall;
@@ -10,6 +12,10 @@ import com.styzf.link.parser.parser.AbstractLinkParser;
 import com.styzf.link.parser.util.BaseUtil;
 import org.xmind.core.ITopic;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.Writer;
 import java.util.List;
 
 /**
@@ -17,27 +23,43 @@ import java.util.List;
  * @date 2023/9/9 3:09
  */
 public class PumlXmindGenerator extends AbstractPumlGenerator {
+    private String easyMethodName;
     
     @Override
     public void generate() {
-        lines.add("@startmindmap");
         PumlXmindParser pumlXmindParser = new PumlXmindParser();
         pumlXmindParser.parser();
-        lines.add("@endmindmap");
-        writer(pumlXmindParser.getEasyMethodName());
+        writer(FileUtil.getLineSeparator() + "@endmindmap");
+        close();
+    }
+    
+    @Override
+    protected void setWriter() {
+        String outputRootPath = DataContext.javaCGConfInfo.getOutputRootPath() + File.separator + "puml" + File.separator;
+        String fileName = this.easyMethodName.replaceAll("[\\.(|)|:|<|>]","_") + PumlConstant.PUML;
+        try {
+            writer = IoUtil.getUtf8Writer(new FileOutputStream(outputRootPath + fileName));
+        } catch (FileNotFoundException e) {e.printStackTrace();}
+    }
+    
+    protected void setEasyMethodName(String easyMethodName) {
+        this.easyMethodName = easyMethodName;
     }
     
     /**
      * 链路解析器
      */
     private class PumlXmindParser extends AbstractLinkParser {
-        protected String rootMethodName;
         
         @Override
         protected String rootHandle(String rootMethodName) {
-            this.rootMethodName = DataContext.getRootMethodName(rootMethodName);
-            addData(this.rootMethodName, 0);
-            return this.rootMethodName;
+            rootMethodName = DataContext.getRootMethodName(rootMethodName);
+            String easyMethodName = BaseUtil.getEasyMethodName(rootMethodName);
+            setEasyMethodName(easyMethodName);
+            setWriter();
+            writer("@startmindmap");
+            addData(rootMethodName, 0);
+            return rootMethodName;
         }
         
         @Override
@@ -62,11 +84,7 @@ public class PumlXmindGenerator extends AbstractPumlGenerator {
     
         @Override
         protected void loopHandle(String methodName, int level) {
-            addData(methodName + "\uD83D\uDD04", level);
-        }
-    
-        protected String getEasyMethodName() {
-            return BaseUtil.getEasyMethodName(this.rootMethodName);
+            writer("\uD83D\uDD04");
         }
     
         private void addData(String methodName, int level) {
@@ -78,7 +96,7 @@ public class PumlXmindGenerator extends AbstractPumlGenerator {
             } else if (level == 1) {
                 line = line + "[#66ccff] ";
             }
-            lines.add(line + methodName);
+            writer(FileUtil.getLineSeparator() + line + methodName);
         }
     };
 }
