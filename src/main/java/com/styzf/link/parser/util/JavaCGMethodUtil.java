@@ -1,9 +1,9 @@
 package com.styzf.link.parser.util;
 
+import cn.hutool.core.util.ArrayUtil;
 import com.styzf.link.parser.common.JavaCGConstants;
 import com.styzf.link.parser.dto.method.JavaCGMethodInfo;
 import org.apache.bcel.generic.Type;
-import org.apache.commons.lang3.ArrayUtils;
 
 /**
  * @author adrninistrator
@@ -126,7 +126,7 @@ public class JavaCGMethodUtil {
      * @return
      */
     public static String formatMethodWithArgsStr(String methodName, String... argTypes) {
-        if (ArrayUtils.isEmpty(argTypes)) {
+        if (ArrayUtil.isEmpty(argTypes)) {
             return methodName + JavaCGConstants.EMPTY_METHOD_ARGS;
         }
 

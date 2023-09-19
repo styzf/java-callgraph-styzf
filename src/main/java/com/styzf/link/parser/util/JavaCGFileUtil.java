@@ -1,9 +1,9 @@
 package com.styzf.link.parser.util;
 
 import cn.hutool.core.io.IoUtil;
+import cn.hutool.core.util.StrUtil;
 import com.styzf.link.parser.common.JavaCGConstants;
 import com.styzf.link.parser.exceptions.JavaCGRuntimeException;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -62,7 +62,7 @@ public class JavaCGFileUtil {
             return;
         }
         try {
-            writer.write(StringUtils.join(data, JavaCGConstants.FILE_COLUMN_SEPARATOR) + JavaCGConstants.NEW_LINE);
+            writer.write(StrUtil.join(JavaCGConstants.FILE_COLUMN_SEPARATOR, data) + JavaCGConstants.NEW_LINE);
             writer.flush();
         } catch (Exception ignored){
             System.out.println(ignored);
@@ -210,9 +210,9 @@ public class JavaCGFileUtil {
         try (BufferedReader br = genBufferedReader(getFileInputStream(filePath))) {
             Set<String> set = new HashSet<>();
             String line;
-            boolean checkIgnore = StringUtils.isNotBlank(ignorePrefix);
+            boolean checkIgnore = StrUtil.isNotBlank(ignorePrefix);
             while ((line = br.readLine()) != null) {
-                if (StringUtils.isNotBlank(line)) {
+                if (StrUtil.isNotBlank(line)) {
                     if (checkIgnore && line.startsWith(ignorePrefix)) {
                         continue;
                     }
@@ -249,9 +249,9 @@ public class JavaCGFileUtil {
         try (BufferedReader br = genBufferedReader(getFileInputStream(filePath))) {
             List<String> list = new ArrayList<>();
             String line;
-            boolean checkIgnore = StringUtils.isNotBlank(ignorePrefix);
+            boolean checkIgnore = StrUtil.isNotBlank(ignorePrefix);
             while ((line = br.readLine()) != null) {
-                if (StringUtils.isNotBlank(line)) {
+                if (StrUtil.isNotBlank(line)) {
                     if (checkIgnore && line.startsWith(ignorePrefix)) {
                         continue;
                     }

@@ -1,7 +1,7 @@
 package com.styzf.link.parser.dto.call;
 
+import cn.hutool.core.util.StrUtil;
 import com.styzf.link.parser.dto.field.FieldTypeAndName;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.Objects;
 
@@ -46,7 +46,7 @@ public class MethodCallPossibleEntry {
      * @return
      */
     public boolean compare(MethodCallPossibleEntry another) {
-        if (!StringUtils.equals(staticFieldClassAndFieldName, another.staticFieldClassAndFieldName)) {
+        if (!StrUtil.equals(staticFieldClassAndFieldName, another.staticFieldClassAndFieldName)) {
             return false;
         }
 
@@ -54,7 +54,7 @@ public class MethodCallPossibleEntry {
             return false;
         }
 
-        if (!StringUtils.equals(type, another.type)) {
+        if (!StrUtil.equals(type, another.type)) {
             return false;
         }
 
@@ -62,7 +62,7 @@ public class MethodCallPossibleEntry {
             return false;
         }
 
-        if (!StringUtils.equals(staticFieldMethodCall, another.staticFieldMethodCall)) {
+        if (!StrUtil.equals(staticFieldMethodCall, another.staticFieldMethodCall)) {
             return false;
         }
         return true;

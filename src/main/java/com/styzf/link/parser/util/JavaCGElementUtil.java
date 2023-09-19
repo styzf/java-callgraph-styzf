@@ -1,8 +1,8 @@
 package com.styzf.link.parser.util;
 
+import cn.hutool.core.util.StrUtil;
 import com.styzf.link.parser.dto.element.BaseElement;
 import com.styzf.link.parser.dto.element.variable.FieldElement;
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author adrninistrator
@@ -59,7 +59,7 @@ public class JavaCGElementUtil {
             // 对于字段（非静态或静态），还需要比较字段名称
             FieldElement existedFieldElement = (FieldElement) existed;
             FieldElement addedFieldElement = (FieldElement) added;
-            return StringUtils.equals(existedFieldElement.getFieldName(), addedFieldElement.getFieldName());
+            return StrUtil.equals(existedFieldElement.getFieldName(), addedFieldElement.getFieldName());
         }
         // 对于需要添加的对象和已存在的对象都属于数组，且确实不相同的情况，不进行处理，意义不大
         return true;

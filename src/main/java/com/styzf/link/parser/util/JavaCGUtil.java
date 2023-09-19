@@ -1,13 +1,13 @@
 package com.styzf.link.parser.util;
 
+import cn.hutool.core.util.ArrayUtil;
+import cn.hutool.core.util.StrUtil;
 import com.styzf.link.parser.common.JavaCGCommonNameConstants;
 import com.styzf.link.parser.common.JavaCGConstants;
 import com.styzf.link.parser.dto.classes.ClassExtendsMethodInfo;
 import com.styzf.link.parser.dto.classes.ClassImplementsMethodInfo;
 import com.styzf.link.parser.dto.interfaces.InterfaceExtendsMethodInfo;
 import com.styzf.link.parser.exceptions.JavaCGRuntimeException;
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -40,7 +40,7 @@ public class JavaCGUtil {
      * @return
      */
     public static boolean isInnerAnonymousClass(String className) {
-        String tail = StringUtils.substringAfterLast(className, "$");
+        String tail = StrUtil.subAfter(className, "$", true);
         return isNumStr(tail);
     }
 
@@ -51,7 +51,7 @@ public class JavaCGUtil {
      * @return
      */
     public static boolean isNumStr(String str) {
-        if (StringUtils.isBlank(str)) {
+        if (StrUtil.isBlank(str)) {
             return false;
         }
 
@@ -104,7 +104,7 @@ public class JavaCGUtil {
      * @return
      */
     public static boolean isClassInJdk(String className) {
-        return StringUtils.startsWith(className, "java.");
+        return StrUtil.startWith(className, "java.");
     }
 
     /**
@@ -130,7 +130,7 @@ public class JavaCGUtil {
         }
 
         for (String arrayStr : array) {
-            if (StringUtils.endsWithIgnoreCase(data, arrayStr)) {
+            if (StrUtil.endWithIgnoreCase(data, arrayStr)) {
                 return true;
             }
         }
@@ -182,7 +182,7 @@ public class JavaCGUtil {
      * @return
      */
     public static String getPackageName(String className) {
-        return StringUtils.substringBeforeLast(className, JavaCGConstants.FLAG_DOT);
+        return StrUtil.subBefore(className, JavaCGConstants.FLAG_DOT, true);
     }
 
     /**
@@ -193,7 +193,7 @@ public class JavaCGUtil {
      * @return
      */
     public static boolean checkSamePackage(String className1, String className2) {
-        return StringUtils.equals(getPackageName(className1), getPackageName(className2));
+        return StrUtil.equals(getPackageName(className1), getPackageName(className2));
     }
 
     /**
@@ -218,7 +218,7 @@ public class JavaCGUtil {
             return false;
         }
         for (String needHandlePackage : needHandlePackageSet) {
-            if (StringUtils.startsWith(className, needHandlePackage)) {
+            if (StrUtil.startWith(className, needHandlePackage)) {
                 return false;
             }
         }
@@ -232,7 +232,7 @@ public class JavaCGUtil {
      * @return
      */
     public static String addSeparator4FilePath(String filePath) {
-        if (StringUtils.endsWithAny(filePath, "/", "\\")) {
+        if (StrUtil.endWithAny(filePath, "/", "\\")) {
             // 文件路径以分隔符结尾，则直接使用
             return filePath;
         }
@@ -296,7 +296,7 @@ public class JavaCGUtil {
      */
     @SafeVarargs
     public static <T> Set<T> genSetFromArray(T... a) {
-        if (ArrayUtils.isEmpty(a)) {
+        if (ArrayUtil.isEmpty(a)) {
             return new HashSet<>();
         }
         return new HashSet<>(Arrays.asList(a));
@@ -311,7 +311,7 @@ public class JavaCGUtil {
      */
     @SafeVarargs
     public static <T> List<T> genListFromArray(T... a) {
-        if (ArrayUtils.isEmpty(a)) {
+        if (ArrayUtil.isEmpty(a)) {
             return new ArrayList<>();
         }
         return Arrays.asList(a);

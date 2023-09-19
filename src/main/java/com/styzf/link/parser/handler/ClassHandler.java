@@ -1,5 +1,6 @@
 package com.styzf.link.parser.handler;
 
+import cn.hutool.core.util.ArrayUtil;
 import com.styzf.link.parser.common.JavaCGCommonNameConstants;
 import com.styzf.link.parser.common.JavaCGConstants;
 import com.styzf.link.parser.conf.JavaCGConfInfo;
@@ -26,7 +27,6 @@ import org.apache.bcel.classfile.JavaClass;
 import org.apache.bcel.classfile.Method;
 import org.apache.bcel.generic.ConstantPoolGen;
 import org.apache.bcel.generic.MethodGen;
-import org.apache.commons.lang3.ArrayUtils;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -314,7 +314,7 @@ public class ClassHandler {
     // 记录方法参数中泛型类型
     private void recordMethodArgsGenericsType(String fullMethod, SignatureAttribute.MethodSignature methodSignature) throws IOException {
         SignatureAttribute.Type[] parameterTypes = methodSignature.getParameterTypes();
-        if (ArrayUtils.isEmpty(parameterTypes)) {
+        if (ArrayUtil.isEmpty(parameterTypes)) {
             return;
         }
         for (int i = 0; i < parameterTypes.length; i++) {
@@ -359,7 +359,7 @@ public class ClassHandler {
         SignatureAttribute.ClassType classType = (SignatureAttribute.ClassType) type;
         // 获取参数类型
         SignatureAttribute.TypeArgument[] typeArguments = classType.getTypeArguments();
-        if (ArrayUtils.isEmpty(typeArguments)) {
+        if (ArrayUtil.isEmpty(typeArguments)) {
             if (outer) {
                 // 外层的数据，没有泛型类型，不需要记录，返回
                 return;

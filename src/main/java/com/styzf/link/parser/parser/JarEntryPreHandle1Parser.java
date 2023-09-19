@@ -1,5 +1,6 @@
 package com.styzf.link.parser.parser;
 
+import cn.hutool.core.util.StrUtil;
 import com.styzf.link.parser.common.JavaCGCommonNameConstants;
 import com.styzf.link.parser.common.JavaCGConstants;
 import com.styzf.link.parser.conf.JavaCGConfInfo;
@@ -13,7 +14,6 @@ import com.styzf.link.parser.util.JavaCGByteCodeUtil;
 import com.styzf.link.parser.util.JavaCGUtil;
 import org.apache.bcel.classfile.JavaClass;
 import org.apache.bcel.classfile.Method;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -48,7 +48,7 @@ public class JarEntryPreHandle1Parser extends AbstractJarEntryParser {
         }
 
         // 非class文件，判断是否需要使用扩展类处理jar包中的文件
-        String jarEntryFileExt = StringUtils.substringAfterLast(jarEntryName, JavaCGConstants.FLAG_DOT);
+        String jarEntryFileExt = StrUtil.subAfter(jarEntryName, JavaCGConstants.FLAG_DOT, true);
         List<JarEntryOtherFileParser> jarEntryOtherFileParserList = extensionsManager.getJarEntryOtherFileParserList(jarEntryFileExt);
         if (jarEntryOtherFileParserList == null) {
             // 当前文件不存在对应的扩展类，不处理

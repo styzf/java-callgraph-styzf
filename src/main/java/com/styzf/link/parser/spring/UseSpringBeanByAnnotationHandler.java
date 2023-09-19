@@ -1,5 +1,6 @@
 package com.styzf.link.parser.spring;
 
+import cn.hutool.core.util.StrUtil;
 import com.styzf.link.parser.common.SpringAnnotationConstants;
 import com.styzf.link.parser.context.DataContext;
 import com.styzf.link.parser.dto.classes.ClassExtendsMethodInfo;
@@ -12,7 +13,6 @@ import com.styzf.link.parser.util.JavaCGUtil;
 import org.apache.bcel.classfile.AnnotationEntry;
 import org.apache.bcel.classfile.Field;
 import org.apache.bcel.classfile.JavaClass;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -219,7 +219,7 @@ public class UseSpringBeanByAnnotationHandler {
             }
             // 字段上有@Named注解
             String valueOfNamed = JavaCGAnnotationUtil.getAnnotationAttributeStringValue(namedAnnotationEntry, SpringAnnotationConstants.ANNOTATION_ATTRIBUTE_VALUE);
-            if (StringUtils.isBlank(valueOfNamed)) {
+            if (StrUtil.isBlank(valueOfNamed)) {
                 // @Named注解的value属性值为空，返回字段名称
                 return fieldName;
             }
@@ -235,7 +235,7 @@ public class UseSpringBeanByAnnotationHandler {
 
         // 字段上有@Qualifier注解
         String valueOfQualifier = JavaCGAnnotationUtil.getAnnotationAttributeStringValue(qualifierAnnotationEntry, SpringAnnotationConstants.ANNOTATION_ATTRIBUTE_VALUE);
-        if (StringUtils.isBlank(valueOfQualifier)) {
+        if (StrUtil.isBlank(valueOfQualifier)) {
             // @Qualifier注解的value属性值为空，返回字段名称
             return fieldName;
         }

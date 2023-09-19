@@ -1,12 +1,12 @@
 package com.styzf.link.parser.conf;
 
+import cn.hutool.core.util.StrUtil;
 import com.styzf.link.parser.common.JavaCGConstants;
 import com.styzf.link.parser.common.enums.JavaCGConfigKeyEnum;
 import com.styzf.link.parser.common.enums.JavaCGOtherConfigFileUseListEnum;
 import com.styzf.link.parser.common.enums.JavaCGOtherConfigFileUseSetEnum;
 import com.styzf.link.parser.util.JavaCGFileUtil;
 import com.styzf.link.parser.util.JavaCGUtil;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.BufferedReader;
 import java.util.List;
@@ -55,7 +55,7 @@ public class JavaCGConfManager {
             confInfo.setOutputRootPath(outputRootPath);
 
             String outputFileExt = javaCGConfigureWrapper.getConfig(properties, JavaCGConfigKeyEnum.CKE_OUTPUT_FILE_EXT, true);
-            if (StringUtils.isBlank(outputFileExt)) {
+            if (StrUtil.isBlank(outputFileExt)) {
                 // 默认使用.txt作为输出文件后缀名
                 confInfo.setOutputFileExt(JavaCGConstants.EXT_TXT);
             } else {

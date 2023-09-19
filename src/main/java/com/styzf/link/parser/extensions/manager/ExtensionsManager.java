@@ -1,5 +1,6 @@
 package com.styzf.link.parser.extensions.manager;
 
+import cn.hutool.core.util.StrUtil;
 import com.styzf.link.parser.dto.output.JavaCGOutputInfo;
 import com.styzf.link.parser.exceptions.JavaCGRuntimeException;
 import com.styzf.link.parser.extensions.annotation_attributes.AnnotationAttributesFormatterInterface;
@@ -9,7 +10,6 @@ import com.styzf.link.parser.extensions.code_parser.JarEntryOtherFileParser;
 import com.styzf.link.parser.extensions.code_parser.MethodAnnotationParser;
 import com.styzf.link.parser.extensions.code_parser.AbstractSaveData2FileParser;
 import com.styzf.link.parser.extensions.code_parser.SpringXmlBeanParserInterface;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -136,7 +136,7 @@ public class ExtensionsManager {
 
     public List<JarEntryOtherFileParser> getJarEntryOtherFileParserList(String fileExtension) {
         checkInited();
-        if (StringUtils.isBlank(fileExtension)) {
+        if (StrUtil.isBlank(fileExtension)) {
             return null;
         }
         return otherFileParserMap.get(fileExtension);
@@ -144,7 +144,7 @@ public class ExtensionsManager {
 
     public MethodAnnotationParser getMethodAnnotationParser(String methodAnnotationClass) {
         checkInited();
-        if (StringUtils.isBlank(methodAnnotationClass)) {
+        if (StrUtil.isBlank(methodAnnotationClass)) {
             return null;
         }
         return methodAnnotationParserMap.get(methodAnnotationClass);

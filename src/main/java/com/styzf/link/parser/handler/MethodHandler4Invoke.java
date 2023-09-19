@@ -1,5 +1,6 @@
 package com.styzf.link.parser.handler;
 
+import cn.hutool.core.util.StrUtil;
 import com.styzf.link.parser.common.JavaCGCommonNameConstants;
 import com.styzf.link.parser.common.JavaCGConstants;
 import com.styzf.link.parser.common.enums.JavaCGCallTypeEnum;
@@ -47,7 +48,6 @@ import org.apache.bcel.generic.InstructionHandle;
 import org.apache.bcel.generic.InvokeInstruction;
 import org.apache.bcel.generic.MethodGen;
 import org.apache.bcel.generic.Type;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -535,7 +535,7 @@ public class MethodHandler4Invoke extends AbstractMethodHandler {
                                           Type[] arguments,
                                           MethodCallPossibleInfo methodCallPossibleInfo) {
         if (handledCalleeTypeSet.contains(calleeTypeRuntime) ||
-                StringUtils.equals(calleeClassName, calleeTypeRuntime) ||
+                StrUtil.equals(calleeClassName, calleeTypeRuntime) ||
                 JavaCGByteCodeUtil.isNullType(calleeTypeRuntime) ||
                 JavaCGUtil.isObjectClass(calleeTypeRuntime)) {
                 /*
@@ -887,7 +887,7 @@ public class MethodHandler4Invoke extends AbstractMethodHandler {
         if (value instanceof String) {
             String strValue = (String) value;
             // 假如值中包含可能导致文件解析时格式不符合预期的字符，则需要进行base64编码
-            if (StringUtils.containsAny(strValue, "\r", "\n", "\t")) {
+            if (StrUtil.containsAny(strValue, "\r", "\n", "\t")) {
                 finalValue = JavaCGUtil.base64Encode(strValue);
                 type = JavaCGConstants.FILE_KEY_METHOD_CALL_POSSIBLE_INFO_BASE64_VALUE;
             } else {

@@ -1,5 +1,6 @@
 package com.styzf.link.parser.util;
 
+import cn.hutool.core.util.StrUtil;
 import com.styzf.link.parser.common.JavaCGConstants;
 import com.styzf.link.parser.common.TypeConstants;
 import com.styzf.link.parser.common.enums.JavaCGConstantTypeEnum;
@@ -16,7 +17,6 @@ import org.apache.bcel.classfile.LineNumberTable;
 import org.apache.bcel.classfile.Method;
 import org.apache.bcel.classfile.Signature;
 import org.apache.bcel.classfile.Utility;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -432,7 +432,7 @@ public class JavaCGByteCodeUtil {
                 innerClassName = Utility.compactClassName(innerClassName, false);
                 if (JavaCGUtil.isClassInJdk(innerClassName) ||
                         !innerClassName.startsWith(className) ||
-                        StringUtils.countMatches(innerClassName, '$') < StringUtils.countMatches(className, '$')) {
+                        StrUtil.count(innerClassName, '$') < StrUtil.count(className, '$')) {
                     /*
                         JDK中的类，跳过
                         当前内部类不是当前类的内部类，跳过

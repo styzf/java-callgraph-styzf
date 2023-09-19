@@ -1,12 +1,12 @@
 package com.styzf.link.parser.conf;
 
+import cn.hutool.core.util.StrUtil;
 import com.styzf.link.parser.common.enums.JavaCGConfigKeyEnum;
 import com.styzf.link.parser.common.enums.JavaCGOtherConfigFileUseListEnum;
 import com.styzf.link.parser.common.enums.JavaCGOtherConfigFileUseSetEnum;
 import com.styzf.link.parser.exceptions.JavaCGError;
 import com.styzf.link.parser.util.JavaCGFileUtil;
 import com.styzf.link.parser.util.JavaCGUtil;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -178,7 +178,7 @@ public class JavaCGConfigureWrapper {
         Set<String> configSet = otherConfigSetMap.get(configFileName);
         if (configSet != null) {
             if (printLog) {
-                System.out.println("使用通过代码添加的参数 [" + configFileName + "]\n" + StringUtils.join(new ArrayList<>(configSet), " "));
+                System.out.println("使用通过代码添加的参数 [" + configFileName + "]\n" + StrUtil.join(" ", configSet.toArray()));
             }
             return configSet;
         }
@@ -186,7 +186,7 @@ public class JavaCGConfigureWrapper {
         // 获取其他配置文件中的参数
         configSet = JavaCGFileUtil.readFile2Set(JavaCGConfManager.getInputRootPath() + configFileName);
         if (printLog) {
-            System.out.println("使用配置文件中的参数 [" + configFileName + "]\n" + StringUtils.join(new ArrayList<>(configSet), " "));
+            System.out.println("使用配置文件中的参数 [" + configFileName + "]\n" + StrUtil.join(" ", configSet.toArray()));
         }
         return configSet;
     }
@@ -203,7 +203,7 @@ public class JavaCGConfigureWrapper {
         List<String> configList = otherConfigListMap.get(configFileName);
         if (configList != null) {
             if (printLog) {
-                System.out.println("使用通过代码添加的参数 [" + configFileName + "]\n" + StringUtils.join(configList, " "));
+                System.out.println("使用通过代码添加的参数 [" + configFileName + "]\n" + StrUtil.join(" ", configList.toArray()));
             }
             return configList;
         }
@@ -211,7 +211,7 @@ public class JavaCGConfigureWrapper {
         // 获取其他配置文件中的参数
         configList = JavaCGFileUtil.readFile2List(JavaCGConfManager.getInputRootPath() + configFileName);
         if (printLog) {
-            System.out.println("使用配置文件中的参数 [" + configFileName + "]\n" + StringUtils.join(configList, " "));
+            System.out.println("使用配置文件中的参数 [" + configFileName + "]\n" + StrUtil.join(" ", configList.toArray()));
         }
         return configList;
     }

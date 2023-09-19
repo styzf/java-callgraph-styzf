@@ -1,11 +1,11 @@
 package com.styzf.link.parser.dto.call;
 
+import cn.hutool.core.util.StrUtil;
 import com.styzf.link.parser.common.JavaCGConstants;
 import com.styzf.link.parser.common.enums.JavaCGCallTypeEnum;
 import com.styzf.link.parser.common.enums.JavaCGCalleeObjTypeEnum;
 import com.styzf.link.parser.context.DataContext;
 import com.styzf.link.parser.util.JavaCGMethodUtil;
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author adrninistrator
@@ -124,7 +124,7 @@ public class MethodCall implements Comparable<MethodCall> {
 
     // 生成在调用关系文件中的内容
     public String genCallContent(String callerJarNum, String calleeJarNum) {
-        return StringUtils.joinWith(JavaCGConstants.FILE_COLUMN_SEPARATOR,
+        return StrUtil.join(JavaCGConstants.FILE_COLUMN_SEPARATOR,
                 callId,
                 genCallerFullMethod(),
                 JavaCGConstants.FILE_KEY_CALL_TYPE_FLAG1 + methodCallType.getType() + JavaCGConstants.FILE_KEY_CALL_TYPE_FLAG2 + genCalleeFullMethod(),

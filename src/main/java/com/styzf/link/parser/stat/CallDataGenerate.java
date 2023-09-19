@@ -1,5 +1,6 @@
 package com.styzf.link.parser.stat;
 
+import cn.hutool.core.util.StrUtil;
 import com.styzf.link.parser.common.JavaCGConstants;
 import com.styzf.link.parser.common.enums.JavaCGCallTypeEnum;
 import com.styzf.link.parser.conf.JavaCGConfManager;
@@ -25,7 +26,6 @@ import com.styzf.link.parser.util.JavaCGFileUtil;
 import com.styzf.link.parser.util.JavaCGJarUtil;
 import com.styzf.link.parser.util.JavaCGLogUtil;
 import com.styzf.link.parser.util.JavaCGUtil;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -89,7 +89,7 @@ public class CallDataGenerate {
         String newJarFilePath = JavaCGFileUtil.getCanonicalPath(newJarFile);
         String outputRootPath = DataContext.javaCGConfInfo.getOutputRootPath();
         String outputDirPath;
-        if (StringUtils.isBlank(outputRootPath)) {
+        if (StrUtil.isBlank(outputRootPath)) {
             // 配置参数中未指定生成文件的根目录，生成在jar包所在目录
             outputDirPath = newJarFilePath + JavaCGConstants.DIR_TAIL_OUTPUT + File.separator;
         } else {
@@ -156,7 +156,7 @@ public class CallDataGenerate {
         } else {
             List<String> needHandlePackageList = new ArrayList<>(needHandlePackageSet);
             Collections.sort(needHandlePackageList);
-            System.out.println("仅处理以下包中的class文件\n" + StringUtils.join(needHandlePackageList, "\n"));
+            System.out.println("仅处理以下包中的class文件\n" + StrUtil.join("\n", needHandlePackageList.toArray()));
         }
         return newJarFile;
     }

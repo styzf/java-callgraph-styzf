@@ -1,5 +1,6 @@
 package com.styzf.link.parser.spring;
 
+import cn.hutool.core.util.StrUtil;
 import com.styzf.link.parser.common.SpringAnnotationConstants;
 import com.styzf.link.parser.conf.JavaCGConfInfo;
 import com.styzf.link.parser.handler.MethodHandler4TypeAndValue;
@@ -10,7 +11,6 @@ import org.apache.bcel.classfile.JavaClass;
 import org.apache.bcel.classfile.Method;
 import org.apache.bcel.generic.ConstantPoolGen;
 import org.apache.bcel.generic.MethodGen;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -78,7 +78,7 @@ public class DefineSpringBeanByAnnotationHandler {
     private void handleSpringComponentAnnotation(AnnotationEntry annotationEntry, String className) {
         // 若Component相关注解的value属性值非空，则作为Bean名称使用
         String valueAttributeValue = JavaCGAnnotationUtil.getAnnotationAttributeStringValue(annotationEntry, SpringAnnotationConstants.ANNOTATION_ATTRIBUTE_VALUE);
-        if (StringUtils.isNotBlank(valueAttributeValue)) {
+        if (StrUtil.isNotBlank(valueAttributeValue)) {
             stringBeanNameAndTypeMap.put(valueAttributeValue, Collections.singletonList(className));
             return;
         }

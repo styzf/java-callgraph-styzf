@@ -1,10 +1,10 @@
 package com.styzf.link.parser.util;
 
+import cn.hutool.core.util.StrUtil;
 import com.styzf.link.parser.common.JavaCGConstants;
 import com.styzf.link.parser.context.DataContext;
 import com.styzf.link.parser.dto.counter.JavaCGCounter;
 import com.styzf.link.parser.dto.jar.JarInfo;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -40,7 +40,7 @@ public class JavaCGJarUtil {
 
         System.out.println("合并jar/war包中的class文件时，需要合并的包名:");
         for (String mergeClassInJarPackage : needHandlePackageSet) {
-            if (StringUtils.isBlank(mergeClassInJarPackage)) {
+            if (StrUtil.isBlank(mergeClassInJarPackage)) {
                 continue;
             }
 
@@ -53,7 +53,7 @@ public class JavaCGJarUtil {
              */
             if (newMergeClassInJarPackage.startsWith("/")) {
                 newMergeClassInJarPackage = newMergeClassInJarPackage.substring(1);
-                if (StringUtils.isBlank(newMergeClassInJarPackage)) {
+                if (StrUtil.isBlank(newMergeClassInJarPackage)) {
                     continue;
                 }
             }
@@ -93,7 +93,7 @@ public class JavaCGJarUtil {
 
             if (oneFile.isFile()) {
                 String oneFileNameLower = oneFile.getName().toLowerCase(Locale.ROOT);
-                if (!StringUtils.endsWithAny(oneFileNameLower, JavaCGConstants.EXT_JAR, JavaCGConstants.EXT_WAR)) {
+                if (!StrUtil.endWithAny(oneFileNameLower, JavaCGConstants.EXT_JAR, JavaCGConstants.EXT_WAR)) {
                     System.err.println("处理单个文件时只支持指定" + JavaCGConstants.EXT_JAR + "或" + JavaCGConstants.EXT_WAR + "格式，假如需要处理" + JavaCGConstants.EXT_CLASS + "格式的文件，则需要指定其所在目录");
                     return null;
                 }

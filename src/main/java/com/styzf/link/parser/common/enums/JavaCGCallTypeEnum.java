@@ -1,7 +1,7 @@
 package com.styzf.link.parser.common.enums;
 
+import cn.hutool.core.util.StrUtil;
 import com.styzf.link.parser.exceptions.JavaCGRuntimeException;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -83,7 +83,7 @@ public enum JavaCGCallTypeEnum {
             List<String> enumNameList = enumInfoMap.computeIfAbsent(callTypeEnum.getType(), k -> new ArrayList<>());
             enumNameList.add(callTypeEnum.name());
             if (enumNameList.size() > 1) {
-                String repeatedEnumTypes = StringUtils.join(enumNameList, " ");
+                String repeatedEnumTypes = StrUtil.join(" ", enumNameList.toArray());
                 throw new JavaCGRuntimeException(JavaCGCallTypeEnum.class.getSimpleName() + " 类定义的枚举类型存在重复" + callTypeEnum.getType() + " " + repeatedEnumTypes);
             }
         }

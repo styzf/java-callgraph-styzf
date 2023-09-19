@@ -1,5 +1,6 @@
 package com.styzf.link.parser.handler;
 
+import cn.hutool.core.util.StrUtil;
 import com.styzf.link.parser.common.JavaCGCommonNameConstants;
 import com.styzf.link.parser.common.JavaCGConstants;
 import com.styzf.link.parser.common.enums.JavaCGConstantTypeEnum;
@@ -62,7 +63,6 @@ import org.apache.bcel.generic.SIPUSH;
 import org.apache.bcel.generic.StoreInstruction;
 import org.apache.bcel.generic.Type;
 import org.apache.bcel.generic.TypedInstruction;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -933,7 +933,7 @@ public class InstructionHandler {
                     fieldElement = new FieldElement(type, false, null, fieldName);
                 } else {
                     // 字段可能的类型数量大于1，无法使用
-                    System.err.println(mg.getClassName() + " 类的构造函数解析后 " + fieldName + " 非静态字段可能的类型数量大于1 " + StringUtils.join(possibleTypeList, " "));
+                    System.err.println(mg.getClassName() + " 类的构造函数解析后 " + fieldName + " 非静态字段可能的类型数量大于1 " + StrUtil.join(" ", possibleTypeList.toArray()));
                 }
             }
         }
@@ -962,7 +962,7 @@ public class InstructionHandler {
                 nonStaticFieldInfo.put(fieldName, fieldElement);
                 if (recordFieldPossibleTypeFlag) {
                     String rawFieldType = putfield.getFieldType(cpg).toString();
-                    if (!StringUtils.equals(rawFieldType, value.getType())) {
+                    if (!StrUtil.equals(rawFieldType, value.getType())) {
                         // 记录非静态字段可能的类型，仅当字段实际类型与原始类型不相同时才记录
                         nonStaticFieldPossibleTypes.addPossibleType(fieldName, value.getType());
                     }

@@ -1,5 +1,6 @@
 package com.styzf.link.parser.util;
 
+import cn.hutool.core.util.StrUtil;
 import com.styzf.link.parser.exceptions.JavaCGRuntimeException;
 import com.styzf.link.parser.extensions.annotation_attributes.AnnotationAttributesFormatterInterface;
 import org.apache.bcel.classfile.AnnotationEntry;
@@ -9,7 +10,6 @@ import org.apache.bcel.classfile.ElementValue;
 import org.apache.bcel.classfile.ElementValuePair;
 import org.apache.bcel.classfile.SimpleElementValue;
 import org.apache.bcel.classfile.Utility;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.Writer;
 import java.util.ArrayList;
@@ -32,7 +32,7 @@ public class JavaCGAnnotationUtil {
     public static String getAnnotationAttributeStringValue(AnnotationEntry annotationEntry, String... annotationAttributeNames) {
         for (ElementValuePair elementValuePair : annotationEntry.getElementValuePairs()) {
             ElementValue elementValue = elementValuePair.getValue();
-            if (!StringUtils.equalsAny(elementValuePair.getNameString(), annotationAttributeNames)) {
+            if (!StrUtil.equalsAny(elementValuePair.getNameString(), annotationAttributeNames)) {
                 continue;
             }
 
@@ -61,7 +61,7 @@ public class JavaCGAnnotationUtil {
     public static List<String> getAnnotationAttributeStringArrayValue(AnnotationEntry annotationEntry, String... annotationAttributeNames) {
         List<String> stringList = new ArrayList<>();
         for (ElementValuePair elementValuePair : annotationEntry.getElementValuePairs()) {
-            if (StringUtils.equalsAny(elementValuePair.getNameString(), annotationAttributeNames)) {
+            if (StrUtil.equalsAny(elementValuePair.getNameString(), annotationAttributeNames)) {
                 ElementValue elementValue = elementValuePair.getValue();
                 if (!(elementValue instanceof ArrayElementValue)) {
                     throw new JavaCGRuntimeException("注解属性类型不符合预期 " + elementValuePair.getNameString() + " " + elementValue.getClass().getName());
