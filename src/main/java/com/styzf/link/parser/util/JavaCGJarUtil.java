@@ -79,7 +79,6 @@ public class JavaCGJarUtil {
      * @return null: 处理失败，非null: 新生成的jar包文件，或原有的jar包文件
      */
     public static File handleJar(List<String> jarOrDirPathList, Set<String> needHandlePackageSet) {
-        Map<String, JarInfo> jarInfoMap = DataContext.JAR_INFO_MAP;
         JavaCGCounter jarNumCounter = new JavaCGCounter(0);
         if (jarOrDirPathList.size() == 1) {
             // 数组只指定了一个元素
@@ -100,13 +99,14 @@ public class JavaCGJarUtil {
 
                 // 指定的是一个jar包，直接返回
                 // 记录jar包信息，向map中保存数据的key使用固定值
-                jarInfoMap.put(oneFile.getName(), new JarInfo(jarNumCounter.addAndGet(), JavaCGConstants.FILE_KEY_JAR_INFO_PREFIX, oneFilePath));
+                JarInfo jarInfo = new JarInfo(jarNumCounter.addAndGet(), JavaCGConstants.FILE_KEY_JAR_INFO_PREFIX, oneFilePath);
+                DataContext.JAR_INFO_MAP.put(oneFile.getName(), jarInfo);
                 return oneFile;
             }
         }
 
         // 指定的是一个目录，或数组指定了多于一个元素，需要生成新的jar包
-        return mergeJar(jarOrDirPathList, jarInfoMap, needHandlePackageSet, jarNumCounter);
+        return mergeJar(jarOrDirPathList, DataContext.JAR_INFO_MAP, needHandlePackageSet, jarNumCounter);
     }
 
     /**

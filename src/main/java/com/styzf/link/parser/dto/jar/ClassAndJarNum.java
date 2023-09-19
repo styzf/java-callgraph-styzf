@@ -14,6 +14,8 @@ public class ClassAndJarNum {
 
     private final Map<String, Integer> classAndJarNumMap = new HashMap<>(JavaCGConstants.SIZE_100);
 
+    private final Map<Integer, JarInfo> jarInfoMap = new HashMap<>(JavaCGConstants.SIZE_100);
+    
     /**
      * 根据类名获取对应的Jar包序号，若不存在则返回代表为空的Jar包序号
      *
@@ -34,5 +36,14 @@ public class ClassAndJarNum {
     public void put(String className, Integer jarNum) {
         // 只记录每个类所出现的最靠前的Jar包序号，不覆盖现有值
         classAndJarNumMap.putIfAbsent(className, jarNum);
+    }
+    
+    public JarInfo getJarInfo(String className) {
+        Integer classJarNum = classAndJarNumMap.get(className);
+        return jarInfoMap.get(classJarNum);
+    }
+    
+    public void putJarInfo(JarInfo jarInfo) {
+        jarInfoMap.put(jarInfo.getJarNum(), jarInfo);
     }
 }
