@@ -111,12 +111,18 @@ public class CallDataGenerate {
             return false;
         }
     
-        new MethodCallTxtGeneratot().generate();
-        new PumlXmindGenerator().generate();
-        new BaseXmindGenerator().generate();
-        
         long spendTime = System.currentTimeMillis() - startTime;
-        String printInfo = "执行完毕，处理数量，类： " + classNumCounter.getCount() +
+        String printInfo = "执行解析完毕，处理数量，类： " + classNumCounter.getCount() +
+                " ，方法: " + methodNumCounter.getCount() +
+                " ，方法调用: " + callIdCounter.getCount() +
+                " ，耗时: " + (spendTime / 1000.0D) + " S";
+        
+        new MethodCallTxtGeneratot().generateCalcTime();
+        new PumlXmindGenerator().generateCalcTime();
+        new BaseXmindGenerator().generateCalcTime();
+        
+        spendTime = System.currentTimeMillis() - startTime;
+        printInfo = "执行完毕，处理数量，类： " + classNumCounter.getCount() +
                 " ，方法: " + methodNumCounter.getCount() +
                 " ，方法调用: " + callIdCounter.getCount() +
                 " ，耗时: " + (spendTime / 1000.0D) + " S";
