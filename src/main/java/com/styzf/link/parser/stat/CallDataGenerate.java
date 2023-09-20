@@ -1,5 +1,6 @@
 package com.styzf.link.parser.stat;
 
+import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
 import com.styzf.link.parser.common.JavaCGConstants;
 import com.styzf.link.parser.common.enums.JavaCGCallTypeEnum;
@@ -26,12 +27,14 @@ import com.styzf.link.parser.util.JavaCGFileUtil;
 import com.styzf.link.parser.util.JavaCGJarUtil;
 import com.styzf.link.parser.util.JavaCGLogUtil;
 import com.styzf.link.parser.util.JavaCGUtil;
+import com.styzf.link.parser.util.MavenUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -136,6 +139,7 @@ public class CallDataGenerate {
     
     // 处理配置参数中指定的jar包
     private File handleJarInConf() {
+        List<String> jarList = new ArrayList<>();
         List<String> jarDirList = DataContext.javaCGConfInfo.getJarDirList();
         if (jarDirList.isEmpty()) {
             System.err.println("请在配置文件" + JavaCGConstants.FILE_CONFIG + "中指定需要处理的jar包或目录列表");
@@ -144,14 +148,25 @@ public class CallDataGenerate {
         
         System.out.println("需要处理的jar包或目录:");
         for (String jarDir : jarDirList) {
-            System.out.println(jarDir);
+            if (jarDir.endsWith("pom.xml")) {
+                File pomFile = new File(jarDir);
+                if (!pomFile.exists()) {
+                    continue;
+                }
+                List<String> depList = MavenUtils.getDepList(pomFile);
+                jarList.addAll(depList);
+                depList.forEach(System.out::println);
+            } else {
+                jarList.add(jarDir);
+                System.out.println(jarDir);
+            }
         }
         
-        DataContext.JAR_INFO_MAP = new HashMap<>(jarDirList.size());
+        DataContext.JAR_INFO_MAP = new HashMap<>(jarList.size());
         
         Set<String> needHandlePackageSet = DataContext.javaCGConfInfo.getNeedHandlePackageSet();
         // 对指定的jar包进行处理
-        File newJarFile = JavaCGJarUtil.handleJar(jarDirList, needHandlePackageSet);
+        File newJarFile = JavaCGJarUtil.handleJar(jarList, needHandlePackageSet);
         if (newJarFile == null) {
             return null;
         }
