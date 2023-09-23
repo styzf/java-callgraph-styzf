@@ -123,7 +123,7 @@ public class CallDataGenerate {
         
         new MethodCallTxtGeneratot().generateCalcTime();
         new PumlXmindGenerator().generateCalcTime();
-        new BaseXmindGenerator().generateCalcTime();
+//        new BaseXmindGenerator().generateCalcTime();
         
         spendTime = System.currentTimeMillis() - startTime;
         printInfo = "执行完毕，处理数量，类： " + classNumCounter.getCount() +

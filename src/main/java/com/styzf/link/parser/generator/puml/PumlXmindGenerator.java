@@ -1,22 +1,17 @@
 package com.styzf.link.parser.generator.puml;
 
-import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.StrUtil;
 import com.styzf.link.parser.context.DataContext;
 import com.styzf.link.parser.dto.call.MethodCall;
-import com.styzf.link.parser.dto.method.MethodCallTree;
 import com.styzf.link.parser.generator.FilterUtil;
 import com.styzf.link.parser.parser.AbstractLinkParser;
 import com.styzf.link.parser.util.BaseUtil;
-import org.xmind.core.ITopic;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.Writer;
-import java.util.List;
 
 /**
  * @author styzf

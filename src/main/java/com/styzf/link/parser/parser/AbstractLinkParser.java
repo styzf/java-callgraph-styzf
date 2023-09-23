@@ -4,10 +4,9 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.styzf.link.parser.context.DataContext;
 import com.styzf.link.parser.dto.call.MethodCall;
-import com.styzf.link.parser.dto.method.MethodCallTree;
 
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -17,6 +16,11 @@ import java.util.stream.Collectors;
  * @date 2023/9/7 22:17
  */
 public abstract class AbstractLinkParser implements ParserInterface {
+    
+    /**
+     * 用于去重的set
+     */
+    protected static final Set<String> METHOD_SET = new HashSet<>();
     
     /**
      * 根据配置的根方法名，去解析上下文调用
@@ -46,11 +50,11 @@ public abstract class AbstractLinkParser implements ParserInterface {
     protected void prevParser(String nextMethodName, int level) {
         List<MethodCall> calleeList = DataContext.METHOD_CALLEE_MAP.get(nextMethodName);
         if (CollUtil.isEmpty(calleeList)) {
-            DataContext.METHOD_SET.remove(nextMethodName);
+            METHOD_SET.remove(nextMethodName);
             return;
         }
         // 判断是否循环调用
-        if (!DataContext.METHOD_SET.add(nextMethodName)) {
+        if (!METHOD_SET.add(nextMethodName)) {
             loopHandle(nextMethodName, level);
             return;
         }
@@ -65,11 +69,11 @@ public abstract class AbstractLinkParser implements ParserInterface {
             } catch (Throwable e) {
                 // 层级过深，可能堆栈溢出
                 System.out.println(nextMethodName);
-                DataContext.METHOD_SET.remove(nextMethodName);
+                METHOD_SET.remove(nextMethodName);
                 return;
             }
         }
-        DataContext.METHOD_SET.remove(nextMethodName);
+        METHOD_SET.remove(nextMethodName);
     }
     
     /**
@@ -94,10 +98,10 @@ public abstract class AbstractLinkParser implements ParserInterface {
     protected void nextParser(String prevMethodName, int level) {
         List<MethodCall> callList = DataContext.METHOD_CALL_MAP.get(prevMethodName);
         if (CollUtil.isEmpty(callList)) {
-            DataContext.METHOD_SET.remove(prevMethodName);
+            METHOD_SET.remove(prevMethodName);
             return;
         }
-        if (!DataContext.METHOD_SET.add(prevMethodName)) {
+        if (!METHOD_SET.add(prevMethodName)) {
             loopHandle(prevMethodName, level);
             return;
         }
@@ -112,11 +116,11 @@ public abstract class AbstractLinkParser implements ParserInterface {
             } catch (Throwable e) {
                 // 层级过深，可能堆栈溢出
                 System.out.println(prevMethodName);
-                DataContext.METHOD_SET.remove(prevMethodName);
+                METHOD_SET.remove(prevMethodName);
                 return;
             }
         }
-        DataContext.METHOD_SET.remove(prevMethodName);
+        METHOD_SET.remove(prevMethodName);
     }
     
     /**
@@ -131,16 +135,14 @@ public abstract class AbstractLinkParser implements ParserInterface {
     /**
      * 解析所有无接口调用的数据
      */
-    public static void praserAll() {
+    public void praserAll() {
         Set<String> keySet = DataContext.METHOD_CALL_MAP.keySet();
         List<String> topMethod = keySet.stream()
                 .filter(key -> !key.contains(":<init>")
                         && ObjectUtil.isNull(DataContext.METHOD_CALLEE_MAP.get(key)))
                 .collect(Collectors.toList());
         for (String rootMethodName:topMethod) {
-            MethodCallTree root = MethodCallTree.init(rootMethodName);
-            root.nextParser();
-            DataContext.rootList.add(root);
+            this.nextParser(rootMethodName, 0);
         }
     }
 }

@@ -11,13 +11,10 @@ import com.styzf.link.parser.dto.interfaces.InterfaceExtendsMethodInfo;
 import com.styzf.link.parser.dto.jar.ClassAndJarNum;
 import com.styzf.link.parser.dto.jar.JarInfo;
 import com.styzf.link.parser.dto.method.MethodAndArgs;
-import com.styzf.link.parser.dto.method.MethodCallTree;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -152,21 +149,6 @@ public class DataContext {
     public final static Map<String, List<MethodCall>> METHOD_CALLEE_MAP = new HashMap<>(2^1024);
     
     public final static Map<String, DocDto> DOC_MAP = new HashMap<>(2^1024);
-    
-    /**
-     * 根节点数据
-     */
-    public static MethodCallTree root;
-
-    /**
-     * 根节点数据集合
-     */
-    public static List<MethodCallTree> rootList = new LinkedList<>();
-    
-    /**
-     * 用于去重的set
-     */
-    public static final Set<String> METHOD_SET = new HashSet<>();
     
     public static void putMethodCallMap(MethodCall methodCall) {
         List<MethodCall> methodCallList = DataContext.METHOD_CALL_MAP.get(methodCall.genCallerFullMethod());

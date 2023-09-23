@@ -1,19 +1,13 @@
 package com.styzf.link.parser.generator.xmind;
 
-import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.util.StrUtil;
 import com.styzf.link.parser.context.DataContext;
 import com.styzf.link.parser.dto.call.MethodCall;
-import com.styzf.link.parser.dto.method.MethodCallTree;
 import com.styzf.link.parser.generator.FilterUtil;
 import com.styzf.link.parser.parser.AbstractLinkParser;
 import org.xmind.core.ITopic;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * @author styzf
