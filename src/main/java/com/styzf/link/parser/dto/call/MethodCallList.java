@@ -5,6 +5,8 @@ import com.styzf.link.parser.dto.counter.JavaCGCounter;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.styzf.link.parser.context.CounterContext.CALL_ID_COUNTER;
+
 /**
  * @author adrninistrator
  * @date 2023/2/7
@@ -16,14 +18,8 @@ public class MethodCallList {
     private final List<MethodCall> methodCallList = new ArrayList<>(50);
 
     // 保存方法调用计数器
-    private final JavaCGCounter callIdCounter;
-
-    public MethodCallList(JavaCGCounter callIdCounter) {
-        this.callIdCounter = callIdCounter;
-    }
-
     public void addMethodCall(MethodCall methodCall) {
-        methodCall.setCallId(callIdCounter.addAndGet());
+        methodCall.setCallId(CALL_ID_COUNTER.addAndGet());
         methodCallList.add(methodCall);
     }
 

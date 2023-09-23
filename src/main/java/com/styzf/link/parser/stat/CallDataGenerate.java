@@ -1,22 +1,17 @@
 package com.styzf.link.parser.stat;
 
-import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
 import com.styzf.link.parser.common.JavaCGConstants;
 import com.styzf.link.parser.common.enums.JavaCGCallTypeEnum;
 import com.styzf.link.parser.conf.JavaCGConfManager;
 import com.styzf.link.parser.conf.JavaCGConfigureWrapper;
+import com.styzf.link.parser.context.CounterContext;
 import com.styzf.link.parser.context.DataContext;
-import com.styzf.link.parser.dto.counter.JavaCGCounter;
 import com.styzf.link.parser.dto.output.JavaCGOutputInfo;
 import com.styzf.link.parser.exceptions.JavaCGRuntimeException;
-import com.styzf.link.parser.extensions.annotation_attributes.AnnotationAttributesFormatterInterface;
-import com.styzf.link.parser.extensions.code_parser.CodeParserInterface;
-import com.styzf.link.parser.extensions.code_parser.SpringXmlBeanParserInterface;
 import com.styzf.link.parser.extensions.manager.ExtensionsManager;
 import com.styzf.link.parser.generator.puml.PumlXmindGenerator;
 import com.styzf.link.parser.generator.txt.MethodCallTxtGeneratot;
-import com.styzf.link.parser.generator.xmind.BaseXmindGenerator;
 import com.styzf.link.parser.handler.ExtendsImplHandler;
 import com.styzf.link.parser.parser.JarEntryHandleParser;
 import com.styzf.link.parser.parser.JarEntryPreHandle1Parser;
@@ -34,10 +29,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
+
+import static com.styzf.link.parser.context.CounterContext.CALL_ID_COUNTER;
+import static com.styzf.link.parser.context.CounterContext.CLASS_NUM_COUNTER;
+import static com.styzf.link.parser.context.CounterContext.METHOD_NUM_COUNTER;
 
 /**
  * 调用数据生成器
@@ -45,9 +42,7 @@ import java.util.Set;
  * @date 2023/9/3 21:35
  */
 public class CallDataGenerate {
-    private final JavaCGCounter callIdCounter = new JavaCGCounter(JavaCGConstants.METHOD_CALL_ID_START);
-    private final JavaCGCounter classNumCounter = new JavaCGCounter(0);
-    private final JavaCGCounter methodNumCounter = new JavaCGCounter(0);
+
     private final ExtensionsManager extensionsManager = new ExtensionsManager();
     
     private JarEntryPreHandle1Parser jarEntryPreHandle1Parser;
@@ -56,16 +51,9 @@ public class CallDataGenerate {
     
     private ExtendsImplHandler extendsImplHandler;
     
-    // java-callgraph2处理结果信息
-    private JavaCGOutputInfo javaCGOutputInfo;
-    
     private DefineSpringBeanByAnnotationHandler defineSpringBeanByAnnotationHandler;
     
     private UseSpringBeanByAnnotationHandler useSpringBeanByAnnotationHandler;
-    
-    private final Map<String, List<String>> duplicateClassNameMap = DataContext.DUPLICATE_CLASS_NAME_MAP;;
-    
-    private DataContext dataContext = new DataContext();
     
     public static void main(String[] args) {
         new CallDataGenerate().run(new JavaCGConfigureWrapper(false));
@@ -115,9 +103,9 @@ public class CallDataGenerate {
         }
     
         long spendTime = System.currentTimeMillis() - startTime;
-        String printInfo = "执行解析完毕，处理数量，类： " + classNumCounter.getCount() +
-                " ，方法: " + methodNumCounter.getCount() +
-                " ，方法调用: " + callIdCounter.getCount() +
+        String printInfo = "执行解析完毕，处理数量，类： " + CLASS_NUM_COUNTER.getCount() +
+                " ，方法: " + METHOD_NUM_COUNTER.getCount() +
+                " ，方法调用: " + CALL_ID_COUNTER.getCount() +
                 " ，耗时: " + (spendTime / 1000.0D) + " S";
         System.out.println(printInfo);
         
@@ -126,9 +114,9 @@ public class CallDataGenerate {
 //        new BaseXmindGenerator().generateCalcTime();
         
         spendTime = System.currentTimeMillis() - startTime;
-        printInfo = "执行完毕，处理数量，类： " + classNumCounter.getCount() +
-                " ，方法: " + methodNumCounter.getCount() +
-                " ，方法调用: " + callIdCounter.getCount() +
+        printInfo = "执行完毕，处理数量，类： " + CLASS_NUM_COUNTER.getCount() +
+                " ，方法: " + METHOD_NUM_COUNTER.getCount() +
+                " ，方法调用: " + CALL_ID_COUNTER.getCount() +
                 " ，耗时: " + (spendTime / 1000.0D) + " S";
         System.out.println(printInfo);
         if (JavaCGLogUtil.isDebugPrintInFile()) {
@@ -188,7 +176,8 @@ public class CallDataGenerate {
         JavaCGCallTypeEnum.checkRepeat();
         
         // 处理结果信息相关
-        javaCGOutputInfo = new JavaCGOutputInfo(dirPath, DataContext.javaCGConfInfo.getOutputFileExt());
+        // java-callgraph2处理结果信息
+        JavaCGOutputInfo javaCGOutputInfo = new JavaCGOutputInfo(dirPath, DataContext.javaCGConfInfo.getOutputFileExt());
         
         // 扩展类管理类初始化
         extensionsManager.setJavaCGOutputInfo(javaCGOutputInfo);
@@ -212,14 +201,10 @@ public class CallDataGenerate {
         jarEntryHandleParser = new JarEntryHandleParser();
         jarEntryHandleParser.setUseSpringBeanByAnnotationHandler(useSpringBeanByAnnotationHandler);
         jarEntryHandleParser.setExtensionsManager(extensionsManager);
-        jarEntryHandleParser.setCallIdCounter(callIdCounter);
-        jarEntryHandleParser.setClassNumCounter(classNumCounter);
-        jarEntryHandleParser.setMethodNumCounter(methodNumCounter);
         
         // 继承及实现相关的方法处理相关
         extendsImplHandler = new ExtendsImplHandler();
         extendsImplHandler.setJavaCGConfInfo(DataContext.javaCGConfInfo);
-        extendsImplHandler.setCallIdCounter(callIdCounter);
         return true;
     }
     
@@ -227,12 +212,12 @@ public class CallDataGenerate {
     private boolean handleJar(String jarFilePath) {
         try {
             // 对Class进行预处理
-            if (!preHandleClasses1(jarFilePath)) {
+            if (!jarEntryPreHandle1Parser.parse(jarFilePath)) {
                 return false;
             }
             
             // 对Class进行第二次预处理
-            if (!preHandleClasses2(jarFilePath)) {
+            if (!jarEntryPreHandle2Parser.parse(jarFilePath)) {
                 return false;
             }
             
@@ -257,16 +242,6 @@ public class CallDataGenerate {
         }
     }
     
-    // 对Class进行预处理
-    private boolean preHandleClasses1(String jarFilePath) {
-        return jarEntryPreHandle1Parser.parse(jarFilePath);
-    }
-    
-    // 对Class进行第二次预处理
-    private boolean preHandleClasses2(String jarFilePath) {
-        return jarEntryPreHandle2Parser.parse(jarFilePath);
-    }
-    
     // 记录Spring Bean的名称及类型
     private void recordSpringBeanNameAndType() throws IOException {
         if (defineSpringBeanByAnnotationHandler == null) {
@@ -283,63 +258,20 @@ public class CallDataGenerate {
     
     // 打印重复的类名
     private void printDuplicateClasses() {
-        if (duplicateClassNameMap.isEmpty()) {
+        if (DataContext.DUPLICATE_CLASS_NAME_MAP.isEmpty()) {
             JavaCGLogUtil.debugPrint("不存在重复的类名");
             return;
         }
         
-        List<String> duplicateClassNameList = new ArrayList<>(duplicateClassNameMap.keySet());
+        List<String> duplicateClassNameList = new ArrayList<>(DataContext.DUPLICATE_CLASS_NAME_MAP.keySet());
         Collections.sort(duplicateClassNameList);
         
         for (String duplicateClassName : duplicateClassNameList) {
-            List<String> classFilePathList = duplicateClassNameMap.get(duplicateClassName);
+            List<String> classFilePathList = DataContext.DUPLICATE_CLASS_NAME_MAP.get(duplicateClassName);
             JavaCGLogUtil.debugPrint("重复的类名 " + duplicateClassName + " 使用的class文件 " + classFilePathList.get(0));
             for (int i = 1; i < classFilePathList.size(); i++) {
                 JavaCGLogUtil.debugPrint("重复的类名 " + duplicateClassName + " 跳过的class文件 " + classFilePathList.get(i));
             }
         }
-    }
-    
-    /**
-     * 添加自定义代码解析类
-     * 需要在调用run()方法之前调用当前方法
-     *
-     * @param codeParser
-     */
-    public void addCodeParser(CodeParserInterface codeParser) {
-        extensionsManager.addCodeParser(codeParser);
-    }
-    
-    /**
-     * 设置对Spring XML中的Bean解析的类
-     * 需要在调用run()方法之前调用当前方法
-     *
-     * @param springXmlBeanParser
-     */
-    public void setSpringXmlBeanParser(SpringXmlBeanParserInterface springXmlBeanParser) {
-        extensionsManager.setSpringXmlBeanParser(springXmlBeanParser);
-    }
-    
-    // 获取java-callgraph2处理结果信息
-    public JavaCGOutputInfo getJavaCGOutputInfo() {
-        return javaCGOutputInfo;
-    }
-    
-    /**
-     * 获取重复类名Map
-     *
-     * @return
-     */
-    public Map<String, List<String>> getDuplicateClassNameMap() {
-        return duplicateClassNameMap;
-    }
-    
-    /**
-     * 设置注解属性格式化类
-     *
-     * @param annotationAttributesFormatter
-     */
-    public void setAnnotationAttributesFormatter(AnnotationAttributesFormatterInterface annotationAttributesFormatter) {
-        extensionsManager.setAnnotationAttributesFormatter(annotationAttributesFormatter);
     }
 }

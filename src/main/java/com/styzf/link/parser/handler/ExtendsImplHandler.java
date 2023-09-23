@@ -28,6 +28,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.styzf.link.parser.context.CounterContext.CALL_ID_COUNTER;
+
 /**
  * @author adrninistrator
  * @date 2022/11/13
@@ -36,8 +38,6 @@ import java.util.Set;
 public class ExtendsImplHandler {
     private JavaCGConfInfo javaCGConfInfo;
 
-    private JavaCGCounter callIdCounter;
-    
     public void handle() throws IOException {
         // 将父接口中的方法添加到子接口中
         addSuperInterfaceMethod4ChildrenInterface();
@@ -400,7 +400,7 @@ public class ExtendsImplHandler {
         String calleeClassJarNum = DataContext.CLASS_AND_JAR_NUM.getJarNum(calleeClassName);
 
         MethodCall methodCall = new MethodCall(
-                callIdCounter.addAndGet(),
+                CALL_ID_COUNTER.addAndGet(),
                 callerClassName,
                 callerMethodName,
                 callerMethodArgs,
@@ -417,9 +417,5 @@ public class ExtendsImplHandler {
 
     public void setJavaCGConfInfo(JavaCGConfInfo javaCGConfInfo) {
         this.javaCGConfInfo = javaCGConfInfo;
-    }
-
-    public void setCallIdCounter(JavaCGCounter callIdCounter) {
-        this.callIdCounter = callIdCounter;
     }
 }

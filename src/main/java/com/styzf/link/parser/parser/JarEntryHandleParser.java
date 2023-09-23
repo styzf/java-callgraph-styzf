@@ -2,10 +2,7 @@ package com.styzf.link.parser.parser;
 
 import com.styzf.link.parser.common.JavaCGConstants;
 import com.styzf.link.parser.common.enums.JavaCGYesNoEnum;
-import com.styzf.link.parser.conf.JavaCGConfInfo;
-import com.styzf.link.parser.context.DataContext;
 import com.styzf.link.parser.dto.classes.InnerClassInfo;
-import com.styzf.link.parser.dto.counter.JavaCGCounter;
 import com.styzf.link.parser.extensions.manager.ExtensionsManager;
 import com.styzf.link.parser.handler.ClassHandler;
 import com.styzf.link.parser.spring.UseSpringBeanByAnnotationHandler;
@@ -27,6 +24,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.jar.JarInputStream;
+
+import static com.styzf.link.parser.context.CounterContext.CLASS_NUM_COUNTER;
+import static com.styzf.link.parser.context.DataContext.DUPLICATE_CLASS_NAME_MAP;
+import static com.styzf.link.parser.context.DataContext.HANDLED_CLASS_NAME_MAP;
 
 /**
  * @author adrninistrator
@@ -60,10 +61,6 @@ public class JarEntryHandleParser extends AbstractJarEntryParser {
 
     // 已经记录过的jar序号
     private final Set<Integer> recordedJarNum = new HashSet<>();
-
-    private JavaCGCounter callIdCounter;
-    private JavaCGCounter classNumCounter;
-    private JavaCGCounter methodNumCounter;
 
     @Override
     protected boolean handleEntry(JarInputStream jarInputStream, String jarEntryName) throws IOException {
@@ -109,12 +106,12 @@ public class JarEntryHandleParser extends AbstractJarEntryParser {
             return true;
         }
 
-        List<String> classFilePathList = DataContext.HANDLED_CLASS_NAME_MAP.get(className);
+        List<String> classFilePathList = HANDLED_CLASS_NAME_MAP.get(className);
         if (classFilePathList != null) {
             // 记录已处理过的类名0
             classFilePathList.add(jarEntryName);
             // 记录重复的类名
-            DataContext.DUPLICATE_CLASS_NAME_MAP.put(className, classFilePathList);
+            DUPLICATE_CLASS_NAME_MAP.put(className, classFilePathList);
             if (JavaCGLogUtil.isDebugPrintFlag()) {
                 JavaCGLogUtil.debugPrint("跳过处理重复同名Class: " + className);
             }
@@ -123,14 +120,13 @@ public class JarEntryHandleParser extends AbstractJarEntryParser {
 
         classFilePathList = new ArrayList<>();
         classFilePathList.add(jarEntryName);
-        DataContext.HANDLED_CLASS_NAME_MAP.put(className, classFilePathList);
+        HANDLED_CLASS_NAME_MAP.put(className, classFilePathList);
         if (JavaCGLogUtil.isDebugPrintFlag()) {
             JavaCGLogUtil.debugPrint("处理Class: " + className);
         }
 
         ClassHandler classHandler = new ClassHandler(javaClass, jarEntryName, javaCGConfInfo);
         classHandler.setUseSpringBeanByAnnotationHandler(useSpringBeanByAnnotationHandler);
-        classHandler.setCallIdCounter(callIdCounter);
         classHandler.setClassNameWriter(classNameWriter);
         classHandler.setClassAnnotationWriter(classAnnotationWriter);
         classHandler.setMethodAnnotationWriter(methodAnnotationWriter);
@@ -143,10 +139,9 @@ public class JarEntryHandleParser extends AbstractJarEntryParser {
         classHandler.setMethodReturnGenericsTypeWriter(methodReturnGenericsTypeWriter);
         classHandler.setLogMethodSpendTimeWriter(logMethodSpendTimeWriter);
         classHandler.setExtensionsManager(extensionsManager);
-        classHandler.setMethodNumCounter(methodNumCounter);
         classHandler.setLastJarNum(lastJarInfo.getJarNum());
-
-        classNumCounter.addAndGet();
+    
+        CLASS_NUM_COUNTER.addAndGet();
         if (!classHandler.handleClass()) {
             return false;
         }
@@ -330,15 +325,4 @@ public class JarEntryHandleParser extends AbstractJarEntryParser {
         this.extensionsManager = extensionsManager;
     }
 
-    public void setCallIdCounter(JavaCGCounter callIdCounter) {
-        this.callIdCounter = callIdCounter;
-    }
-
-    public void setClassNumCounter(JavaCGCounter classNumCounter) {
-        this.classNumCounter = classNumCounter;
-    }
-
-    public void setMethodNumCounter(JavaCGCounter methodNumCounter) {
-        this.methodNumCounter = methodNumCounter;
-    }
 }

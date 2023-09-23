@@ -4,10 +4,7 @@ import cn.hutool.core.util.ArrayUtil;
 import com.styzf.link.parser.common.JavaCGCommonNameConstants;
 import com.styzf.link.parser.common.JavaCGConstants;
 import com.styzf.link.parser.conf.JavaCGConfInfo;
-import com.styzf.link.parser.context.DataContext;
-import com.styzf.link.parser.dto.counter.JavaCGCounter;
 import com.styzf.link.parser.dto.field.FieldPossibleTypes;
-import com.styzf.link.parser.dto.jar.ClassAndJarNum;
 import com.styzf.link.parser.extensions.annotation_attributes.AnnotationAttributesFormatterInterface;
 import com.styzf.link.parser.extensions.manager.ExtensionsManager;
 import com.styzf.link.parser.spring.UseSpringBeanByAnnotationHandler;
@@ -34,8 +31,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
+
+import static com.styzf.link.parser.common.JavaCGConstants.FILE_KEY_METHOD_ARGS_RETURN_GENERICS_TYPE;
+import static com.styzf.link.parser.common.JavaCGConstants.FILE_KEY_METHOD_ARGS_RETURN_TYPE;
+import static com.styzf.link.parser.context.CounterContext.METHOD_NUM_COUNTER;
 
 /**
  * @author adrninistrator
@@ -54,17 +54,7 @@ public class ClassHandler {
 
     private UseSpringBeanByAnnotationHandler useSpringBeanByAnnotationHandler;
 
-    private Map<String, Boolean> runnableImplClassMap = DataContext.RUNNABLE_IMPL_CLASS_MAP;
-    private Map<String, Boolean> callableImplClassMap = DataContext.CALLABLE_IMPL_CLASS_MAP;
-    private Map<String, Boolean> transactionCallbackImplClassMap = DataContext.TRANSACTION_CALLBACK_IMPL_CLASS_MAP;
-    private Map<String, Boolean> transactionCallbackWithoutResultChildClassMap = DataContext.TRANSACTION_CALLBACK_WITHOUT_RESULT_CHILD_CLASS_MAP;
-    private Map<String, Boolean> threadChildClassMap = DataContext.THREAD_CHILD_CLASS_MAP;
-
     private ExtensionsManager extensionsManager;
-
-    private JavaCGCounter callIdCounter;
-
-    private JavaCGCounter methodNumCounter;
 
     private Writer classNameWriter;
     private Writer methodCallWriter;
@@ -83,8 +73,6 @@ public class ClassHandler {
     private final JavaCGConfInfo javaCGConfInfo;
 
     private int lastJarNum;
-
-    private ClassAndJarNum classAndJarNum = DataContext.CLASS_AND_JAR_NUM;
 
     // 非静态字段字段所有可能的类型
     private FieldPossibleTypes nonStaticFieldPossibleTypes;
@@ -196,7 +184,7 @@ public class ClassHandler {
      * @return false: 处理失败 true: 处理成功
      */
     private boolean handleMethod(Method method) throws IOException {
-        methodNumCounter.addAndGet();
+        METHOD_NUM_COUNTER.addAndGet();
         // 是否出现方法名+参数类型均相同的方法标记
         boolean existsSameMethodNameAndArgs = false;
 
@@ -247,13 +235,7 @@ public class ClassHandler {
                 javaCGConfInfo,
                 callerMethodArgs,
                 fullMethod,
-                useSpringBeanByAnnotationHandler,
-                callIdCounter);
-        methodHandler4Invoke.setRunnableImplClassMap(runnableImplClassMap);
-        methodHandler4Invoke.setCallableImplClassMap(callableImplClassMap);
-        methodHandler4Invoke.setTransactionCallbackImplClassMap(transactionCallbackImplClassMap);
-        methodHandler4Invoke.setTransactionCallbackWithoutResultChildClassMap(transactionCallbackWithoutResultChildClassMap);
-        methodHandler4Invoke.setThreadChildClassMap(threadChildClassMap);
+                useSpringBeanByAnnotationHandler);
         methodHandler4Invoke.setExtensionsManager(extensionsManager);
         methodHandler4Invoke.setMethodCallWriter(methodCallWriter);
         methodHandler4Invoke.setLambdaMethodInfoWriter(lambdaMethodInfoWriter);
@@ -263,7 +245,6 @@ public class ClassHandler {
         methodHandler4Invoke.setParseMethodCallTypeValueFlag(javaCGConfInfo.isParseMethodCallTypeValue());
         methodHandler4Invoke.setLastJarNum(lastJarNum);
         methodHandler4Invoke.setExistsSameMethodNameAndArgs(existsSameMethodNameAndArgs);
-        methodHandler4Invoke.setClassAndJarNum(classAndJarNum);
 
         if (javaCGConfInfo.isFirstParseInitMethodType()) {
             methodHandler4Invoke.setNonStaticFieldPossibleTypes(nonStaticFieldPossibleTypes);
@@ -299,11 +280,11 @@ public class ClassHandler {
             }
 
             // 记录返回类型
-            JavaCGFileUtil.write2FileWithTab(methodReturnGenericsTypeWriter, fullMethod, JavaCGConstants.FILE_KEY_METHOD_ARGS_RETURN_TYPE, String.valueOf(0), classType.getName());
+            JavaCGFileUtil.write2FileWithTab(methodReturnGenericsTypeWriter, fullMethod, FILE_KEY_METHOD_ARGS_RETURN_TYPE, String.valueOf(0), classType.getName());
 
             // 获取到方法返回中泛型类型，记录
             for (int i = 0; i < methodReturnGenericsTypeList.size(); i++) {
-                JavaCGFileUtil.write2FileWithTab(methodReturnGenericsTypeWriter, fullMethod, JavaCGConstants.FILE_KEY_METHOD_ARGS_RETURN_GENERICS_TYPE, String.valueOf(i),
+                JavaCGFileUtil.write2FileWithTab(methodReturnGenericsTypeWriter, fullMethod, FILE_KEY_METHOD_ARGS_RETURN_GENERICS_TYPE, String.valueOf(i),
                         methodReturnGenericsTypeList.get(i));
             }
         } catch (Exception e) {
@@ -333,12 +314,12 @@ public class ClassHandler {
             }
 
             // 记录参数类型
-            JavaCGFileUtil.write2FileWithTab(methodArgGenericsTypeWriter, fullMethod, String.valueOf(i), JavaCGConstants.FILE_KEY_METHOD_ARGS_RETURN_TYPE, String.valueOf(0),
+            JavaCGFileUtil.write2FileWithTab(methodArgGenericsTypeWriter, fullMethod, String.valueOf(i), FILE_KEY_METHOD_ARGS_RETURN_TYPE, String.valueOf(0),
                     classType.getName());
 
             // 获取到方法参数中泛型类型，记录
             for (int j = 0; j < methodArgsGenericsTypeList.size(); j++) {
-                JavaCGFileUtil.write2FileWithTab(methodArgGenericsTypeWriter, fullMethod, String.valueOf(i), JavaCGConstants.FILE_KEY_METHOD_ARGS_RETURN_GENERICS_TYPE,
+                JavaCGFileUtil.write2FileWithTab(methodArgGenericsTypeWriter, fullMethod, String.valueOf(i), FILE_KEY_METHOD_ARGS_RETURN_GENERICS_TYPE,
                         String.valueOf(j), methodArgsGenericsTypeList.get(j));
             }
         }
@@ -391,10 +372,6 @@ public class ClassHandler {
         annotationAttributesFormatter = extensionsManager.getAnnotationAttributesFormatter();
     }
 
-    public void setCallIdCounter(JavaCGCounter callIdCounter) {
-        this.callIdCounter = callIdCounter;
-    }
-
     public void setClassNameWriter(Writer classNameWriter) {
         this.classNameWriter = classNameWriter;
     }
@@ -437,10 +414,6 @@ public class ClassHandler {
 
     public void setLogMethodSpendTimeWriter(WriterSupportSkip logMethodSpendTimeWriter) {
         this.logMethodSpendTimeWriter = logMethodSpendTimeWriter;
-    }
-
-    public void setMethodNumCounter(JavaCGCounter methodNumCounter) {
-        this.methodNumCounter = methodNumCounter;
     }
 
     public void setLastJarNum(int lastJarNum) {

@@ -15,7 +15,6 @@ import com.styzf.link.parser.dto.call.MethodCallPossibleList;
 import com.styzf.link.parser.dto.counter.JavaCGCounter;
 import com.styzf.link.parser.dto.field.FieldPossibleTypes;
 import com.styzf.link.parser.dto.field.FieldTypeAndName;
-import com.styzf.link.parser.dto.jar.ClassAndJarNum;
 import com.styzf.link.parser.dto.method.JavaCGMethodInfo;
 import com.styzf.link.parser.extensions.annotation_attributes.AnnotationAttributesFormatterInterface;
 import com.styzf.link.parser.extensions.code_parser.MethodAnnotationParser;
@@ -57,6 +56,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.styzf.link.parser.context.DataContext.CALLABLE_IMPL_CLASS_MAP;
+import static com.styzf.link.parser.context.DataContext.CLASS_AND_JAR_NUM;
+import static com.styzf.link.parser.context.DataContext.RUNNABLE_IMPL_CLASS_MAP;
+import static com.styzf.link.parser.context.DataContext.THREAD_CHILD_CLASS_MAP;
+import static com.styzf.link.parser.context.DataContext.TRANSACTION_CALLBACK_IMPL_CLASS_MAP;
+import static com.styzf.link.parser.context.DataContext.TRANSACTION_CALLBACK_WITHOUT_RESULT_CHILD_CLASS_MAP;
+
 /**
  * @author adrninistrator
  * @date 2021/8/21
@@ -86,12 +92,6 @@ public class MethodHandler4Invoke extends AbstractMethodHandler {
      */
     private final Map<Integer, MethodCallPossibleInfo> methodCallInfoMap = new HashMap<>(50);
 
-    private Map<String, Boolean> runnableImplClassMap;
-    private Map<String, Boolean> callableImplClassMap;
-    private Map<String, Boolean> transactionCallbackImplClassMap;
-    private Map<String, Boolean> transactionCallbackWithoutResultChildClassMap;
-    private Map<String, Boolean> threadChildClassMap;
-
     private ExtensionsManager extensionsManager;
 
     private AnnotationAttributesFormatterInterface annotationAttributesFormatter;
@@ -110,15 +110,12 @@ public class MethodHandler4Invoke extends AbstractMethodHandler {
     // 非静态字段字段所有可能的类型
     private FieldPossibleTypes nonStaticFieldPossibleTypes;
 
-    private ClassAndJarNum classAndJarNum;
-
     public MethodHandler4Invoke(MethodGen mg,
                                 JavaClass javaClass,
                                 JavaCGConfInfo javaCGConfInfo,
                                 String callerMethodArgs,
                                 String callerFullMethod,
-                                UseSpringBeanByAnnotationHandler useSpringBeanByAnnotationHandler,
-                                JavaCGCounter callIdCounter) {
+                                UseSpringBeanByAnnotationHandler useSpringBeanByAnnotationHandler) {
         super(mg, javaClass, javaCGConfInfo);
 
         callerClassName = javaClass.getClassName();
@@ -128,7 +125,7 @@ public class MethodHandler4Invoke extends AbstractMethodHandler {
         this.callerFullMethod = callerFullMethod;
         this.useSpringBeanByAnnotationHandler = useSpringBeanByAnnotationHandler;
 
-        methodCallList = new MethodCallList(callIdCounter);
+        methodCallList = new MethodCallList();
     }
 
     /**
@@ -220,7 +217,7 @@ public class MethodHandler4Invoke extends AbstractMethodHandler {
     protected boolean lastStep() throws IOException {
         // 处理方法之间调用关系
         for (MethodCall methodCall : methodCallList.getMethodCallList()) {
-            String calleeClassJarNum = classAndJarNum.getJarNum(methodCall.getCalleeClassName());
+            String calleeClassJarNum = CLASS_AND_JAR_NUM.getJarNum(methodCall.getCalleeClassName());
             JavaCGFileUtil.write2FileWithTab(methodCallWriter, methodCall.genCallContent(String.valueOf(lastJarNum), calleeClassJarNum));
 
             // 处理方法调用可能的信息
@@ -696,25 +693,25 @@ public class MethodHandler4Invoke extends AbstractMethodHandler {
         String calleeMethodArgs = JavaCGMethodUtil.getArgListStr(arguments);
 
         // 处理Runnable实现类
-        if (handleSpecialInitMethod(runnableImplClassMap, calleeClassName, calleeMethodName, calleeMethodArgs, JavaCGCallTypeEnum.CTE_RUNNABLE_INIT_RUN1,
+        if (handleSpecialInitMethod(RUNNABLE_IMPL_CLASS_MAP, calleeClassName, calleeMethodName, calleeMethodArgs, JavaCGCallTypeEnum.CTE_RUNNABLE_INIT_RUN1,
                 JavaCGCallTypeEnum.CTE_RUNNABLE_INIT_RUN2, JavaCGCommonNameConstants.METHOD_RUNNABLE_RUN, JavaCGConstants.EMPTY_METHOD_ARGS)) {
             skipRawMethodCall = true;
         }
 
         // 处理Callable实现类
-        if (handleSpecialInitMethod(callableImplClassMap, calleeClassName, calleeMethodName, calleeMethodArgs, JavaCGCallTypeEnum.CTE_CALLABLE_INIT_CALL1,
+        if (handleSpecialInitMethod(CALLABLE_IMPL_CLASS_MAP, calleeClassName, calleeMethodName, calleeMethodArgs, JavaCGCallTypeEnum.CTE_CALLABLE_INIT_CALL1,
                 JavaCGCallTypeEnum.CTE_CALLABLE_INIT_CALL2, JavaCGCommonNameConstants.METHOD_CALLABLE_CALL, JavaCGConstants.EMPTY_METHOD_ARGS)) {
             skipRawMethodCall = true;
         }
 
         // 处理TransactionCallback实现类
-        if (handleSpecialInitMethod(transactionCallbackImplClassMap, calleeClassName, calleeMethodName, calleeMethodArgs, JavaCGCallTypeEnum.CTE_TX_CALLBACK_INIT_CALL1,
+        if (handleSpecialInitMethod(TRANSACTION_CALLBACK_IMPL_CLASS_MAP, calleeClassName, calleeMethodName, calleeMethodArgs, JavaCGCallTypeEnum.CTE_TX_CALLBACK_INIT_CALL1,
                 JavaCGCallTypeEnum.CTE_TX_CALLBACK_INIT_CALL2, JavaCGCommonNameConstants.METHOD_DO_IN_TRANSACTION, JavaCGCommonNameConstants.ARGS_TRANSACTION_STATUS)) {
             skipRawMethodCall = true;
         }
 
         // 处理TransactionCallbackWithoutResult实现类
-        if (handleSpecialInitMethod(transactionCallbackWithoutResultChildClassMap, calleeClassName, calleeMethodName, calleeMethodArgs,
+        if (handleSpecialInitMethod(TRANSACTION_CALLBACK_WITHOUT_RESULT_CHILD_CLASS_MAP, calleeClassName, calleeMethodName, calleeMethodArgs,
                 JavaCGCallTypeEnum.CTE_TX_CALLBACK_WR_INIT_CALL1, JavaCGCallTypeEnum.CTE_TX_CALLBACK_WR_INIT_CALL2,
                 JavaCGCommonNameConstants.METHOD_DO_IN_TRANSACTION_WITHOUT_RESULT,
                 JavaCGCommonNameConstants.ARGS_TRANSACTION_STATUS)) {
@@ -764,7 +761,7 @@ public class MethodHandler4Invoke extends AbstractMethodHandler {
         }
 
         // 处理Thread子类
-        if (!Boolean.FALSE.equals(threadChildClassMap.get(calleeClassName))) {
+        if (!Boolean.FALSE.equals(THREAD_CHILD_CLASS_MAP.get(calleeClassName))) {
             return;
         }
 
@@ -773,7 +770,7 @@ public class MethodHandler4Invoke extends AbstractMethodHandler {
         addOtherMethodCall(calleeClassName, calleeMethodName, calleeMethodArgs, JavaCGCallTypeEnum.CTE_THREAD_START_RUN,
                 calleeClassName, "run", JavaCGConstants.EMPTY_METHOD_ARGS, JavaCGConstants.DEFAULT_LINE_NUMBER);
         // 避免start()方法调用run()方法被添加多次
-        threadChildClassMap.put(calleeClassName, Boolean.TRUE);
+        THREAD_CHILD_CLASS_MAP.put(calleeClassName, Boolean.TRUE);
     }
 
     // 处理方法调用可能的信息
@@ -900,27 +897,6 @@ public class MethodHandler4Invoke extends AbstractMethodHandler {
         recordStringMethodCallPossibleInfo(stringBuilder, finalValue, methodCallId, argSeq, type, seq, arrayElementFlag);
     }
 
-    //
-    public void setRunnableImplClassMap(Map<String, Boolean> runnableImplClassMap) {
-        this.runnableImplClassMap = runnableImplClassMap;
-    }
-
-    public void setCallableImplClassMap(Map<String, Boolean> callableImplClassMap) {
-        this.callableImplClassMap = callableImplClassMap;
-    }
-
-    public void setTransactionCallbackImplClassMap(Map<String, Boolean> transactionCallbackImplClassMap) {
-        this.transactionCallbackImplClassMap = transactionCallbackImplClassMap;
-    }
-
-    public void setTransactionCallbackWithoutResultChildClassMap(Map<String, Boolean> transactionCallbackWithoutResultChildClassMap) {
-        this.transactionCallbackWithoutResultChildClassMap = transactionCallbackWithoutResultChildClassMap;
-    }
-
-    public void setThreadChildClassMap(Map<String, Boolean> threadChildClassMap) {
-        this.threadChildClassMap = threadChildClassMap;
-    }
-
     public void setExtensionsManager(ExtensionsManager extensionsManager) {
         this.extensionsManager = extensionsManager;
         annotationAttributesFormatter = extensionsManager.getAnnotationAttributesFormatter();
@@ -956,9 +932,5 @@ public class MethodHandler4Invoke extends AbstractMethodHandler {
 
     public void setNonStaticFieldPossibleTypes(FieldPossibleTypes nonStaticFieldPossibleTypes) {
         this.nonStaticFieldPossibleTypes = nonStaticFieldPossibleTypes;
-    }
-
-    public void setClassAndJarNum(ClassAndJarNum classAndJarNum) {
-        this.classAndJarNum = classAndJarNum;
     }
 }
