@@ -10,7 +10,7 @@
 
 1、把io流输出的代码删了，这一个可以参考原先的代码，准备把这块写到生成器中去
 
-2、基于现状，写了一个`com.styzf.link.parser.parser.ParserInterface`，并通过抽象`com.styzf.link.parser.parser.AbstractLinkParser`完成数据链路解析
+2、基于现状，写了一个`com.styzf.link.parser.parser.ParserInterface`，并通过抽象`com.styzf.link.parser.parser.AbstractLinkParser`完成数据链路解析，其他生成器通过内嵌解析器进行数据的解析和生成
 
 3、定义了文件生成类`com.styzf.link.parser.generator.FileGenerate`，在txt包中实现原先所有的输出功能，另外添加解析到接口，以及解析到数据库的功能实现
 
@@ -44,8 +44,6 @@
 
 例如：a接口，有b、c、d三个实现，实现类各自实现了a接口方法，b调用链路应该是“调用方”->a->b，而不是“调用方”->a->b、c、d
 
-12、配置添加pom文件加载功能，通过解析pom文件中所有数据，完成解析，但数据可能会比较大，保留原有功能的基础上加这个功能，要考虑解析过滤掉一些框架代码的实现(重点)
-
 # 4、已完成需求
 
 1、解析调用链路`com.styzf.link.parser.parser.AbstractLinkParser`，辨别是否为循环调用`com.styzf.link.parser.parser.AbstractLinkParser.loopHandle`
@@ -55,3 +53,5 @@
 3、解析过程添加正则筛选
 
 4、文件生成添加计时器
+
+5、添加pom文件加载功能，通过解析pom文件中所有jar，完成解析
