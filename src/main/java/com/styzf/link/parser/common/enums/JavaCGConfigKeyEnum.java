@@ -17,6 +17,7 @@ public enum JavaCGConfigKeyEnum {
     PARSER_ROOT_METHOD_NEXT("parser.root.method.next", "要解析得根方法的方向"),
     PARSER_FILTER_REGEX("parser.filter.regEx", "过滤不需要解析的正则表达式"),
     PARSER_FILTER_NEXT_REGEX("parser.filter.next.regEx", "过滤不需要向下解析的正则表达式"),
+    MAVEN_HOME("maven.home", "maven地址配置"),
     ;
 
     private final String key;

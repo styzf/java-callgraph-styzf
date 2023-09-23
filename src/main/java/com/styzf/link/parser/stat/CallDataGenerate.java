@@ -5,7 +5,6 @@ import com.styzf.link.parser.common.JavaCGConstants;
 import com.styzf.link.parser.common.enums.JavaCGCallTypeEnum;
 import com.styzf.link.parser.conf.JavaCGConfManager;
 import com.styzf.link.parser.conf.JavaCGConfigureWrapper;
-import com.styzf.link.parser.context.CounterContext;
 import com.styzf.link.parser.context.DataContext;
 import com.styzf.link.parser.dto.output.JavaCGOutputInfo;
 import com.styzf.link.parser.exceptions.JavaCGRuntimeException;
@@ -35,6 +34,7 @@ import java.util.Set;
 import static com.styzf.link.parser.context.CounterContext.CALL_ID_COUNTER;
 import static com.styzf.link.parser.context.CounterContext.CLASS_NUM_COUNTER;
 import static com.styzf.link.parser.context.CounterContext.METHOD_NUM_COUNTER;
+import static com.styzf.link.parser.context.DataContext.javaCGConfInfo;
 
 /**
  * 调用数据生成器
@@ -56,29 +56,24 @@ public class CallDataGenerate {
     private UseSpringBeanByAnnotationHandler useSpringBeanByAnnotationHandler;
     
     public static void main(String[] args) {
-        new CallDataGenerate().run(new JavaCGConfigureWrapper(false));
+        new CallDataGenerate().run();
     }
     
-    public boolean run(JavaCGConfigureWrapper javaCGConfigureWrapper) {
-        if (javaCGConfigureWrapper == null) {
-            throw new JavaCGRuntimeException("配置参数包装对象不允许为null");
-        }
+    public void run() {
+        JavaCGConfigureWrapper configureWrapper = new JavaCGConfigureWrapper(false);
         
         long startTime = System.currentTimeMillis();
         
-        DataContext.javaCGConfInfo = JavaCGConfManager.getConfInfo(javaCGConfigureWrapper);
+        javaCGConfInfo = JavaCGConfManager.getConfInfo(configureWrapper);
         
-        JavaCGLogUtil.setDebugPrintFlag(DataContext.javaCGConfInfo.isDebugPrint());
-        JavaCGLogUtil.setDebugPrintInFile(DataContext.javaCGConfInfo.isDebugPrintInFile());
+        JavaCGLogUtil.setDebugPrintFlag(javaCGConfInfo.isDebugPrint());
+        JavaCGLogUtil.setDebugPrintInFile(javaCGConfInfo.isDebugPrintInFile());
         
         // 处理参数中指定的jar包
         File newJarFile = handleJarInConf();
-        if (newJarFile == null) {
-            return false;
-        }
         
         String newJarFilePath = JavaCGFileUtil.getCanonicalPath(newJarFile);
-        String outputRootPath = DataContext.javaCGConfInfo.getOutputRootPath();
+        String outputRootPath = javaCGConfInfo.getOutputRootPath();
         String outputDirPath;
         if (StrUtil.isBlank(outputRootPath)) {
             // 配置参数中未指定生成文件的根目录，生成在jar包所在目录
@@ -89,17 +84,17 @@ public class CallDataGenerate {
         }
         System.out.println("当前输出的根目录: " + outputDirPath);
         if (!JavaCGFileUtil.isDirectoryExists(outputDirPath, true)) {
-            return false;
+            return;
         }
         
         // 初始化
         if (!init(outputDirPath)) {
-            return false;
+            return;
         }
         
         // 处理jar包，主逻辑
         if (!handleJar(newJarFilePath)) {
-            return false;
+            return;
         }
     
         long spendTime = System.currentTimeMillis() - startTime;
@@ -122,16 +117,17 @@ public class CallDataGenerate {
         if (JavaCGLogUtil.isDebugPrintInFile()) {
             JavaCGLogUtil.debugPrint(printInfo);
         }
-        return true;
     }
     
-    // 处理配置参数中指定的jar包
+    /**
+     * 处理配置参数中指定的jar包
+     * @return 处理后的jar包
+     */
     private File handleJarInConf() {
         List<String> jarList = new ArrayList<>();
-        List<String> jarDirList = DataContext.javaCGConfInfo.getJarDirList();
+        List<String> jarDirList = javaCGConfInfo.getJarDirList();
         if (jarDirList.isEmpty()) {
-            System.err.println("请在配置文件" + JavaCGConstants.FILE_CONFIG + "中指定需要处理的jar包或目录列表");
-            return null;
+            throw new JavaCGRuntimeException("请在配置文件" + JavaCGConstants.FILE_CONFIG + "中指定需要处理的jar包或目录列表");
         }
         
         System.out.println("需要处理的jar包或目录:");
@@ -141,7 +137,8 @@ public class CallDataGenerate {
                 if (!pomFile.exists()) {
                     continue;
                 }
-                List<String> depList = MavenUtils.getDepList(pomFile);
+                
+                List<String> depList = MavenUtils.getDepList(pomFile, javaCGConfInfo.getMavenHome());
                 jarList.addAll(depList);
                 depList.forEach(System.out::println);
             } else {
@@ -152,11 +149,11 @@ public class CallDataGenerate {
         
         DataContext.JAR_INFO_MAP = new HashMap<>(jarList.size());
         
-        Set<String> needHandlePackageSet = DataContext.javaCGConfInfo.getNeedHandlePackageSet();
+        Set<String> needHandlePackageSet = javaCGConfInfo.getNeedHandlePackageSet();
         // 对指定的jar包进行处理
         File newJarFile = JavaCGJarUtil.handleJar(jarList, needHandlePackageSet);
         if (newJarFile == null) {
-            return null;
+            throw new JavaCGRuntimeException("jar处理失败");
         }
         
         System.out.println("实际处理的jar文件: " + JavaCGFileUtil.getCanonicalPath(newJarFile));
@@ -177,7 +174,7 @@ public class CallDataGenerate {
         
         // 处理结果信息相关
         // java-callgraph2处理结果信息
-        JavaCGOutputInfo javaCGOutputInfo = new JavaCGOutputInfo(dirPath, DataContext.javaCGConfInfo.getOutputFileExt());
+        JavaCGOutputInfo javaCGOutputInfo = new JavaCGOutputInfo(dirPath, javaCGConfInfo.getOutputFileExt());
         
         // 扩展类管理类初始化
         extensionsManager.setJavaCGOutputInfo(javaCGOutputInfo);
@@ -185,12 +182,12 @@ public class CallDataGenerate {
             return false;
         }
         
-        if (DataContext.javaCGConfInfo.isParseMethodCallTypeValue()) {
-            defineSpringBeanByAnnotationHandler = new DefineSpringBeanByAnnotationHandler(DataContext.javaCGConfInfo);
+        if (javaCGConfInfo.isParseMethodCallTypeValue()) {
+            defineSpringBeanByAnnotationHandler = new DefineSpringBeanByAnnotationHandler(javaCGConfInfo);
         }
         jarEntryPreHandle1Parser = new JarEntryPreHandle1Parser(defineSpringBeanByAnnotationHandler, extensionsManager);
         
-        if (DataContext.javaCGConfInfo.isParseMethodCallTypeValue()) {
+        if (javaCGConfInfo.isParseMethodCallTypeValue()) {
             useSpringBeanByAnnotationHandler = new UseSpringBeanByAnnotationHandler(
                     defineSpringBeanByAnnotationHandler,
                     extensionsManager.getSpringXmlBeanParser());
@@ -204,7 +201,7 @@ public class CallDataGenerate {
         
         // 继承及实现相关的方法处理相关
         extendsImplHandler = new ExtendsImplHandler();
-        extendsImplHandler.setJavaCGConfInfo(DataContext.javaCGConfInfo);
+        extendsImplHandler.setJavaCGConfInfo(javaCGConfInfo);
         return true;
     }
     

@@ -62,6 +62,11 @@ public class JavaCGConfInfo {
      */
     private String filterNextRegEx;
     
+    /**
+     * maven路径，用于maven项目的解析
+     */
+    private String mavenHome;
+    
     public String getFilterNextRegEx() {
         return filterNextRegEx;
     }
@@ -184,5 +189,13 @@ public class JavaCGConfInfo {
     
     public void setSourcesDirList(List<String> sourcesDirList) {
         this.sourcesDirList = sourcesDirList;
+    }
+    
+    public String getMavenHome() {
+        return mavenHome;
+    }
+    
+    public void setMavenHome(String mavenHome) {
+        this.mavenHome = mavenHome;
     }
 }
