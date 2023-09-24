@@ -41,7 +41,7 @@ public class JavaCGConfManager {
             confInfo.setRootMethodNext(Boolean.parseBoolean(javaCGConfigureWrapper.getConfig(properties, JavaCGConfigKeyEnum.PARSER_ROOT_METHOD_NEXT, true)));
             confInfo.setFilterRegEx(javaCGConfigureWrapper.getConfig(properties, JavaCGConfigKeyEnum.PARSER_FILTER_REGEX, true));
             confInfo.setFilterNextRegEx(javaCGConfigureWrapper.getConfig(properties, JavaCGConfigKeyEnum.PARSER_FILTER_NEXT_REGEX, true));
-            confInfo.setMavenHome(javaCGConfigureWrapper.getConfig(properties, JavaCGConfigKeyEnum.PARSER_FILTER_NEXT_REGEX, true));
+            confInfo.setMavenHome(javaCGConfigureWrapper.getConfig(properties, JavaCGConfigKeyEnum.MAVEN_HOME, true));
             
             String debugPrintStr = javaCGConfigureWrapper.getConfig(properties, JavaCGConfigKeyEnum.CKE_DEBUG_PRINT, true);
             if (JavaCGConstants.PROPERTY_VALUE_DEBUG_PRINT_IN_FILE.equals(debugPrintStr)) {

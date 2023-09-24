@@ -11,16 +11,20 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * 基础链路解析代码
+ * 基础链路解析器
  * @author styzf
  * @date 2023/9/7 22:17
  */
 public abstract class AbstractLinkParser implements ParserInterface {
-    
     /**
      * 用于去重的set
      */
     protected static final Set<String> METHOD_SET = new HashSet<>();
+    
+    /**
+     * 接口调用实现类，可能调用的具体实现类
+     */
+    protected static final Set<String> IMPL_CLASS = new HashSet<>();
     
     /**
      * 根据配置的根方法名，去解析上下文调用

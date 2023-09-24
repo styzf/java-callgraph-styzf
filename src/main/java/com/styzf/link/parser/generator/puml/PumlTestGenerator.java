@@ -17,16 +17,22 @@ import java.io.FileOutputStream;
  * @author styzf
  * @date 2023/9/9 3:09
  */
-public class PumlXmindGenerator extends AbstractPumlGenerator {
+public class PumlTestGenerator extends AbstractPumlGenerator {
     private String easyMethodName;
+    
+    private AbstractLinkParser parser;
     
     @Override
     public void generate() {
-        PumlXmindParser pumlXmindParser = new PumlXmindParser();
-        pumlXmindParser.parser();
+        parser.parser();
         writer(FileUtil.getLineSeparator() + "@endmindmap");
         close();
     }
+    
+    public PumlTestGenerator setParser(AbstractLinkParser parser) {
+        this.parser = parser;
+        return this;
+    };
     
     @Override
     protected void setWriter() {
@@ -40,49 +46,6 @@ public class PumlXmindGenerator extends AbstractPumlGenerator {
     protected void setEasyMethodName(String easyMethodName) {
         this.easyMethodName = easyMethodName;
     }
-    
-    /**
-     * 链路解析器
-     */
-    private class PumlXmindParser extends AbstractLinkParser {
-        
-        @Override
-        protected String rootHandle(String rootMethodName) {
-            rootMethodName = DataContext.getRootMethodName(rootMethodName);
-            String easyMethodName = BaseUtil.getEasyMethodName(rootMethodName);
-            setEasyMethodName(easyMethodName);
-            setWriter();
-            writer("@startmindmap");
-            addData(rootMethodName, 0);
-            return rootMethodName;
-        }
-        
-        @Override
-        protected boolean prevHandle(String nextMethodName, MethodCall prev, int level) {
-            if (!FilterUtil.filter(prev.genCallerFullMethod())) {
-                return false;
-            }
-            addData(prev.genCallerFullMethod(), level);
-            
-            return FilterUtil.filterNext(prev.genCallerFullMethod());
-        }
-        
-        @Override
-        protected boolean nextHandle(String prevMethodName, MethodCall next, int level) {
-            if (!FilterUtil.filter(next.genCalleeFullMethod())) {
-                return false;
-            }
-            addData(next.genCalleeFullMethod(), level);
-            
-            return FilterUtil.filterNext(next.genCalleeFullMethod());
-        }
-    
-        @Override
-        protected void loopHandle(String methodName, int level) {
-            writer("\uD83D\uDD04");
-        }
-    };
-    
     private void addData(String methodName, int level) {
         String line = StrUtil.fillBefore("", '*', level + 1);
         if (level > 1) {

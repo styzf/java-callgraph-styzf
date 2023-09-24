@@ -6,12 +6,15 @@ import com.styzf.link.parser.common.enums.JavaCGCallTypeEnum;
 import com.styzf.link.parser.conf.JavaCGConfManager;
 import com.styzf.link.parser.conf.JavaCGConfigureWrapper;
 import com.styzf.link.parser.context.DataContext;
+import com.styzf.link.parser.dto.call.MethodCall;
 import com.styzf.link.parser.dto.output.JavaCGOutputInfo;
 import com.styzf.link.parser.exceptions.JavaCGRuntimeException;
 import com.styzf.link.parser.extensions.manager.ExtensionsManager;
+import com.styzf.link.parser.generator.puml.PumlTestGenerator;
 import com.styzf.link.parser.generator.puml.PumlXmindGenerator;
 import com.styzf.link.parser.generator.txt.MethodCallTxtGeneratot;
 import com.styzf.link.parser.handler.ExtendsImplHandler;
+import com.styzf.link.parser.parser.AbstractLinkParser;
 import com.styzf.link.parser.parser.JarEntryHandleParser;
 import com.styzf.link.parser.parser.JarEntryPreHandle1Parser;
 import com.styzf.link.parser.parser.JarEntryPreHandle2Parser;
@@ -43,27 +46,22 @@ import static com.styzf.link.parser.context.DataContext.javaCGConfInfo;
  */
 public class CallDataGenerate {
 
-    private final ExtensionsManager extensionsManager = new ExtensionsManager();
+    private static final ExtensionsManager extensionsManager = new ExtensionsManager();
     
-    private JarEntryPreHandle1Parser jarEntryPreHandle1Parser;
-    private JarEntryPreHandle2Parser jarEntryPreHandle2Parser;
-    private JarEntryHandleParser jarEntryHandleParser;
+    private static JarEntryPreHandle1Parser jarEntryPreHandle1Parser;
+    private static JarEntryPreHandle2Parser jarEntryPreHandle2Parser;
+    private static JarEntryHandleParser jarEntryHandleParser;
     
-    private ExtendsImplHandler extendsImplHandler;
+    private static ExtendsImplHandler extendsImplHandler;
     
-    private DefineSpringBeanByAnnotationHandler defineSpringBeanByAnnotationHandler;
+    private static DefineSpringBeanByAnnotationHandler defineSpringBeanByAnnotationHandler;
     
-    private UseSpringBeanByAnnotationHandler useSpringBeanByAnnotationHandler;
+    private static UseSpringBeanByAnnotationHandler useSpringBeanByAnnotationHandler;
     
     public static void main(String[] args) {
-        new CallDataGenerate().run();
-    }
-    
-    public void run() {
-        JavaCGConfigureWrapper configureWrapper = new JavaCGConfigureWrapper(false);
-        
         long startTime = System.currentTimeMillis();
         
+        JavaCGConfigureWrapper configureWrapper = new JavaCGConfigureWrapper(false);
         javaCGConfInfo = JavaCGConfManager.getConfInfo(configureWrapper);
         
         JavaCGLogUtil.setDebugPrintFlag(javaCGConfInfo.isDebugPrint());
@@ -96,7 +94,7 @@ public class CallDataGenerate {
         if (!handleJar(newJarFilePath)) {
             return;
         }
-    
+        
         long spendTime = System.currentTimeMillis() - startTime;
         String printInfo = "执行解析完毕，处理数量，类： " + CLASS_NUM_COUNTER.getCount() +
                 " ，方法: " + METHOD_NUM_COUNTER.getCount() +
@@ -106,7 +104,22 @@ public class CallDataGenerate {
         
         new MethodCallTxtGeneratot().generateCalcTime();
         new PumlXmindGenerator().generateCalcTime();
-//        new BaseXmindGenerator().generateCalcTime();
+        new PumlTestGenerator().setParser(new AbstractLinkParser() {
+            @Override
+            protected String rootHandle(String rootMethodName) {
+                return null;
+            }
+            
+            @Override
+            protected boolean prevHandle(String nextMethodName, MethodCall prev, int level) {
+                return false;
+            }
+            
+            @Override
+            protected boolean nextHandle(String prevMethodName, MethodCall next, int level) {
+                return false;
+            }
+        }).generate();
         
         spendTime = System.currentTimeMillis() - startTime;
         printInfo = "执行完毕，处理数量，类： " + CLASS_NUM_COUNTER.getCount() +
@@ -123,7 +136,7 @@ public class CallDataGenerate {
      * 处理配置参数中指定的jar包
      * @return 处理后的jar包
      */
-    private File handleJarInConf() {
+    private static File handleJarInConf() {
         List<String> jarList = new ArrayList<>();
         List<String> jarDirList = javaCGConfInfo.getJarDirList();
         if (jarDirList.isEmpty()) {
@@ -168,7 +181,7 @@ public class CallDataGenerate {
         return newJarFile;
     }
     
-    private boolean init(String dirPath) {
+    private static boolean init(String dirPath) {
         // 检查方法调用枚举类型是否重复定义
         JavaCGCallTypeEnum.checkRepeat();
         
@@ -206,7 +219,7 @@ public class CallDataGenerate {
     }
     
     // 处理一个jar包
-    private boolean handleJar(String jarFilePath) {
+    private static boolean handleJar(String jarFilePath) {
         try {
             // 对Class进行预处理
             if (!jarEntryPreHandle1Parser.parse(jarFilePath)) {
@@ -240,7 +253,7 @@ public class CallDataGenerate {
     }
     
     // 记录Spring Bean的名称及类型
-    private void recordSpringBeanNameAndType() throws IOException {
+    private static void recordSpringBeanNameAndType() throws IOException {
         if (defineSpringBeanByAnnotationHandler == null) {
             return;
         }
@@ -254,7 +267,7 @@ public class CallDataGenerate {
     }
     
     // 打印重复的类名
-    private void printDuplicateClasses() {
+    private static void printDuplicateClasses() {
         if (DataContext.DUPLICATE_CLASS_NAME_MAP.isEmpty()) {
             JavaCGLogUtil.debugPrint("不存在重复的类名");
             return;

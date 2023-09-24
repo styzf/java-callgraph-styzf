@@ -28,6 +28,7 @@ import java.util.jar.JarInputStream;
 import static com.styzf.link.parser.context.CounterContext.CLASS_NUM_COUNTER;
 import static com.styzf.link.parser.context.DataContext.DUPLICATE_CLASS_NAME_MAP;
 import static com.styzf.link.parser.context.DataContext.HANDLED_CLASS_NAME_MAP;
+import static com.styzf.link.parser.context.DataContext.javaCGConfInfo;
 
 /**
  * @author adrninistrator

@@ -16,6 +16,8 @@ import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
+import static com.styzf.link.parser.context.DataContext.JAR_INFO_MAP;
+
 /**
  * @author adrninistrator
  * @date 2022/9/14
@@ -24,15 +26,6 @@ import java.util.jar.JarInputStream;
 public abstract class AbstractJarEntryParser {
 
     protected String simpleClassName = this.getClass().getSimpleName();
-
-    protected JavaCGConfInfo javaCGConfInfo = DataContext.javaCGConfInfo;
-
-    /*
-        保存jar包或目录的名称对应的jar包信息
-        key     jar包或目录的名称
-        value   jar包信息
-     */
-    protected Map<String, JarInfo> jarInfoMap = DataContext.JAR_INFO_MAP;
 
     // 处理class文件时，缓存当前处理的文件的第一层目录名及对应jar包信息
     protected String lastFirstDirName;
@@ -132,11 +125,11 @@ public abstract class AbstractJarEntryParser {
      * @return true: 处理成功 false: 处理失败
      */
     private boolean handleCurrentJarInfo(String jarEntryName) {
-        if (jarInfoMap.size() == 1) {
+        if (JAR_INFO_MAP.size() == 1) {
             // 只有一个jar包，从Map取第一个Entry
             if (lastJarInfo == null) {
                 // 第一次处理当前jar包
-                for (Map.Entry<String, JarInfo> entry : jarInfoMap.entrySet()) {
+                for (Map.Entry<String, JarInfo> entry : JAR_INFO_MAP.entrySet()) {
                     lastJarInfo = entry.getValue();
                     return true;
                 }
@@ -159,7 +152,7 @@ public abstract class AbstractJarEntryParser {
         lastFirstDirName = firstDirName;
 
         // 首次处理，或第一层目录名变化时，需要从Map获取
-        lastJarInfo = jarInfoMap.get(firstDirName);
+        lastJarInfo = JAR_INFO_MAP.get(firstDirName);
         if (lastJarInfo == null) {
             System.err.println("合并后的jar包中出现的名称未记录过: " + jarEntryName);
         }
