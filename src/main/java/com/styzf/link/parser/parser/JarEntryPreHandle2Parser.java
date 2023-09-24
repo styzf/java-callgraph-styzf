@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.jar.JarInputStream;
 
+import static com.styzf.link.parser.context.DataContext.CLASS_EXTENDS_METHOD_INFO_MAP;
+import static com.styzf.link.parser.context.DataContext.CLASS_EXTENDS_SET;
 import static com.styzf.link.parser.context.DataContext.javaCGConfInfo;
 
 /**
@@ -64,7 +66,7 @@ public class JarEntryPreHandle2Parser extends AbstractJarEntryParser {
     // 查找涉及继承的类的信息
     private void findClassExtendsInfo(JavaClass javaClass) {
         String className = javaClass.getClassName();
-        if (!DataContext.CLASS_EXTENDS_SET.contains(className) || DataContext.CLASS_EXTENDS_METHOD_INFO_MAP.get(className) != null) {
+        if (!CLASS_EXTENDS_SET.contains(className) || CLASS_EXTENDS_METHOD_INFO_MAP.get(className) != null) {
             // 假如当前类不涉及继承，或当前类已处理过，则不处理
             return;
         }
@@ -85,7 +87,7 @@ public class JarEntryPreHandle2Parser extends AbstractJarEntryParser {
                 methodAttributeMap.put(new MethodAndArgs(methodName, method.getArgumentTypes()), method.getAccessFlags());
             }
         }
-        DataContext.CLASS_EXTENDS_METHOD_INFO_MAP.put(className, new ClassExtendsMethodInfo(javaClass.getAccessFlags(), superClassName, methodAttributeMap));
+        CLASS_EXTENDS_METHOD_INFO_MAP.put(className, new ClassExtendsMethodInfo(javaClass.getAccessFlags(), superClassName, methodAttributeMap));
     }
 
     // 查找涉及继承的接口的信息

@@ -102,6 +102,20 @@ public class CallDataGenerate {
                 " ，耗时: " + (spendTime / 1000.0D) + " S";
         System.out.println(printInfo);
         
+        generate();
+        
+        spendTime = System.currentTimeMillis() - startTime;
+        printInfo = "执行完毕，处理数量，类： " + CLASS_NUM_COUNTER.getCount() +
+                " ，方法: " + METHOD_NUM_COUNTER.getCount() +
+                " ，方法调用: " + CALL_ID_COUNTER.getCount() +
+                " ，耗时: " + (spendTime / 1000.0D) + " S";
+        System.out.println(printInfo);
+        if (JavaCGLogUtil.isDebugPrintInFile()) {
+            JavaCGLogUtil.debugPrint(printInfo);
+        }
+    }
+    
+    private static void generate() {
         new MethodCallTxtGeneratot().generateCalcTime();
         new PumlXmindGenerator().generateCalcTime();
         new PumlTestGenerator().setParser(new AbstractLinkParser() {
@@ -119,17 +133,7 @@ public class CallDataGenerate {
             protected boolean nextHandle(String prevMethodName, MethodCall next, int level) {
                 return false;
             }
-        }).generate();
-        
-        spendTime = System.currentTimeMillis() - startTime;
-        printInfo = "执行完毕，处理数量，类： " + CLASS_NUM_COUNTER.getCount() +
-                " ，方法: " + METHOD_NUM_COUNTER.getCount() +
-                " ，方法调用: " + CALL_ID_COUNTER.getCount() +
-                " ，耗时: " + (spendTime / 1000.0D) + " S";
-        System.out.println(printInfo);
-        if (JavaCGLogUtil.isDebugPrintInFile()) {
-            JavaCGLogUtil.debugPrint(printInfo);
-        }
+        }).generateCalcTime();
     }
     
     /**

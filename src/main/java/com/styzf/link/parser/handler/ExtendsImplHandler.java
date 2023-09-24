@@ -10,17 +10,13 @@ import com.styzf.link.parser.dto.call.MethodCall;
 import com.styzf.link.parser.dto.classes.ClassExtendsMethodInfo;
 import com.styzf.link.parser.dto.classes.ClassImplementsMethodInfo;
 import com.styzf.link.parser.dto.classes.Node4ClassExtendsMethod;
-import com.styzf.link.parser.dto.counter.JavaCGCounter;
 import com.styzf.link.parser.dto.interfaces.InterfaceExtendsMethodInfo;
 import com.styzf.link.parser.dto.method.MethodAndArgs;
 import com.styzf.link.parser.dto.stack.ListAsStack;
 import com.styzf.link.parser.util.JavaCGByteCodeUtil;
-import com.styzf.link.parser.util.JavaCGFileUtil;
 import com.styzf.link.parser.util.JavaCGLogUtil;
 import com.styzf.link.parser.util.JavaCGUtil;
 
-import java.io.IOException;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -38,7 +34,7 @@ import static com.styzf.link.parser.context.CounterContext.CALL_ID_COUNTER;
 public class ExtendsImplHandler {
     private JavaCGConfInfo javaCGConfInfo;
 
-    public void handle() throws IOException {
+    public void handle() {
         // 将父接口中的方法添加到子接口中
         addSuperInterfaceMethod4ChildrenInterface();
 
@@ -53,7 +49,7 @@ public class ExtendsImplHandler {
     }
 
     // 将父接口中的方法添加到子接口中
-    private void addSuperInterfaceMethod4ChildrenInterface() throws IOException {
+    private void addSuperInterfaceMethod4ChildrenInterface() {
         // 查找顶层父接口
         Set<String> topSuperInterfaceSet = new HashSet<>();
         for (Map.Entry<String, InterfaceExtendsMethodInfo> entry : DataContext.INTERFACE_EXTENDS_METHOD_INFO_MAP.entrySet()) {
@@ -82,7 +78,7 @@ public class ExtendsImplHandler {
     }
 
     // 处理一个父接口
-    private void handleOneSuperInterface(String superInterface) throws IOException {
+    private void handleOneSuperInterface(String superInterface) {
         List<String> childrenInterfaceList = DataContext.CHILDREN_INTERFACE_MAP.get(superInterface);
         if (childrenInterfaceList == null) {
             return;
@@ -98,7 +94,7 @@ public class ExtendsImplHandler {
     }
 
     // 处理父接口及一个子接口
-    private void handleSuperAndChildInterface(String superInterface, String childInterface) throws IOException {
+    private void handleSuperAndChildInterface(String superInterface, String childInterface) {
         InterfaceExtendsMethodInfo superInterfaceExtendsMethodInfo = DataContext.INTERFACE_EXTENDS_METHOD_INFO_MAP.get(superInterface);
         if (superInterfaceExtendsMethodInfo == null) {
             // 父接口在接口涉及继承的信息Map中不存在记录时，不处理
@@ -172,7 +168,7 @@ public class ExtendsImplHandler {
     }
 
     // 记录父类调用子类方法，及子类调用父类方法
-    private void recordClassExtendsMethod() throws IOException {
+    private void recordClassExtendsMethod() {
         Set<String> topSuperClassNameSet = new HashSet<>();
 
         // 得到最顶层父类名称
@@ -195,7 +191,7 @@ public class ExtendsImplHandler {
     }
 
     // 处理一个顶层父类
-    private void handleOneTopSuperClass(String topSuperClassName) throws IOException {
+    private void handleOneTopSuperClass(String topSuperClassName) {
         if (JavaCGLogUtil.isDebugPrintFlag()) {
             JavaCGLogUtil.debugPrint("处理一个顶层父类: " + topSuperClassName);
         }
@@ -247,9 +243,14 @@ public class ExtendsImplHandler {
             nodeStack.push(nextNode);
         }
     }
-
-    // 处理父类和子类的方法调用
-    private void handleSuperAndChildClass(String superClassName, String childClassName) throws IOException {
+    
+    /**
+     * 处理父类和子类的方法调用
+     * TODO 逻辑需要调整，父类找不到的方法应当继续向上找，另外子类的方法不应当继承到父类中
+     * @param superClassName 父类名
+     * @param childClassName 子类名
+     */
+    private void handleSuperAndChildClass(String superClassName, String childClassName) {
         ClassExtendsMethodInfo superClassMethodInfo = DataContext.CLASS_EXTENDS_METHOD_INFO_MAP.get(superClassName);
         if (superClassMethodInfo == null) {
             System.err.println("### 未找到父类信息: " + superClassName);
@@ -306,7 +307,7 @@ public class ExtendsImplHandler {
     }
 
     // 记录接口调用实现类方法
-    private void recordInterfaceCallClassMethod() throws IOException {
+    private void recordInterfaceCallClassMethod() {
         if (DataContext.CLASS_IMPLEMENTS_METHOD_INFO_MAP.isEmpty() || DataContext.INTERFACE_METHOD_WITH_ARGS_MAP.isEmpty()) {
             return;
         }
@@ -390,7 +391,7 @@ public class ExtendsImplHandler {
                                     JavaCGCallTypeEnum methodCallType,
                                     String calleeClassName,
                                     String calleeMethodName,
-                                    String calleeMethodArgs) throws IOException {
+                                    String calleeMethodArgs) {
         if (JavaCGUtil.checkSkipClass(callerClassName, javaCGConfInfo.getNeedHandlePackageSet()) ||
                 JavaCGUtil.checkSkipClass(calleeClassName, javaCGConfInfo.getNeedHandlePackageSet())) {
             return;
