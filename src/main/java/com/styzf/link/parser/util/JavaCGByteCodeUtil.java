@@ -62,12 +62,12 @@ public class JavaCGByteCodeUtil {
             同时满足以下条件：
             非<init>、<clinit>
             非静态
-            非抽象
+//            非抽象
             public方法（只能为public，不能为默认修饰符）
          */
         return !methodName.startsWith("<")
                 && !accessFlags.isStatic()
-                && !accessFlags.isAbstract()
+//                && !accessFlags.isAbstract()
                 && accessFlags.isPublic();
     }
 

@@ -24,7 +24,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.styzf.link.parser.common.JavaCGConstants.EXTENDS_NODE_INDEX_INIT;
 import static com.styzf.link.parser.context.CounterContext.CALL_ID_COUNTER;
+import static com.styzf.link.parser.context.DataContext.CHILDREN_CLASS_MAP;
+import static com.styzf.link.parser.context.DataContext.CHILDREN_INTERFACE_MAP;
+import static com.styzf.link.parser.context.DataContext.CLASS_AND_JAR_NUM;
+import static com.styzf.link.parser.context.DataContext.CLASS_EXTENDS_METHOD_INFO_MAP;
+import static com.styzf.link.parser.context.DataContext.CLASS_IMPLEMENTS_METHOD_INFO_MAP;
+import static com.styzf.link.parser.context.DataContext.INTERFACE_EXTENDS_METHOD_INFO_MAP;
+import static com.styzf.link.parser.context.DataContext.INTERFACE_METHOD_WITH_ARGS_MAP;
+import static java.lang.System.err;
 
 /**
  * @author adrninistrator
@@ -52,10 +61,10 @@ public class ExtendsImplHandler {
     private void addSuperInterfaceMethod4ChildrenInterface() {
         // 查找顶层父接口
         Set<String> topSuperInterfaceSet = new HashSet<>();
-        for (Map.Entry<String, InterfaceExtendsMethodInfo> entry : DataContext.INTERFACE_EXTENDS_METHOD_INFO_MAP.entrySet()) {
+        for (Map.Entry<String, InterfaceExtendsMethodInfo> entry : INTERFACE_EXTENDS_METHOD_INFO_MAP.entrySet()) {
             InterfaceExtendsMethodInfo interfaceExtendsMethodInfo = entry.getValue();
             for (String superInterface : interfaceExtendsMethodInfo.getSuperInterfaceList()) {
-                InterfaceExtendsMethodInfo superInterfaceExtendsMethodInfo = DataContext.INTERFACE_EXTENDS_METHOD_INFO_MAP.get(superInterface);
+                InterfaceExtendsMethodInfo superInterfaceExtendsMethodInfo = INTERFACE_EXTENDS_METHOD_INFO_MAP.get(superInterface);
                 if (superInterfaceExtendsMethodInfo == null || superInterfaceExtendsMethodInfo.getSuperInterfaceList().isEmpty()) {
                     // 父接口在接口涉及继承的信息Map中不存在记录，或父接口列表为空，说明当前为顶层父接口
                     if (!topSuperInterfaceSet.add(superInterface)) {
@@ -79,7 +88,7 @@ public class ExtendsImplHandler {
 
     // 处理一个父接口
     private void handleOneSuperInterface(String superInterface) {
-        List<String> childrenInterfaceList = DataContext.CHILDREN_INTERFACE_MAP.get(superInterface);
+        List<String> childrenInterfaceList = CHILDREN_INTERFACE_MAP.get(superInterface);
         if (childrenInterfaceList == null) {
             return;
         }
@@ -95,13 +104,13 @@ public class ExtendsImplHandler {
 
     // 处理父接口及一个子接口
     private void handleSuperAndChildInterface(String superInterface, String childInterface) {
-        InterfaceExtendsMethodInfo superInterfaceExtendsMethodInfo = DataContext.INTERFACE_EXTENDS_METHOD_INFO_MAP.get(superInterface);
+        InterfaceExtendsMethodInfo superInterfaceExtendsMethodInfo = INTERFACE_EXTENDS_METHOD_INFO_MAP.get(superInterface);
         if (superInterfaceExtendsMethodInfo == null) {
             // 父接口在接口涉及继承的信息Map中不存在记录时，不处理
             return;
         }
 
-        InterfaceExtendsMethodInfo childInterfaceExtendsMethodInfo = DataContext.INTERFACE_EXTENDS_METHOD_INFO_MAP.get(childInterface);
+        InterfaceExtendsMethodInfo childInterfaceExtendsMethodInfo = INTERFACE_EXTENDS_METHOD_INFO_MAP.get(childInterface);
 
         List<MethodAndArgs> superInterfaceMethodAndArgsList = superInterfaceExtendsMethodInfo.getMethodAndArgsList();
         // 对父接口中的方法进行排序
@@ -118,7 +127,7 @@ public class ExtendsImplHandler {
             childInterfaceMethodAndArgsList.add(superMethodAndArgs);
 
             // 在子接口中添加父接口的方法（所有接口都需要记录的结构）
-            List<MethodAndArgs> childInterfaceMethodAndArgsListAll = DataContext.INTERFACE_METHOD_WITH_ARGS_MAP.computeIfAbsent(childInterface, k -> new ArrayList<>());
+            List<MethodAndArgs> childInterfaceMethodAndArgsListAll = INTERFACE_METHOD_WITH_ARGS_MAP.computeIfAbsent(childInterface, k -> new ArrayList<>());
             childInterfaceMethodAndArgsListAll.add(superMethodAndArgs);
 
             // 添加子接口调用父接口方法
@@ -129,9 +138,9 @@ public class ExtendsImplHandler {
 
     // 将接口中的抽象方法加到抽象父类中
     private void addInterfaceMethod4SuperAbstractClass() {
-        for (Map.Entry<String, List<String>> childrenClassEntry : DataContext.CHILDREN_CLASS_MAP.entrySet()) {
+        for (Map.Entry<String, List<String>> childrenClassEntry : CHILDREN_CLASS_MAP.entrySet()) {
             String superClassName = childrenClassEntry.getKey();
-            ClassExtendsMethodInfo classExtendsMethodInfo = DataContext.CLASS_EXTENDS_METHOD_INFO_MAP.get(superClassName);
+            ClassExtendsMethodInfo classExtendsMethodInfo = CLASS_EXTENDS_METHOD_INFO_MAP.get(superClassName);
             if (classExtendsMethodInfo == null || !JavaCGByteCodeUtil.isAbstractFlag(classExtendsMethodInfo.getAccessFlags())) {
                 /*
                     为空的情况，对应其他jar包中的Class可以找到，但是找不到它们的方法，是正常的，不处理
@@ -140,7 +149,7 @@ public class ExtendsImplHandler {
                 continue;
             }
 
-            ClassImplementsMethodInfo classImplementsMethodInfo = DataContext.CLASS_IMPLEMENTS_METHOD_INFO_MAP.get(superClassName);
+            ClassImplementsMethodInfo classImplementsMethodInfo = CLASS_IMPLEMENTS_METHOD_INFO_MAP.get(superClassName);
             if (classImplementsMethodInfo == null) {
                 continue;
             }
@@ -154,7 +163,7 @@ public class ExtendsImplHandler {
 
             // 将接口中的抽象方法加到抽象父类中
             for (String interfaceName : classImplementsMethodInfo.getInterfaceNameList()) {
-                List<MethodAndArgs> interfaceMethodWithArgsList = DataContext.INTERFACE_METHOD_WITH_ARGS_MAP.get(interfaceName);
+                List<MethodAndArgs> interfaceMethodWithArgsList = INTERFACE_METHOD_WITH_ARGS_MAP.get(interfaceName);
                 if (interfaceMethodWithArgsList == null) {
                     continue;
                 }
@@ -172,7 +181,7 @@ public class ExtendsImplHandler {
         Set<String> topSuperClassNameSet = new HashSet<>();
 
         // 得到最顶层父类名称
-        for (Map.Entry<String, ClassExtendsMethodInfo> classExtendsMethodInfoEntry : DataContext.CLASS_EXTENDS_METHOD_INFO_MAP.entrySet()) {
+        for (Map.Entry<String, ClassExtendsMethodInfo> classExtendsMethodInfoEntry : CLASS_EXTENDS_METHOD_INFO_MAP.entrySet()) {
             String className = classExtendsMethodInfoEntry.getKey();
             ClassExtendsMethodInfo classExtendsMethodInfo = classExtendsMethodInfoEntry.getValue();
             String superClassName = classExtendsMethodInfo.getSuperClassName();
@@ -198,15 +207,15 @@ public class ExtendsImplHandler {
         ListAsStack<Node4ClassExtendsMethod> nodeStack = new ListAsStack<>();
 
         // 初始化节点列表
-        Node4ClassExtendsMethod topNode = new Node4ClassExtendsMethod(topSuperClassName, JavaCGConstants.EXTENDS_NODE_INDEX_INIT);
+        Node4ClassExtendsMethod topNode = new Node4ClassExtendsMethod(topSuperClassName, EXTENDS_NODE_INDEX_INIT);
         nodeStack.push(topNode);
 
         // 开始循环
         while (true) {
             Node4ClassExtendsMethod currentNode = nodeStack.peek();
-            List<String> childrenClassList = DataContext.CHILDREN_CLASS_MAP.get(currentNode.getSuperClassName());
+            List<String> childrenClassList = CHILDREN_CLASS_MAP.get(currentNode.getSuperClassName());
             if (childrenClassList == null) {
-                System.err.println("### 未找到顶层父类的子类: " + currentNode.getSuperClassName());
+                err.println("### 未找到顶层父类的子类: " + currentNode.getSuperClassName());
                 return;
             }
 
@@ -231,7 +240,7 @@ public class ExtendsImplHandler {
             // 处理下一个子类
             currentNode.setChildClassIndex(currentChildClassIndex);
 
-            List<String> nextChildClassList = DataContext.CHILDREN_CLASS_MAP.get(childClassName);
+            List<String> nextChildClassList = CHILDREN_CLASS_MAP.get(childClassName);
             if (nextChildClassList == null) {
                 // 当前的子类下没有子类
                 continue;
@@ -239,7 +248,7 @@ public class ExtendsImplHandler {
 
             // 当前的子类下有子类
             // 入栈
-            Node4ClassExtendsMethod nextNode = new Node4ClassExtendsMethod(childClassName, JavaCGConstants.EXTENDS_NODE_INDEX_INIT);
+            Node4ClassExtendsMethod nextNode = new Node4ClassExtendsMethod(childClassName, EXTENDS_NODE_INDEX_INIT);
             nodeStack.push(nextNode);
         }
     }
@@ -251,15 +260,15 @@ public class ExtendsImplHandler {
      * @param childClassName 子类名
      */
     private void handleSuperAndChildClass(String superClassName, String childClassName) {
-        ClassExtendsMethodInfo superClassMethodInfo = DataContext.CLASS_EXTENDS_METHOD_INFO_MAP.get(superClassName);
+        ClassExtendsMethodInfo superClassMethodInfo = CLASS_EXTENDS_METHOD_INFO_MAP.get(superClassName);
         if (superClassMethodInfo == null) {
-            System.err.println("### 未找到父类信息: " + superClassName);
+            err.println("### 未找到父类信息: " + superClassName);
             return;
         }
 
-        ClassExtendsMethodInfo childClassMethodInfo = DataContext.CLASS_EXTENDS_METHOD_INFO_MAP.get(childClassName);
+        ClassExtendsMethodInfo childClassMethodInfo = CLASS_EXTENDS_METHOD_INFO_MAP.get(childClassName);
         if (childClassMethodInfo == null) {
-            System.err.println("### 未找到子类信息: " + childClassName);
+            err.println("### 未找到子类信息: " + childClassName);
             return;
         }
 
@@ -308,23 +317,23 @@ public class ExtendsImplHandler {
 
     // 记录接口调用实现类方法
     private void recordInterfaceCallClassMethod() {
-        if (DataContext.CLASS_IMPLEMENTS_METHOD_INFO_MAP.isEmpty() || DataContext.INTERFACE_METHOD_WITH_ARGS_MAP.isEmpty()) {
+        if (CLASS_IMPLEMENTS_METHOD_INFO_MAP.isEmpty() || INTERFACE_METHOD_WITH_ARGS_MAP.isEmpty()) {
             return;
         }
 
-        List<String> classNameList = new ArrayList<>(DataContext.CLASS_IMPLEMENTS_METHOD_INFO_MAP.keySet());
+        List<String> classNameList = new ArrayList<>(CLASS_IMPLEMENTS_METHOD_INFO_MAP.keySet());
         // 对类名进行排序
         Collections.sort(classNameList);
         // 对类名进行遍历
         for (String className : classNameList) {
-            ClassImplementsMethodInfo classImplementsMethodInfo = DataContext.CLASS_IMPLEMENTS_METHOD_INFO_MAP.get(className);
+            ClassImplementsMethodInfo classImplementsMethodInfo = CLASS_IMPLEMENTS_METHOD_INFO_MAP.get(className);
             List<String> interfaceNameList = classImplementsMethodInfo.getInterfaceNameList();
             // 对实现的接口进行排序
             Collections.sort(interfaceNameList);
 
             // 找到在接口和实现类中都存在的方法
             for (String interfaceName : interfaceNameList) {
-                List<MethodAndArgs> interfaceMethodWithArgsList = DataContext.INTERFACE_METHOD_WITH_ARGS_MAP.get(interfaceName);
+                List<MethodAndArgs> interfaceMethodWithArgsList = INTERFACE_METHOD_WITH_ARGS_MAP.get(interfaceName);
                 if (JavaCGUtil.isCollectionEmpty(interfaceMethodWithArgsList)) {
                     continue;
                 }
@@ -357,7 +366,7 @@ public class ExtendsImplHandler {
      */
     private void addSuperMethod2ImplClass(List<MethodAndArgs> methodWithArgsList, String className) {
         // 获取当前处理的实现类涉及继承的信息
-        ClassExtendsMethodInfo classExtendsMethodInfo = DataContext.CLASS_EXTENDS_METHOD_INFO_MAP.get(className);
+        ClassExtendsMethodInfo classExtendsMethodInfo = CLASS_EXTENDS_METHOD_INFO_MAP.get(className);
         if (classExtendsMethodInfo == null) {
             return;
         }
@@ -397,8 +406,8 @@ public class ExtendsImplHandler {
             return;
         }
 
-        String callerClassJarNum = DataContext.CLASS_AND_JAR_NUM.getJarNum(callerClassName);
-        String calleeClassJarNum = DataContext.CLASS_AND_JAR_NUM.getJarNum(calleeClassName);
+        String callerClassJarNum = CLASS_AND_JAR_NUM.getJarNum(callerClassName);
+        String calleeClassJarNum = CLASS_AND_JAR_NUM.getJarNum(calleeClassName);
 
         MethodCall methodCall = new MethodCall(
                 CALL_ID_COUNTER.addAndGet(),
