@@ -1,6 +1,7 @@
 package com.styzf.link.parser.dto.method;
 
 import com.styzf.link.parser.util.JavaCGMethodUtil;
+import org.apache.bcel.Const;
 import org.apache.bcel.generic.Type;
 
 import java.util.Objects;
@@ -15,6 +16,13 @@ public class MethodAndArgs {
 
     private String methodArgs;
 
+    private int accessFlags;
+    
+    /**
+     * 是否为实际调用方法，或者为虚方法，虚方法即为继承下来的方法
+     */
+    private boolean done = true;
+    
     public MethodAndArgs(String methodName, Type[] argTypes) {
         this.methodName = methodName;
         this.methodArgs = JavaCGMethodUtil.getArgListStr(argTypes);
@@ -42,7 +50,23 @@ public class MethodAndArgs {
     public int hashCode() {
         return Objects.hash(methodName, methodArgs);
     }
-
+    
+    public boolean isDone() {
+        return done;
+    }
+    
+    public void setDone(boolean done) {
+        this.done = done;
+    }
+    
+    public void setAccessFlags(int accessFlags) {
+        this.accessFlags = accessFlags;
+    }
+    
+    public int getAccessFlags() {
+        return accessFlags;
+    }
+    
     public String getMethodName() {
         return methodName;
     }

@@ -42,4 +42,18 @@ public class ClassExtendsMethodInfo {
     public Map<MethodAndArgs, Integer> getMethodWithArgsMap() {
         return methodWithArgsMap;
     }
+    
+    public void putMethodAndArgs(MethodAndArgs methodAndArgs, int accessFlags) {
+        Integer flag = methodWithArgsMap.get(methodAndArgs);
+        if (flag == null) {
+            // 为空则没有对应的数据，则新创建一个类，并标识为虚处理
+            MethodAndArgs methodAndArgsNew = new MethodAndArgs(methodAndArgs.getMethodName(), methodAndArgs.getMethodArgs());
+            methodAndArgsNew.setDone(false);
+            methodAndArgsNew.setAccessFlags(accessFlags);
+            methodWithArgsMap.putIfAbsent(methodAndArgsNew, accessFlags);
+        } else {
+            // 添加时不覆盖现有的值
+            methodWithArgsMap.putIfAbsent(methodAndArgs, accessFlags);
+        }
+    }
 }

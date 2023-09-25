@@ -51,6 +51,12 @@ public class DataContext {
      * value   接口中的方法信息
      */
     public final static Map<String, List<MethodAndArgs>> INTERFACE_METHOD_WITH_ARGS_MAP = new HashMap<>(JavaCGConstants.SIZE_200);
+    /**
+     * 子父类中都没有进行实现的方法，可能在接口默认方法中实现
+     * key     类名
+     * value   类名中的方法信息
+     */
+    public final static Map<String, List<MethodAndArgs>> INTERFACE_METHOD_NONE_DONE_MAP = new HashMap<>(JavaCGConstants.SIZE_200);
     
     // 第一次预处理相关
     /**

@@ -83,8 +83,10 @@ public class JarEntryPreHandle2Parser extends AbstractJarEntryParser {
         for (Method method : javaClass.getMethods()) {
             String methodName = method.getName();
             if (JavaCGByteCodeUtil.checkExtendsMethod(methodName, method)) {
+                MethodAndArgs methodAndArgs = new MethodAndArgs(methodName, method.getArgumentTypes());
+                methodAndArgs.setAccessFlags(method.getAccessFlags());
                 // 对于可能涉及继承的方法进行记录
-                methodAttributeMap.put(new MethodAndArgs(methodName, method.getArgumentTypes()), method.getAccessFlags());
+                methodAttributeMap.put(methodAndArgs, method.getAccessFlags());
             }
         }
         CLASS_EXTENDS_METHOD_INFO_MAP.put(className, new ClassExtendsMethodInfo(javaClass.getAccessFlags(), superClassName, methodAttributeMap));

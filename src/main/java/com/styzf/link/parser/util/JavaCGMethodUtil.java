@@ -3,7 +3,12 @@ package com.styzf.link.parser.util;
 import cn.hutool.core.util.ArrayUtil;
 import com.styzf.link.parser.common.JavaCGConstants;
 import com.styzf.link.parser.dto.method.JavaCGMethodInfo;
+import com.styzf.link.parser.dto.method.MethodAndArgs;
 import org.apache.bcel.generic.Type;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author adrninistrator
@@ -143,5 +148,25 @@ public class JavaCGMethodUtil {
 
     private JavaCGMethodUtil() {
         throw new IllegalStateException("illegal");
+    }
+    
+    public static MethodAndArgs getByQuery(Map<MethodAndArgs, Integer> map, MethodAndArgs query) {
+        for (MethodAndArgs methodAndArgs : map.keySet()) {
+            if (methodAndArgs.equals(query)) {
+                return methodAndArgs;
+            }
+        }
+        
+        return null;
+    }
+
+    public static MethodAndArgs getByQuery(List<MethodAndArgs> list, MethodAndArgs query) {
+        for (MethodAndArgs methodAndArgs : list) {
+            if (methodAndArgs.equals(query)) {
+                return methodAndArgs;
+            }
+        }
+        
+        return null;
     }
 }

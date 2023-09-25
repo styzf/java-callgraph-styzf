@@ -98,7 +98,9 @@ public class JavaCGByteCodeUtil {
     public static List<MethodAndArgs> genInterfaceMethodWithArgs(Method[] methods) {
         List<MethodAndArgs> methodInfoList = new ArrayList<>(methods.length);
         for (Method method : methods) {
-            methodInfoList.add(new MethodAndArgs(method.getName(), JavaCGMethodUtil.getArgListStr(method.getArgumentTypes())));
+            MethodAndArgs methodAndArgs = new MethodAndArgs(method.getName(), JavaCGMethodUtil.getArgListStr(method.getArgumentTypes()));
+            methodAndArgs.setAccessFlags(method.getAccessFlags());
+            methodInfoList.add(methodAndArgs);
         }
         return methodInfoList;
     }
