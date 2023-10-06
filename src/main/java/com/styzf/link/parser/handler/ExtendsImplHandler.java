@@ -1,14 +1,12 @@
 package com.styzf.link.parser.handler;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.styzf.link.parser.common.JavaCGConstants;
 import com.styzf.link.parser.common.enums.JavaCGCallTypeEnum;
 import com.styzf.link.parser.comparator.MethodAndArgsComparator;
 import com.styzf.link.parser.conf.JavaCGConfInfo;
-import com.styzf.link.parser.context.DataContext;
 import com.styzf.link.parser.dto.access_flag.JavaCGAccessFlags;
 import com.styzf.link.parser.dto.call.MethodCall;
 import com.styzf.link.parser.dto.classes.ClassExtendsMethodInfo;
@@ -24,7 +22,6 @@ import com.styzf.link.parser.util.JavaCGUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -34,14 +31,14 @@ import java.util.Set;
 
 import static com.styzf.link.parser.common.JavaCGConstants.EXTENDS_NODE_INDEX_INIT;
 import static com.styzf.link.parser.context.CounterContext.CALL_ID_COUNTER;
-import static com.styzf.link.parser.context.DataContext.CHILDREN_CLASS_MAP;
-import static com.styzf.link.parser.context.DataContext.CHILDREN_INTERFACE_MAP;
-import static com.styzf.link.parser.context.DataContext.CLASS_AND_JAR_NUM;
-import static com.styzf.link.parser.context.DataContext.CLASS_EXTENDS_METHOD_INFO_MAP;
-import static com.styzf.link.parser.context.DataContext.CLASS_IMPLEMENTS_METHOD_INFO_MAP;
-import static com.styzf.link.parser.context.DataContext.INTERFACE_EXTENDS_METHOD_INFO_MAP;
-import static com.styzf.link.parser.context.DataContext.INTERFACE_METHOD_NONE_DONE_MAP;
-import static com.styzf.link.parser.context.DataContext.INTERFACE_METHOD_WITH_ARGS_MAP;
+import static com.styzf.link.parser.context.OldDataContext.CHILDREN_CLASS_MAP;
+import static com.styzf.link.parser.context.OldDataContext.CHILDREN_INTERFACE_MAP;
+import static com.styzf.link.parser.context.OldDataContext.CLASS_AND_JAR_NUM;
+import static com.styzf.link.parser.context.OldDataContext.CLASS_EXTENDS_METHOD_INFO_MAP;
+import static com.styzf.link.parser.context.OldDataContext.CLASS_IMPLEMENTS_METHOD_INFO_MAP;
+import static com.styzf.link.parser.context.OldDataContext.INTERFACE_EXTENDS_METHOD_INFO_MAP;
+import static com.styzf.link.parser.context.OldDataContext.INTERFACE_METHOD_NONE_DONE_MAP;
+import static com.styzf.link.parser.context.OldDataContext.INTERFACE_METHOD_WITH_ARGS_MAP;
 import static java.lang.System.err;
 
 /**
@@ -443,7 +440,7 @@ public class ExtendsImplHandler {
             // 找到在接口和实现类中都存在的方法
             for (String interfaceName : interfaceNameList) {
                 List<MethodAndArgs> interfaceMethodWithArgsList = INTERFACE_METHOD_WITH_ARGS_MAP.get(interfaceName);
-                if (JavaCGUtil.isCollectionEmpty(interfaceMethodWithArgsList)) {
+                if (CollUtil.isEmpty(interfaceMethodWithArgsList)) {
                     continue;
                 }
 

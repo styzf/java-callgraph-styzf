@@ -1,7 +1,5 @@
 package com.styzf.link.parser.parser;
 
-import com.styzf.link.parser.conf.JavaCGConfInfo;
-import com.styzf.link.parser.context.DataContext;
 import com.styzf.link.parser.dto.jar.JarInfo;
 import com.styzf.link.parser.util.JavaCGFileUtil;
 import com.styzf.link.parser.util.JavaCGLogUtil;
@@ -12,11 +10,13 @@ import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
-import static com.styzf.link.parser.context.DataContext.JAR_INFO_MAP;
+import static com.styzf.link.parser.context.OldDataContext.JAR_INFO_MAP;
 
 /**
  * @author adrninistrator
@@ -44,7 +44,7 @@ public abstract class AbstractJarEntryParser {
         init();
 
         String jarEntryName = null;
-        try (JarInputStream jarInputStream = new JarInputStream(new BufferedInputStream(new FileInputStream(jarFilePath), 1024 * 32))) {
+        try (JarInputStream jarInputStream = new JarInputStream(new BufferedInputStream(Files.newInputStream(Paths.get(jarFilePath)), 1024 * 32))) {
             JarEntry jarEntry;
             while ((jarEntry = jarInputStream.getNextJarEntry()) != null) {
                 if (jarEntry.isDirectory()) {

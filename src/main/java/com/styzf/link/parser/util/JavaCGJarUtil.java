@@ -1,8 +1,9 @@
 package com.styzf.link.parser.util;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.styzf.link.parser.common.JavaCGConstants;
-import com.styzf.link.parser.context.DataContext;
+import com.styzf.link.parser.context.OldDataContext;
 import com.styzf.link.parser.dto.counter.JavaCGCounter;
 import com.styzf.link.parser.dto.jar.JarInfo;
 
@@ -32,7 +33,7 @@ public class JavaCGJarUtil {
 
     // 获取合并jar/war包中的class文件时，需要合并的特定包名
     private static Set<String> getMergeClassInJarPackageSet(Set<String> needHandlePackageSet) {
-        if (JavaCGUtil.isCollectionEmpty(needHandlePackageSet)) {
+        if (CollUtil.isEmpty(needHandlePackageSet)) {
             return new HashSet<>();
         }
 
@@ -100,13 +101,13 @@ public class JavaCGJarUtil {
                 // 指定的是一个jar包，直接返回
                 // 记录jar包信息，向map中保存数据的key使用固定值
                 JarInfo jarInfo = new JarInfo(jarNumCounter.addAndGet(), JavaCGConstants.FILE_KEY_JAR_INFO_PREFIX, oneFilePath);
-                DataContext.JAR_INFO_MAP.put(oneFile.getName(), jarInfo);
+                OldDataContext.JAR_INFO_MAP.put(oneFile.getName(), jarInfo);
                 return oneFile;
             }
         }
 
         // 指定的是一个目录，或数组指定了多于一个元素，需要生成新的jar包
-        return mergeJar(jarOrDirPathList, DataContext.JAR_INFO_MAP, needHandlePackageSet, jarNumCounter);
+        return mergeJar(jarOrDirPathList, OldDataContext.JAR_INFO_MAP, needHandlePackageSet, jarNumCounter);
     }
 
     /**

@@ -70,15 +70,6 @@ public abstract class AbstractMethodHandler {
      * @return false: 处理失败 true: 处理成功
      */
     public boolean handleMethod() {
-//        if (!"xxx".equals(mg.getClassName())
-//                || !"xxx".equals(mg.getName())
-////                || mg.getArgumentTypes().length != 2
-////                || !"xxx".equals(mg.getArgumentType(0).toString())
-//        ) {
-//            System.out.println("跳过当前方法 " + mg.getName());
-//            return true;
-//        }
-
         try {
             /*
                 首先进行方法预处理

@@ -3,7 +3,7 @@ package com.styzf.link.parser.generator.puml;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.StrUtil;
-import com.styzf.link.parser.context.DataContext;
+import com.styzf.link.parser.context.OldDataContext;
 import com.styzf.link.parser.dto.call.MethodCall;
 import com.styzf.link.parser.generator.FilterUtil;
 import com.styzf.link.parser.parser.AbstractLinkParser;
@@ -30,7 +30,7 @@ public class PumlXmindGenerator extends AbstractPumlGenerator {
     
     @Override
     protected void setWriter() {
-        String outputRootPath = DataContext.javaCGConfInfo.getOutputRootPath() + File.separator + "puml" + File.separator;
+        String outputRootPath = OldDataContext.javaCGConfInfo.getOutputRootPath() + File.separator + "puml" + File.separator;
         String fileName = this.easyMethodName.replaceAll("[\\.(|)|:|<|>]","_") + PumlConstant.PUML;
         try {
             writer = IoUtil.getUtf8Writer(new FileOutputStream(outputRootPath + fileName));
@@ -48,7 +48,7 @@ public class PumlXmindGenerator extends AbstractPumlGenerator {
         
         @Override
         protected String rootHandle(String rootMethodName) {
-            rootMethodName = DataContext.getRootMethodName(rootMethodName);
+            rootMethodName = OldDataContext.getRootMethodName(rootMethodName);
             String easyMethodName = BaseUtil.getEasyMethodName(rootMethodName);
             setEasyMethodName(easyMethodName);
             setWriter();

@@ -1,7 +1,6 @@
 package com.styzf.link.parser.parser;
 
-import com.styzf.link.parser.conf.JavaCGConfInfo;
-import com.styzf.link.parser.context.DataContext;
+import com.styzf.link.parser.context.OldDataContext;
 import com.styzf.link.parser.dto.classes.ClassExtendsMethodInfo;
 import com.styzf.link.parser.dto.interfaces.InterfaceExtendsMethodInfo;
 import com.styzf.link.parser.dto.method.MethodAndArgs;
@@ -19,9 +18,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.jar.JarInputStream;
 
-import static com.styzf.link.parser.context.DataContext.CLASS_EXTENDS_METHOD_INFO_MAP;
-import static com.styzf.link.parser.context.DataContext.CLASS_EXTENDS_SET;
-import static com.styzf.link.parser.context.DataContext.javaCGConfInfo;
+import static com.styzf.link.parser.context.OldDataContext.CHILDREN_CLASS_MAP;
+import static com.styzf.link.parser.context.OldDataContext.CHILDREN_INTERFACE_MAP;
+import static com.styzf.link.parser.context.OldDataContext.CLASS_EXTENDS_METHOD_INFO_MAP;
+import static com.styzf.link.parser.context.OldDataContext.CLASS_EXTENDS_SET;
+import static com.styzf.link.parser.context.OldDataContext.INTERFACE_EXTENDS_METHOD_INFO_MAP;
+import static com.styzf.link.parser.context.OldDataContext.INTERFACE_EXTENDS_SET;
+import static com.styzf.link.parser.context.OldDataContext.javaCGConfInfo;
 
 /**
  * @author adrninistrator
@@ -74,7 +77,7 @@ public class JarEntryPreHandle2Parser extends AbstractJarEntryParser {
         String superClassName = javaClass.getSuperclassName();
         if (!JavaCGUtil.isClassInJdk(superClassName)) {
             // 记录父类及其子类，忽略以"java."开头的父类
-            List<String> childrenClassList = DataContext.CHILDREN_CLASS_MAP.computeIfAbsent(superClassName, k -> new ArrayList<>());
+            List<String> childrenClassList = CHILDREN_CLASS_MAP.computeIfAbsent(superClassName, k -> new ArrayList<>());
             childrenClassList.add(className);
         }
 
@@ -96,8 +99,8 @@ public class JarEntryPreHandle2Parser extends AbstractJarEntryParser {
     private void findInterfaceExtendsInfo(JavaClass interfaceClass) {
         String interfaceName = interfaceClass.getClassName();
         if (interfaceClass.isAnnotation() ||
-                !DataContext.INTERFACE_EXTENDS_SET.contains(interfaceName) ||
-                DataContext.INTERFACE_EXTENDS_METHOD_INFO_MAP.get(interfaceName) != null) {
+                ! INTERFACE_EXTENDS_SET.contains(interfaceName) ||
+                INTERFACE_EXTENDS_METHOD_INFO_MAP.get(interfaceName) != null) {
             // 假如为水底有，或当前接口不涉及继承，或当前接口已处理过，则不处理
             return;
         }
@@ -105,7 +108,7 @@ public class JarEntryPreHandle2Parser extends AbstractJarEntryParser {
         String[] superInterfaceNames = interfaceClass.getInterfaceNames();
         for (String superInterfaceName : superInterfaceNames) {
             // 记录父类及其子类，忽略以"java."开头的父类
-            List<String> childrenInterfaceList = DataContext.CHILDREN_INTERFACE_MAP.computeIfAbsent(superInterfaceName, k -> new ArrayList<>());
+            List<String> childrenInterfaceList = CHILDREN_INTERFACE_MAP.computeIfAbsent(superInterfaceName, k -> new ArrayList<>());
             childrenInterfaceList.add(interfaceName);
         }
 
@@ -114,6 +117,6 @@ public class JarEntryPreHandle2Parser extends AbstractJarEntryParser {
         for (Method method : interfaceClass.getMethods()) {
             methodAttributeList.add(new MethodAndArgs(method.getName(), method.getArgumentTypes()));
         }
-        DataContext.INTERFACE_EXTENDS_METHOD_INFO_MAP.put(interfaceName, new InterfaceExtendsMethodInfo(Arrays.asList(superInterfaceNames), methodAttributeList));
+        INTERFACE_EXTENDS_METHOD_INFO_MAP.put(interfaceName, new InterfaceExtendsMethodInfo(Arrays.asList(superInterfaceNames), methodAttributeList));
     }
 }

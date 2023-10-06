@@ -21,14 +21,15 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.jar.JarInputStream;
 
 import static com.styzf.link.parser.context.CounterContext.CLASS_NUM_COUNTER;
-import static com.styzf.link.parser.context.DataContext.DUPLICATE_CLASS_NAME_MAP;
-import static com.styzf.link.parser.context.DataContext.HANDLED_CLASS_NAME_MAP;
-import static com.styzf.link.parser.context.DataContext.javaCGConfInfo;
+import static com.styzf.link.parser.context.OldDataContext.DUPLICATE_CLASS_NAME_MAP;
+import static com.styzf.link.parser.context.OldDataContext.HANDLED_CLASS_NAME_MAP;
+import static com.styzf.link.parser.context.OldDataContext.javaCGConfInfo;
 
 /**
  * @author adrninistrator
@@ -77,11 +78,60 @@ public class JarEntryHandleParser extends AbstractJarEntryParser {
         // 处理jar包中的class文件
         return handleClassEntry(javaClass, jarEntryName);
     }
-
+    
+    /**
+     * 解析java类
+     * @param javaClass
+     * @param jarEntryName
+     * @return
+     */
     @Override
     protected boolean handleClassEntry(JavaClass javaClass, String jarEntryName) throws IOException {
         // 处理Java类
-        return handleJavaClass(javaClass, jarEntryName);
+        String className = javaClass.getClassName();
+        
+        if (JavaCGUtil.checkSkipClass(className, javaCGConfInfo.getNeedHandlePackageSet())) {
+            if (JavaCGLogUtil.isDebugPrintFlag()) {
+                JavaCGLogUtil.debugPrint("跳过不需要处理的类: " + className);
+            }
+            return true;
+        }
+        
+        List<String> classFilePathList = HANDLED_CLASS_NAME_MAP.get(className);
+        if (classFilePathList != null) {
+            // 记录已处理过的类名0
+            classFilePathList.add(jarEntryName);
+            // 记录重复的类名
+            DUPLICATE_CLASS_NAME_MAP.put(className, classFilePathList);
+            if (JavaCGLogUtil.isDebugPrintFlag()) {
+                JavaCGLogUtil.debugPrint("跳过处理重复同名Class: " + className);
+            }
+            return true;
+        }
+        
+        classFilePathList = new LinkedList<>();
+        classFilePathList.add(jarEntryName);
+        HANDLED_CLASS_NAME_MAP.put(className, classFilePathList);
+        if (JavaCGLogUtil.isDebugPrintFlag()) {
+            JavaCGLogUtil.debugPrint("处理Class: " + className);
+        }
+        
+        ClassHandler classHandler = new ClassHandler(javaClass, jarEntryName, javaCGConfInfo);
+        classHandler.setUseSpringBeanByAnnotationHandler(useSpringBeanByAnnotationHandler);
+        classHandler.setExtensionsManager(extensionsManager);
+        classHandler.setLastJarNum(lastJarInfo.getJarNum());
+        
+        CLASS_NUM_COUNTER.addAndGet();
+        if (!classHandler.handleClass()) {
+            return false;
+        }
+        
+        // 记录类的信息
+        JavaCGFileUtil.write2FileWithTab(classInfoWriter, className, String.valueOf(javaClass.getAccessFlags()));
+        recordExtendsAndImplInfo(javaClass, className);
+        handleClassSignature(javaClass, className);
+        handleInnerClass(javaClass);
+        return true;
     }
 
     // 尝试记录Jar包信息
@@ -95,74 +145,13 @@ public class JarEntryHandleParser extends AbstractJarEntryParser {
             JavaCGFileUtil.write2FileWithTab(jarInfoWriter, lastJarInfo.getJarType(), String.valueOf(lastJarNum), lastJarInfo.getJarPath());
         }
     }
-
-    // 处理Java类
-    private boolean handleJavaClass(JavaClass javaClass, String jarEntryName) throws IOException {
-        String className = javaClass.getClassName();
-
-        if (JavaCGUtil.checkSkipClass(className, javaCGConfInfo.getNeedHandlePackageSet())) {
-            if (JavaCGLogUtil.isDebugPrintFlag()) {
-                JavaCGLogUtil.debugPrint("跳过不需要处理的类: " + className);
-            }
-            return true;
-        }
-
-        List<String> classFilePathList = HANDLED_CLASS_NAME_MAP.get(className);
-        if (classFilePathList != null) {
-            // 记录已处理过的类名0
-            classFilePathList.add(jarEntryName);
-            // 记录重复的类名
-            DUPLICATE_CLASS_NAME_MAP.put(className, classFilePathList);
-            if (JavaCGLogUtil.isDebugPrintFlag()) {
-                JavaCGLogUtil.debugPrint("跳过处理重复同名Class: " + className);
-            }
-            return true;
-        }
-
-        classFilePathList = new ArrayList<>();
-        classFilePathList.add(jarEntryName);
-        HANDLED_CLASS_NAME_MAP.put(className, classFilePathList);
-        if (JavaCGLogUtil.isDebugPrintFlag()) {
-            JavaCGLogUtil.debugPrint("处理Class: " + className);
-        }
-
-        ClassHandler classHandler = new ClassHandler(javaClass, jarEntryName, javaCGConfInfo);
-        classHandler.setUseSpringBeanByAnnotationHandler(useSpringBeanByAnnotationHandler);
-        classHandler.setClassNameWriter(classNameWriter);
-        classHandler.setClassAnnotationWriter(classAnnotationWriter);
-        classHandler.setMethodAnnotationWriter(methodAnnotationWriter);
-        classHandler.setMethodLineNumberWriter(methodLineNumberWriter);
-        classHandler.setMethodCallWriter(methodCallWriter);
-        classHandler.setLambdaMethodInfoWriter(lambdaMethodInfoWriter);
-        classHandler.setMethodCallInfoWriter(methodCallInfoWriter);
-        classHandler.setMethodInfoWriter(methodInfoWriter);
-        classHandler.setMethodArgGenericsTypeWriter(methodArgGenericsTypeWriter);
-        classHandler.setMethodReturnGenericsTypeWriter(methodReturnGenericsTypeWriter);
-        classHandler.setLogMethodSpendTimeWriter(logMethodSpendTimeWriter);
-        classHandler.setExtensionsManager(extensionsManager);
-        classHandler.setLastJarNum(lastJarInfo.getJarNum());
     
-        CLASS_NUM_COUNTER.addAndGet();
-        if (!classHandler.handleClass()) {
-            return false;
-        }
-
-        // 记录类的信息
-        JavaCGFileUtil.write2FileWithTab(classInfoWriter, className, String.valueOf(javaClass.getAccessFlags()));
-
-        // 记录继承及实现相关信息
-        recordExtendsAndImplInfo(javaClass, className);
-
-        // 处理类的签名
-        handleClassSignature(javaClass, className);
-
-        // 处理内部类信息
-        handleInnerClass(javaClass);
-        return true;
-    }
-
-    // 记录继承及实现相关信息
-    private void recordExtendsAndImplInfo(JavaClass javaClass, String className) throws IOException {
+    /**
+     * 记录继承及实现相关信息
+     * @param javaClass 类信息
+     * @param className 类名
+     */
+    private void recordExtendsAndImplInfo(JavaClass javaClass, String className) {
         String superClassName = javaClass.getSuperclassName();
         String accessFlagsStr = String.valueOf(javaClass.getAccessFlags());
         if (!JavaCGUtil.isObjectClass(superClassName)) {
@@ -183,9 +172,13 @@ public class JarEntryHandleParser extends AbstractJarEntryParser {
                     interfaceName);
         }
     }
-
-    // 处理类的签名
-    private void handleClassSignature(JavaClass javaClass, String className) throws IOException {
+    
+    /**
+     * 处理类的签名
+     * @param javaClass 类信息
+     * @param className 类名
+     */
+    private void handleClassSignature(JavaClass javaClass, String className) {
         if (javaClass.isAnnotation()) {
             // 若当前类为注解则不处理
             return;
@@ -219,9 +212,12 @@ public class JarEntryHandleParser extends AbstractJarEntryParser {
             e.printStackTrace();
         }
     }
-
-    // 处理内部类信息
-    private void handleInnerClass(JavaClass javaClass) throws IOException {
+    
+    /**
+     * 处理内部类信息
+     * @param javaClass 类信息
+     */
+    private void handleInnerClass(JavaClass javaClass) {
         // 获取类中的内部类信息
         List<InnerClassInfo> innerClassInfoList = JavaCGByteCodeUtil.getInnerClassInfo(javaClass);
         for (InnerClassInfo innerClassInfo : innerClassInfoList) {
@@ -238,7 +234,7 @@ public class JarEntryHandleParser extends AbstractJarEntryParser {
      * @param superOrInterfaceName
      * @param classType
      */
-    private void recordSignatureArgumentInfo(String className, String type, String superOrInterfaceName, SignatureAttribute.ClassType classType) throws IOException {
+    private void recordSignatureArgumentInfo(String className, String type, String superOrInterfaceName, SignatureAttribute.ClassType classType) {
         if (classType.getTypeArguments() == null) {
             return;
         }
@@ -256,70 +252,6 @@ public class JarEntryHandleParser extends AbstractJarEntryParser {
 
     public void setUseSpringBeanByAnnotationHandler(UseSpringBeanByAnnotationHandler useSpringBeanByAnnotationHandler) {
         this.useSpringBeanByAnnotationHandler = useSpringBeanByAnnotationHandler;
-    }
-
-    public void setJarInfoWriter(Writer jarInfoWriter) {
-        this.jarInfoWriter = jarInfoWriter;
-    }
-
-    public void setClassNameWriter(Writer classNameWriter) {
-        this.classNameWriter = classNameWriter;
-    }
-
-    public void setMethodCallWriter(Writer methodCallWriter) {
-        this.methodCallWriter = methodCallWriter;
-    }
-
-    public void setLambdaMethodInfoWriter(Writer lambdaMethodInfoWriter) {
-        this.lambdaMethodInfoWriter = lambdaMethodInfoWriter;
-    }
-
-    public void setClassAnnotationWriter(Writer classAnnotationWriter) {
-        this.classAnnotationWriter = classAnnotationWriter;
-    }
-
-    public void setMethodAnnotationWriter(Writer methodAnnotationWriter) {
-        this.methodAnnotationWriter = methodAnnotationWriter;
-    }
-
-    public void setMethodLineNumberWriter(Writer methodLineNumberWriter) {
-        this.methodLineNumberWriter = methodLineNumberWriter;
-    }
-
-    public void setMethodCallInfoWriter(Writer methodCallInfoWriter) {
-        this.methodCallInfoWriter = methodCallInfoWriter;
-    }
-
-    public void setClassInfoWriter(Writer classInfoWriter) {
-        this.classInfoWriter = classInfoWriter;
-    }
-
-    public void setMethodInfoWriter(Writer methodInfoWriter) {
-        this.methodInfoWriter = methodInfoWriter;
-    }
-
-    public void setExtendsImplWriter(Writer extendsImplWriter) {
-        this.extendsImplWriter = extendsImplWriter;
-    }
-
-    public void setClassSignatureEI1Writer(Writer classSignatureEI1Writer) {
-        this.classSignatureEI1Writer = classSignatureEI1Writer;
-    }
-
-    public void setMethodArgGenericsTypeWriter(Writer methodArgGenericsTypeWriter) {
-        this.methodArgGenericsTypeWriter = methodArgGenericsTypeWriter;
-    }
-
-    public void setMethodReturnGenericsTypeWriter(Writer methodReturnGenericsTypeWriter) {
-        this.methodReturnGenericsTypeWriter = methodReturnGenericsTypeWriter;
-    }
-
-    public void setInnerClassWriter(Writer innerClassWriter) {
-        this.innerClassWriter = innerClassWriter;
-    }
-
-    public void setLogMethodSpendTimeWriter(WriterSupportSkip logMethodSpendTimeWriter) {
-        this.logMethodSpendTimeWriter = logMethodSpendTimeWriter;
     }
 
     public void setExtensionsManager(ExtensionsManager extensionsManager) {

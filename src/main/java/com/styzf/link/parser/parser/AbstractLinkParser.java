@@ -2,7 +2,7 @@ package com.styzf.link.parser.parser;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
-import com.styzf.link.parser.context.DataContext;
+import com.styzf.link.parser.context.OldDataContext;
 import com.styzf.link.parser.dto.call.MethodCall;
 
 import java.util.HashSet;
@@ -31,9 +31,9 @@ public abstract class AbstractLinkParser implements ParserInterface {
      */
     @Override
     public void parser() {
-        String rootMethodName = DataContext.javaCGConfInfo.getRootMethodName();
+        String rootMethodName = OldDataContext.javaCGConfInfo.getRootMethodName();
         rootMethodName = rootHandle(rootMethodName);
-        if (DataContext.javaCGConfInfo.isRootMethodNext()) {
+        if (OldDataContext.javaCGConfInfo.isRootMethodNext()) {
             nextParser(rootMethodName, 0);
         } else {
             prevParser(rootMethodName, 0);
@@ -52,7 +52,7 @@ public abstract class AbstractLinkParser implements ParserInterface {
      * @param level 向上层级，从0开始
      */
     protected void prevParser(String nextMethodName, int level) {
-        List<MethodCall> calleeList = DataContext.METHOD_CALLEE_MAP.get(nextMethodName);
+        List<MethodCall> calleeList = OldDataContext.METHOD_CALLEE_MAP.get(nextMethodName);
         if (CollUtil.isEmpty(calleeList)) {
             METHOD_SET.remove(nextMethodName);
             return;
@@ -100,7 +100,7 @@ public abstract class AbstractLinkParser implements ParserInterface {
      * 向下解析
      */
     protected void nextParser(String prevMethodName, int level) {
-        List<MethodCall> callList = DataContext.METHOD_CALL_MAP.get(prevMethodName);
+        List<MethodCall> callList = OldDataContext.METHOD_CALL_MAP.get(prevMethodName);
         if (CollUtil.isEmpty(callList)) {
             METHOD_SET.remove(prevMethodName);
             return;
@@ -140,10 +140,10 @@ public abstract class AbstractLinkParser implements ParserInterface {
      * 解析所有无接口调用的数据
      */
     public void praserAll() {
-        Set<String> keySet = DataContext.METHOD_CALL_MAP.keySet();
+        Set<String> keySet = OldDataContext.METHOD_CALL_MAP.keySet();
         List<String> topMethod = keySet.stream()
                 .filter(key -> !key.contains(":<init>")
-                        && ObjectUtil.isNull(DataContext.METHOD_CALLEE_MAP.get(key)))
+                        && ObjectUtil.isNull(OldDataContext.METHOD_CALLEE_MAP.get(key)))
                 .collect(Collectors.toList());
         for (String rootMethodName:topMethod) {
             this.nextParser(rootMethodName, 0);

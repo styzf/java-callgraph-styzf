@@ -1,7 +1,7 @@
 package com.styzf.link.parser.generator;
 
 import cn.hutool.core.util.StrUtil;
-import com.styzf.link.parser.context.DataContext;
+import com.styzf.link.parser.context.OldDataContext;
 
 /**
  * 过滤器
@@ -16,7 +16,7 @@ public class FilterUtil {
      * @return {@code true}需要解析，{@code false}过滤掉，不解析
      */
     public static boolean filter(String methodName) {
-        String filterRegEx = DataContext.javaCGConfInfo.getFilterRegEx();
+        String filterRegEx = OldDataContext.javaCGConfInfo.getFilterRegEx();
         if (! StrUtil.hasBlank(methodName, filterRegEx)
                 && methodName.matches(filterRegEx)) {
             return false;
@@ -31,7 +31,7 @@ public class FilterUtil {
      * @return {@code true}需要解析，{@code false}过滤掉，不解析
      */
     public static boolean filterNext(String methodName) {
-        String filterNextRegEx = DataContext.javaCGConfInfo.getFilterNextRegEx();
+        String filterNextRegEx = OldDataContext.javaCGConfInfo.getFilterNextRegEx();
         // java原生的方法不进行下一层解析，理论上来说也不存在这种情况
         return StrUtil.isBlank(filterNextRegEx) ||
                 !methodName.matches(filterNextRegEx);

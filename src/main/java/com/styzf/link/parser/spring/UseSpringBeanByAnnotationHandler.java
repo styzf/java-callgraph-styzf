@@ -1,8 +1,9 @@
 package com.styzf.link.parser.spring;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.styzf.link.parser.common.SpringAnnotationConstants;
-import com.styzf.link.parser.context.DataContext;
+import com.styzf.link.parser.context.OldDataContext;
 import com.styzf.link.parser.dto.classes.ClassExtendsMethodInfo;
 import com.styzf.link.parser.dto.classes.ClassImplementsMethodInfo;
 import com.styzf.link.parser.dto.interfaces.InterfaceExtendsMethodInfo;
@@ -28,13 +29,13 @@ import java.util.Map;
 public class UseSpringBeanByAnnotationHandler {
 
     // 类涉及继承的信息
-    private final Map<String, ClassExtendsMethodInfo> classExtendsMethodInfoMap = DataContext.CLASS_EXTENDS_METHOD_INFO_MAP;
+    private final Map<String, ClassExtendsMethodInfo> classExtendsMethodInfoMap = OldDataContext.CLASS_EXTENDS_METHOD_INFO_MAP;
 
     // 类实现的接口信息
-    private final Map<String, ClassImplementsMethodInfo> classImplementsMethodInfoMap = DataContext.CLASS_IMPLEMENTS_METHOD_INFO_MAP;
+    private final Map<String, ClassImplementsMethodInfo> classImplementsMethodInfoMap = OldDataContext.CLASS_IMPLEMENTS_METHOD_INFO_MAP;
 
     // 接口涉及继承的信息
-    private final Map<String, InterfaceExtendsMethodInfo> interfaceExtendsMethodInfoMap = DataContext.INTERFACE_EXTENDS_METHOD_INFO_MAP;
+    private final Map<String, InterfaceExtendsMethodInfo> interfaceExtendsMethodInfoMap = OldDataContext.INTERFACE_EXTENDS_METHOD_INFO_MAP;
 
     private final DefineSpringBeanByAnnotationHandler defineSpringBeanByAnnotationHandler;
 
@@ -265,7 +266,7 @@ public class UseSpringBeanByAnnotationHandler {
 
         // 获取指定类指定字段对应的Spring Bean类型列表
         List<String> springBeanTypeList = defineSpringBeanByAnnotationHandler.getSpringBeanTypeList(springBeanName);
-        if (!JavaCGUtil.isCollectionEmpty(springBeanTypeList)) {
+        if (CollUtil.isNotEmpty(springBeanTypeList)) {
             // 检查@Autowired、@Inject注解的字段类型与Spring Bean类型是否匹配（使用@Autowired注解时未指定@Qualifier注解）
             return checkAutowiredTypeMatches(className, fieldName, springBeanTypeList);
         }

@@ -2,10 +2,9 @@ package com.styzf.link.parser.util.doc;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.ZipUtil;
-import com.styzf.link.parser.context.DataContext;
+import com.styzf.link.parser.context.OldDataContext;
 import com.styzf.link.parser.dto.doc.DocDto;
 import com.styzf.link.parser.util.BaseUtil;
 import com.sun.javadoc.ClassDoc;
@@ -16,14 +15,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.lang.reflect.Method;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static java.util.regex.Pattern.compile;
 
@@ -74,8 +69,8 @@ public class MyJavaDocUtils {
             key = key.replace(" ", "");
             DocDto doc = new DocDto(key);
             doc.setDoc(commentText);
-            DataContext.DOC_MAP.put(key, doc);
-            DataContext.DOC_MAP.put(key.substring(0, key.indexOf("(")), doc);
+            OldDataContext.DOC_MAP.put(key, doc);
+            OldDataContext.DOC_MAP.put(key.substring(0, key.indexOf("(")), doc);
         }
         
         return getDocByMethodName(methodName);
@@ -83,16 +78,16 @@ public class MyJavaDocUtils {
     
     private static DocDto getDocByMethodName(String methodName) {
         methodName = methodName.replace(":", ".");
-        DocDto doc = DataContext.DOC_MAP.get(methodName);
+        DocDto doc = OldDataContext.DOC_MAP.get(methodName);
         if (doc != null) {
             return doc;
         }
     
-        return DataContext.DOC_MAP.get(methodName.substring(0, methodName.indexOf("(")));
+        return OldDataContext.DOC_MAP.get(methodName.substring(0, methodName.indexOf("(")));
     }
     
     public static ClassDoc classDoc(String className) {
-        List<String> sourcesDirList = DataContext.javaCGConfInfo.getSourcesDirList();
+        List<String> sourcesDirList = OldDataContext.javaCGConfInfo.getSourcesDirList();
         if (CollUtil.isEmpty(sourcesDirList)) {
             return null;
         }
@@ -145,7 +140,7 @@ public class MyJavaDocUtils {
     }
     
     public static void delete() {
-        List<String> sourcesDirList = DataContext.javaCGConfInfo.getSourcesDirList();
+        List<String> sourcesDirList = OldDataContext.javaCGConfInfo.getSourcesDirList();
         if (CollUtil.isEmpty(sourcesDirList)) {
             return;
         }

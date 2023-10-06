@@ -24,7 +24,7 @@ import java.util.Set;
  * @author styzf
  * @date 2023/9/6 20:23
  */
-public class DataContext {
+public class OldDataContext {
     
     /**
      * 配置数据
@@ -157,26 +157,20 @@ public class DataContext {
     public final static Map<String, DocDto> DOC_MAP = new HashMap<>(2^1024);
     
     public static void putMethodCallMap(MethodCall methodCall) {
-        List<MethodCall> methodCallList = DataContext.METHOD_CALL_MAP
+        List<MethodCall> methodCallList = OldDataContext.METHOD_CALL_MAP
                 .computeIfAbsent(methodCall.genCallerFullMethod(), k -> new ArrayList<>());
         methodCallList.add(methodCall);
     
-        List<MethodCall> methodCalleeList = DataContext.METHOD_CALLEE_MAP
+        List<MethodCall> methodCalleeList = OldDataContext.METHOD_CALLEE_MAP
                 .computeIfAbsent(methodCall.genCalleeFullMethod(), k -> new ArrayList<>());
         methodCalleeList.add(methodCall);
-        
-        String callerFullMethod = methodCall.genCallerFullMethod();
-        String calleeFullMethod = methodCall.genCalleeFullMethod();
-        
-        DataContext.METHOD_CALL_MAP.put(callerFullMethod, methodCallList);
-        DataContext.METHOD_CALLEE_MAP.put(calleeFullMethod, methodCalleeList);
     }
     
     public static String getRootMethodName(String rootMethodName) {
-        List<MethodCall> list = DataContext.METHOD_CALL_MAP.get(rootMethodName);
+        List<MethodCall> list = OldDataContext.METHOD_CALL_MAP.get(rootMethodName);
         String methodName;
         if (CollUtil.isEmpty(list)) {
-            methodName = DataContext.METHOD_CALL_MAP.keySet().stream()
+            methodName = OldDataContext.METHOD_CALL_MAP.keySet().stream()
                     .filter(key -> key.startsWith(rootMethodName))
                     .findFirst()
                     .orElse(rootMethodName);

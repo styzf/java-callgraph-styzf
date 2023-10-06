@@ -3,11 +3,8 @@ package com.styzf.link.parser.generator.puml;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.StrUtil;
-import com.styzf.link.parser.context.DataContext;
-import com.styzf.link.parser.dto.call.MethodCall;
-import com.styzf.link.parser.generator.FilterUtil;
+import com.styzf.link.parser.context.OldDataContext;
 import com.styzf.link.parser.parser.AbstractLinkParser;
-import com.styzf.link.parser.util.BaseUtil;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -36,7 +33,7 @@ public class PumlTestGenerator extends AbstractPumlGenerator {
     
     @Override
     protected void setWriter() {
-        String outputRootPath = DataContext.javaCGConfInfo.getOutputRootPath() + File.separator + "puml" + File.separator;
+        String outputRootPath = OldDataContext.javaCGConfInfo.getOutputRootPath() + File.separator + "puml" + File.separator;
         String fileName = this.easyMethodName.replaceAll("[\\.(|)|:|<|>]","_") + PumlConstant.PUML;
         try {
             writer = IoUtil.getUtf8Writer(new FileOutputStream(outputRootPath + fileName));

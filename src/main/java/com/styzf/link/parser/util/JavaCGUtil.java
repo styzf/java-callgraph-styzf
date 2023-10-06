@@ -1,5 +1,6 @@
 package com.styzf.link.parser.util;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
 import com.styzf.link.parser.common.JavaCGCommonNameConstants;
@@ -24,6 +25,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static com.styzf.link.parser.common.JavaCGCommonNameConstants.CLASS_NAME_OBJECT;
+import static com.styzf.link.parser.common.JavaCGCommonNameConstants.METHOD_NAME_INIT;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * @author adrninistrator
@@ -94,7 +99,7 @@ public class JavaCGUtil {
      * @return
      */
     public static boolean isObjectClass(String className) {
-        return JavaCGCommonNameConstants.CLASS_NAME_OBJECT.equals(className);
+        return CLASS_NAME_OBJECT.equals(className);
     }
 
     /**
@@ -114,7 +119,7 @@ public class JavaCGUtil {
      * @return
      */
     public static boolean isInitMethod(String methodName) {
-        return JavaCGCommonNameConstants.METHOD_NAME_INIT.equals(methodName);
+        return METHOD_NAME_INIT.equals(methodName);
     }
 
     /**
@@ -214,7 +219,7 @@ public class JavaCGUtil {
      * @return false: 不跳过 true: 跳过
      */
     public static boolean checkSkipClass(String className, Set<String> needHandlePackageSet) {
-        if (isCollectionEmpty(needHandlePackageSet)) {
+        if (CollUtil.isEmpty(needHandlePackageSet)) {
             return false;
         }
         for (String needHandlePackage : needHandlePackageSet) {
@@ -263,7 +268,7 @@ public class JavaCGUtil {
      * @return
      */
     public static String base64Encode(String data) {
-        return Base64.getEncoder().encodeToString(data.getBytes(StandardCharsets.UTF_8));
+        return Base64.getEncoder().encodeToString(data.getBytes(UTF_8));
     }
 
     /**
@@ -273,18 +278,7 @@ public class JavaCGUtil {
      * @return
      */
     public static String base64Decode(String data) {
-        return new String(Base64.getDecoder().decode(data), StandardCharsets.UTF_8);
-    }
-
-    /**
-     * 判断集合是否为空
-     *
-     * @param collection
-     * @param <T>
-     * @return
-     */
-    public static <T> boolean isCollectionEmpty(Collection<T> collection) {
-        return collection == null || collection.isEmpty();
+        return new String(Base64.getDecoder().decode(data), UTF_8);
     }
 
     /**

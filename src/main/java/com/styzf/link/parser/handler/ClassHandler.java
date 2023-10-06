@@ -33,6 +33,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static com.styzf.link.parser.common.JavaCGCommonNameConstants.METHOD_NAME_INIT;
 import static com.styzf.link.parser.common.JavaCGConstants.FILE_KEY_METHOD_ARGS_RETURN_GENERICS_TYPE;
 import static com.styzf.link.parser.common.JavaCGConstants.FILE_KEY_METHOD_ARGS_RETURN_TYPE;
 import static com.styzf.link.parser.context.CounterContext.METHOD_NUM_COUNTER;
@@ -150,7 +151,7 @@ public class ClassHandler {
         if (javaCGConfInfo.isFirstParseInitMethodType()) {
             // 解析构造函数
             for (Method method : javaClass.getMethods()) {
-                if (JavaCGCommonNameConstants.METHOD_NAME_INIT.equals(method.getName()) && !parseInitMethod(method)) {
+                if (METHOD_NAME_INIT.equals(method.getName()) && !parseInitMethod(method)) {
                     return false;
                 }
             }

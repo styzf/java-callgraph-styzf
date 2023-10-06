@@ -4,7 +4,7 @@ import cn.hutool.core.util.StrUtil;
 import com.styzf.link.parser.common.JavaCGConstants;
 import com.styzf.link.parser.common.enums.JavaCGCallTypeEnum;
 import com.styzf.link.parser.common.enums.JavaCGCalleeObjTypeEnum;
-import com.styzf.link.parser.context.DataContext;
+import com.styzf.link.parser.context.OldDataContext;
 import com.styzf.link.parser.util.JavaCGMethodUtil;
 
 /**
@@ -101,7 +101,7 @@ public class MethodCall implements Comparable<MethodCall> {
         this.objTypeEnum = objTypeEnum;
         this.rawReturnType = rawReturnType;
         this.actualReturnType = actualReturnType;
-        DataContext.putMethodCallMap(this);
+        OldDataContext.putMethodCallMap(this);
     }
 
     // 返回调用者完整方法

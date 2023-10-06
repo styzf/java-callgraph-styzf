@@ -1,5 +1,6 @@
 package com.styzf.link.parser.handler;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.styzf.link.parser.common.JavaCGCommonNameConstants;
 import com.styzf.link.parser.common.JavaCGConstants;
@@ -56,12 +57,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.styzf.link.parser.context.DataContext.CALLABLE_IMPL_CLASS_MAP;
-import static com.styzf.link.parser.context.DataContext.CLASS_AND_JAR_NUM;
-import static com.styzf.link.parser.context.DataContext.RUNNABLE_IMPL_CLASS_MAP;
-import static com.styzf.link.parser.context.DataContext.THREAD_CHILD_CLASS_MAP;
-import static com.styzf.link.parser.context.DataContext.TRANSACTION_CALLBACK_IMPL_CLASS_MAP;
-import static com.styzf.link.parser.context.DataContext.TRANSACTION_CALLBACK_WITHOUT_RESULT_CHILD_CLASS_MAP;
+import static com.styzf.link.parser.context.OldDataContext.CALLABLE_IMPL_CLASS_MAP;
+import static com.styzf.link.parser.context.OldDataContext.CLASS_AND_JAR_NUM;
+import static com.styzf.link.parser.context.OldDataContext.RUNNABLE_IMPL_CLASS_MAP;
+import static com.styzf.link.parser.context.OldDataContext.THREAD_CHILD_CLASS_MAP;
+import static com.styzf.link.parser.context.OldDataContext.TRANSACTION_CALLBACK_IMPL_CLASS_MAP;
+import static com.styzf.link.parser.context.OldDataContext.TRANSACTION_CALLBACK_WITHOUT_RESULT_CHILD_CLASS_MAP;
 
 /**
  * @author adrninistrator
@@ -240,9 +241,12 @@ public class MethodHandler4Invoke extends AbstractMethodHandler {
             methodAnnotationParser.parseMethodAnnotation(callerClassName, callerMethodName, callerMethodArgs, annotationClassName, annotationEntry, methodCallList);
         }
     }
-
-    // 处理方法调用指令
-    private void handleInvokeInstruction(MethodHandler4TypeAndValue methodHandler4TypeAndValue) throws IOException {
+    
+    /**
+     * 处理方法调用指令
+     * @param methodHandler4TypeAndValue
+     */
+    private void handleInvokeInstruction(MethodHandler4TypeAndValue methodHandler4TypeAndValue) {
         if (JavaCGLogUtil.isDebugPrintFlag()) {
             JavaCGLogUtil.debugPrint("%%% 处理方法调用指令 " + JavaCGInstructionUtil.getInstructionHandlePrintInfo(ih) + " (" + getSourceLine() + ")");
         }
@@ -363,7 +367,7 @@ public class MethodHandler4Invoke extends AbstractMethodHandler {
     }
 
     // 处理INVOKEDYNAMIC指令
-    private void handleINVOKEDYNAMIC(INVOKEDYNAMIC invokedynamic) throws IOException {
+    private void handleINVOKEDYNAMIC(INVOKEDYNAMIC invokedynamic) {
         // getReferenceType()方法获取到的类型为java.lang.Object
         String calleeClassName = invokedynamic.getType(cpg).toString();
         String calleeMethodName = invokedynamic.getMethodName(cpg);
@@ -463,7 +467,7 @@ public class MethodHandler4Invoke extends AbstractMethodHandler {
                 }
                 // 获取指定类指定字段对应的Spring Bean类型
                 List<String> springBeanFieldTypeList = useSpringBeanByAnnotationHandler.getSpringBeanTypeList(callerClassName, nonStaticField.getFieldName());
-                if (JavaCGUtil.isCollectionEmpty(springBeanFieldTypeList)) {
+                if (CollUtil.isEmpty(springBeanFieldTypeList)) {
                     continue;
                 }
                 for (String springBeanFieldType : springBeanFieldTypeList) {
@@ -795,7 +799,7 @@ public class MethodHandler4Invoke extends AbstractMethodHandler {
         }
 
         List<MethodCallPossibleEntry> methodCallPossibleEntryList = methodCallPossibleList.getMethodCallPossibleEntryList();
-        if (JavaCGUtil.isCollectionEmpty(methodCallPossibleEntryList)) {
+        if (CollUtil.isEmpty(methodCallPossibleEntryList)) {
             return;
         }
 
@@ -830,7 +834,7 @@ public class MethodHandler4Invoke extends AbstractMethodHandler {
             if (nonStaticField != null) {
                 // 获取指定类指定字段对应的Spring Bean类型
                 List<String> springBeanFieldTypeList = useSpringBeanByAnnotationHandler.getSpringBeanTypeList(callerClassName, nonStaticField.getFieldName());
-                if (!JavaCGUtil.isCollectionEmpty(springBeanFieldTypeList)) {
+                if (CollUtil.isNotEmpty(springBeanFieldTypeList)) {
                     for (String springBeanFieldType : springBeanFieldTypeList) {
                         // 记录信息
                         recordStringMethodCallPossibleInfo(stringBuilder, springBeanFieldType, methodCallId, argSeq, JavaCGConstants.FILE_KEY_METHOD_CALL_POSSIBLE_INFO_TYPE,

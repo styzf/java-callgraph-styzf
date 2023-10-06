@@ -1,6 +1,6 @@
 package com.styzf.link.parser.dto.jar;
 
-import com.styzf.link.parser.context.DataContext;
+import com.styzf.link.parser.context.OldDataContext;
 
 /**
  * @author adrninistrator
@@ -18,7 +18,7 @@ public class JarInfo {
         this.jarNum = jarNum;
         this.jarType = jarType;
         this.jarPath = jarPath;
-        DataContext.CLASS_AND_JAR_NUM.putJarInfo(this);
+        OldDataContext.CLASS_AND_JAR_NUM.putJarInfo(this);
     }
 
     //

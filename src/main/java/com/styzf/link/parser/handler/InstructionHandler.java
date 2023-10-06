@@ -1,5 +1,6 @@
 package com.styzf.link.parser.handler;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.styzf.link.parser.common.JavaCGCommonNameConstants;
 import com.styzf.link.parser.common.JavaCGConstants;
@@ -926,7 +927,7 @@ public class InstructionHandler {
         if (useFieldPossibleTypeFlag) {
             // 使用已获取的构造函数非静态字段可能的类型
             List<String> possibleTypeList = nonStaticFieldPossibleTypes.getPossibleTypeList(fieldName);
-            if (!JavaCGUtil.isCollectionEmpty(possibleTypeList)) {
+            if (CollUtil.isNotEmpty(possibleTypeList)) {
                 if (possibleTypeList.size() == 1) {
                     // 字段可能的类型数量为1，则使用
                     String type = possibleTypeList.get(0);
