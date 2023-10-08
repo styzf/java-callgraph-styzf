@@ -1,5 +1,7 @@
 package com.styzf.link.parser.data;
 
+import cn.hutool.core.collection.CollUtil;
+
 import java.util.List;
 
 /**
@@ -40,5 +42,16 @@ public class ClassExtendsMethodInfo {
 
     public List<MethodAndArgs> getMethodWithArgsList() {
         return methodWithArgsList;
+    }
+    
+    public void putMethodAndArgs(String className, MethodAndArgs methodAndArgs, int accessFlags) {
+        MethodAndArgs one = CollUtil.findOne(methodWithArgsList, methodWithArgs -> methodWithArgs.equals(methodAndArgs));
+        if (one == null) {
+            // 为空则没有对应的数据，则新创建一个类，并标识为虚处理，这个虚处理待验证
+            MethodAndArgs methodAndArgsNew = new MethodAndArgs(className, methodAndArgs.getMethodName(), methodAndArgs.getMethodArgs(), accessFlags);
+            methodAndArgsNew.setDone(false);
+            methodAndArgsNew.setAccessFlags(accessFlags);
+            methodWithArgsList.add(methodAndArgsNew);
+        }
     }
 }

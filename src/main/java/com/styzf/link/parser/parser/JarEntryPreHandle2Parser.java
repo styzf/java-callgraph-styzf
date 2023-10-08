@@ -1,7 +1,7 @@
 package com.styzf.link.parser.parser;
 
+import com.styzf.link.parser.data.ClassExtendsMethodInfo;
 import com.styzf.link.parser.data.MethodAndArgs;
-import com.styzf.link.parser.dto.classes.ClassExtendsMethodInfo;
 import com.styzf.link.parser.dto.interfaces.InterfaceExtendsMethodInfo;
 import com.styzf.link.parser.spring.UseSpringBeanByAnnotationHandler;
 import com.styzf.link.parser.util.JavaCGByteCodeUtil;
@@ -13,17 +13,18 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.jar.JarInputStream;
 
-import static com.styzf.link.parser.context.OldDataContext.CHILDREN_CLASS_MAP;
-import static com.styzf.link.parser.context.OldDataContext.CHILDREN_INTERFACE_MAP;
-import static com.styzf.link.parser.context.OldDataContext.CLASS_EXTENDS_METHOD_INFO_MAP;
-import static com.styzf.link.parser.context.OldDataContext.CLASS_EXTENDS_SET;
-import static com.styzf.link.parser.context.OldDataContext.INTERFACE_EXTENDS_METHOD_INFO_MAP;
-import static com.styzf.link.parser.context.OldDataContext.INTERFACE_EXTENDS_SET;
-import static com.styzf.link.parser.context.OldDataContext.javaCGConfInfo;
+import static com.styzf.link.parser.context.DataContext.CHILDREN_CLASS_MAP;
+import static com.styzf.link.parser.context.DataContext.CHILDREN_INTERFACE_MAP;
+import static com.styzf.link.parser.context.DataContext.CLASS_EXTENDS_METHOD_INFO_MAP;
+import static com.styzf.link.parser.context.DataContext.CLASS_EXTENDS_SET;
+import static com.styzf.link.parser.context.DataContext.INTERFACE_EXTENDS_METHOD_INFO_MAP;
+import static com.styzf.link.parser.context.DataContext.INTERFACE_EXTENDS_SET;
+import static com.styzf.link.parser.context.DataContext.javaCGConfInfo;
 
 /**
  * @author adrninistrator
@@ -80,7 +81,7 @@ public class JarEntryPreHandle2Parser extends AbstractJarEntryParser {
             childrenClassList.add(className);
         }
 
-        Map<MethodAndArgs, Integer> methodAttributeMap = new HashMap<>();
+        List<MethodAndArgs> methodAttributeList = new LinkedList<>();
         // 遍历类的方法
         for (Method method : javaClass.getMethods()) {
             String methodName = method.getName();
@@ -88,10 +89,10 @@ public class JarEntryPreHandle2Parser extends AbstractJarEntryParser {
                 MethodAndArgs methodAndArgs = new MethodAndArgs(className, methodName, method.getArgumentTypes(), method.getAccessFlags());
                 methodAndArgs.setAccessFlags(method.getAccessFlags());
                 // 对于可能涉及继承的方法进行记录
-                methodAttributeMap.put(methodAndArgs, method.getAccessFlags());
+                methodAttributeList.add(methodAndArgs);
             }
         }
-        CLASS_EXTENDS_METHOD_INFO_MAP.put(className, new ClassExtendsMethodInfo(javaClass.getAccessFlags(), superClassName, methodAttributeMap));
+        CLASS_EXTENDS_METHOD_INFO_MAP.put(className, new ClassExtendsMethodInfo(javaClass.getAccessFlags(), superClassName, methodAttributeList));
     }
 
     // 查找涉及继承的接口的信息

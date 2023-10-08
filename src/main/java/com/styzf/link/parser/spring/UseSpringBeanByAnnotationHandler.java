@@ -3,9 +3,9 @@ package com.styzf.link.parser.spring;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.styzf.link.parser.common.SpringAnnotationConstants;
-import com.styzf.link.parser.context.OldDataContext;
+import com.styzf.link.parser.context.DataContext;
+import com.styzf.link.parser.data.ClassExtendsMethodInfo;
 import com.styzf.link.parser.data.ClassImplementsMethodInfo;
-import com.styzf.link.parser.dto.classes.ClassExtendsMethodInfo;
 import com.styzf.link.parser.dto.interfaces.InterfaceExtendsMethodInfo;
 import com.styzf.link.parser.extensions.code_parser.SpringXmlBeanParserInterface;
 import com.styzf.link.parser.util.JavaCGAnnotationUtil;
@@ -29,13 +29,13 @@ import java.util.Map;
 public class UseSpringBeanByAnnotationHandler {
 
     // 类涉及继承的信息
-    private final Map<String, ClassExtendsMethodInfo> classExtendsMethodInfoMap = OldDataContext.CLASS_EXTENDS_METHOD_INFO_MAP;
+    private final Map<String, ClassExtendsMethodInfo> classExtendsMethodInfoMap = DataContext.CLASS_EXTENDS_METHOD_INFO_MAP;
 
     // 类实现的接口信息
-    private final Map<String, ClassImplementsMethodInfo> classImplementsMethodInfoMap = OldDataContext.CLASS_IMPLEMENTS_METHOD_INFO_MAP;
+    private final Map<String, ClassImplementsMethodInfo> classImplementsMethodInfoMap = DataContext.CLASS_IMPLEMENTS_METHOD_INFO_MAP;
 
     // 接口涉及继承的信息
-    private final Map<String, InterfaceExtendsMethodInfo> interfaceExtendsMethodInfoMap = OldDataContext.INTERFACE_EXTENDS_METHOD_INFO_MAP;
+    private final Map<String, InterfaceExtendsMethodInfo> interfaceExtendsMethodInfoMap = DataContext.INTERFACE_EXTENDS_METHOD_INFO_MAP;
 
     private final DefineSpringBeanByAnnotationHandler defineSpringBeanByAnnotationHandler;
 

@@ -7,11 +7,11 @@ import com.styzf.link.parser.common.JavaCGConstants;
 import com.styzf.link.parser.common.enums.JavaCGCallTypeEnum;
 import com.styzf.link.parser.comparator.MethodAndArgsComparator;
 import com.styzf.link.parser.conf.JavaCGConfInfo;
+import com.styzf.link.parser.data.ClassExtendsMethodInfo;
 import com.styzf.link.parser.data.ClassImplementsMethodInfo;
 import com.styzf.link.parser.data.MethodAndArgs;
 import com.styzf.link.parser.dto.access_flag.JavaCGAccessFlags;
 import com.styzf.link.parser.dto.call.MethodCall;
-import com.styzf.link.parser.dto.classes.ClassExtendsMethodInfo;
 import com.styzf.link.parser.dto.classes.Node4ClassExtendsMethod;
 import com.styzf.link.parser.dto.interfaces.InterfaceExtendsMethodInfo;
 import com.styzf.link.parser.dto.stack.ListAsStack;
@@ -19,6 +19,7 @@ import com.styzf.link.parser.util.JavaCGByteCodeUtil;
 import com.styzf.link.parser.util.JavaCGLogUtil;
 import com.styzf.link.parser.util.JavaCGMethodUtil;
 import com.styzf.link.parser.util.JavaCGUtil;
+import org.apache.bcel.classfile.AccessFlags;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,14 +32,14 @@ import java.util.Set;
 
 import static com.styzf.link.parser.common.JavaCGConstants.EXTENDS_NODE_INDEX_INIT;
 import static com.styzf.link.parser.context.CounterContext.CALL_ID_COUNTER;
-import static com.styzf.link.parser.context.OldDataContext.CHILDREN_CLASS_MAP;
-import static com.styzf.link.parser.context.OldDataContext.CHILDREN_INTERFACE_MAP;
-import static com.styzf.link.parser.context.OldDataContext.CLASS_AND_JAR_NUM;
-import static com.styzf.link.parser.context.OldDataContext.CLASS_EXTENDS_METHOD_INFO_MAP;
-import static com.styzf.link.parser.context.OldDataContext.CLASS_IMPLEMENTS_METHOD_INFO_MAP;
-import static com.styzf.link.parser.context.OldDataContext.INTERFACE_EXTENDS_METHOD_INFO_MAP;
-import static com.styzf.link.parser.context.OldDataContext.INTERFACE_METHOD_NONE_DONE_MAP;
-import static com.styzf.link.parser.context.OldDataContext.INTERFACE_METHOD_WITH_ARGS_MAP;
+import static com.styzf.link.parser.context.DataContext.CHILDREN_CLASS_MAP;
+import static com.styzf.link.parser.context.DataContext.CHILDREN_INTERFACE_MAP;
+import static com.styzf.link.parser.context.DataContext.CLASS_AND_JAR_NUM;
+import static com.styzf.link.parser.context.DataContext.CLASS_EXTENDS_METHOD_INFO_MAP;
+import static com.styzf.link.parser.context.DataContext.CLASS_IMPLEMENTS_METHOD_INFO_MAP;
+import static com.styzf.link.parser.context.DataContext.INTERFACE_EXTENDS_METHOD_INFO_MAP;
+import static com.styzf.link.parser.context.DataContext.INTERFACE_METHOD_NONE_DONE_MAP;
+import static com.styzf.link.parser.context.DataContext.INTERFACE_METHOD_WITH_ARGS_MAP;
 import static java.lang.System.err;
 
 /**
@@ -125,7 +126,7 @@ public class ExtendsImplHandler {
         Iterator<MethodAndArgs> iterator = methodAndArgsList.iterator();
         while (iterator.hasNext()) {
             MethodAndArgs methodAndArgs = iterator.next();
-            MethodAndArgs superMethodAndArgs = JavaCGMethodUtil.getByQuery(classExtendsMethodInfo.getMethodWithArgsMap(), methodAndArgs);
+            MethodAndArgs superMethodAndArgs = JavaCGMethodUtil.getByQuery(classExtendsMethodInfo.getMethodWithArgsList(), methodAndArgs);
             if (superMethodAndArgs == null
                     || !superMethodAndArgs.isDone()) {
                 continue;
@@ -245,8 +246,6 @@ public class ExtendsImplHandler {
                 continue;
             }
 
-            Map<MethodAndArgs, Integer> methodWithArgsMap = classExtendsMethodInfo.getMethodWithArgsMap();
-
             int accessFlags = 0;
             accessFlags = JavaCGByteCodeUtil.setAbstractFlag(accessFlags, true);
             accessFlags = JavaCGByteCodeUtil.setPublicFlag(accessFlags, true);
@@ -365,16 +364,15 @@ public class ExtendsImplHandler {
             return;
         }
 
-        Map<MethodAndArgs, Integer> superMethodWithArgsMap = superClassMethodInfo.getMethodWithArgsMap();
-        Map<MethodAndArgs, Integer> childMethodWithArgsMap = childClassMethodInfo.getMethodWithArgsMap();
+        List<MethodAndArgs> superMethodAndArgsList = superClassMethodInfo.getMethodWithArgsList();
+        List<MethodAndArgs> childMethodWithArgsMap = childClassMethodInfo.getMethodWithArgsList();
 
-        List<MethodAndArgs> superMethodAndArgsList = new ArrayList<>(superMethodWithArgsMap.keySet());
         List<MethodAndArgs> noneDoneList = new LinkedList<>();
         // 对父类方法进行排序
         superMethodAndArgsList.sort(MethodAndArgsComparator.getInstance());
         // 遍历父类方法
         for (MethodAndArgs superMethodWithArgs : superMethodAndArgsList) {
-            Integer superMethodAccessFlags = superMethodWithArgsMap.get(superMethodWithArgs);
+            Integer superMethodAccessFlags = superMethodWithArgs.getAccessFlags().getAccessFlags();
             if (JavaCGByteCodeUtil.isAbstractFlag(superMethodAccessFlags)) {
                 // 处理父类抽象方法
                 // 添加时不覆盖现有的值
@@ -402,7 +400,7 @@ public class ExtendsImplHandler {
                     或protected
                     或非public非protected非private且父类与子类在同一个包
                  */
-                if (childMethodWithArgsMap.get(superMethodWithArgs) != null) {
+                if (JavaCGMethodUtil.getByQuery(childMethodWithArgsMap, superMethodWithArgs) != null) {
                     // 若当前方法已经处理过则跳过
                     continue;
                 }
@@ -478,20 +476,19 @@ public class ExtendsImplHandler {
         }
 
         // 获取当前处理的实现类中的方法信息
-        Map<MethodAndArgs, Integer> methodWithArgsMap = classExtendsMethodInfo.getMethodWithArgsMap();
+        List<MethodAndArgs> methodWithArgsMap = classExtendsMethodInfo.getMethodWithArgsList();
         if (methodWithArgsMap == null) {
             return;
         }
 
-        for (Map.Entry<MethodAndArgs, Integer> entry : methodWithArgsMap.entrySet()) {
-            MethodAndArgs methodAndArgs = entry.getKey();
+        for (MethodAndArgs methodAndArgs : methodWithArgsMap) {
             if (methodWithArgsList.contains(methodAndArgs)) {
                 // 已包含的方法，跳过
                 continue;
             }
 
             String methodName = methodAndArgs.getMethodName();
-            JavaCGAccessFlags methodAccessFlags = new JavaCGAccessFlags(entry.getValue());
+            AccessFlags methodAccessFlags = methodAndArgs.getAccessFlags();
             if (JavaCGByteCodeUtil.checkImplMethod(methodName, methodAccessFlags)) {
                 // 将父类中定义的，可能涉及实现的方法添加到当前类的方法中
                 methodWithArgsList.add(methodAndArgs);

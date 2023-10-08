@@ -19,7 +19,6 @@ import org.apache.bcel.classfile.Signature;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -27,9 +26,9 @@ import java.util.Set;
 import java.util.jar.JarInputStream;
 
 import static com.styzf.link.parser.context.CounterContext.CLASS_NUM_COUNTER;
-import static com.styzf.link.parser.context.OldDataContext.DUPLICATE_CLASS_NAME_MAP;
-import static com.styzf.link.parser.context.OldDataContext.HANDLED_CLASS_NAME_MAP;
-import static com.styzf.link.parser.context.OldDataContext.javaCGConfInfo;
+import static com.styzf.link.parser.context.DataContext.DUPLICATE_CLASS_NAME_MAP;
+import static com.styzf.link.parser.context.DataContext.HANDLED_CLASS_NAME_MAP;
+import static com.styzf.link.parser.context.DataContext.javaCGConfInfo;
 
 /**
  * @author adrninistrator

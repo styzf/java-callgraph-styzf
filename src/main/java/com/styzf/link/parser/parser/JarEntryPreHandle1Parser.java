@@ -3,7 +3,7 @@ package com.styzf.link.parser.parser;
 import cn.hutool.core.util.StrUtil;
 import com.styzf.link.parser.common.JavaCGCommonNameConstants;
 import com.styzf.link.parser.common.JavaCGConstants;
-import com.styzf.link.parser.context.OldDataContext;
+import com.styzf.link.parser.context.DataContext;
 import com.styzf.link.parser.data.ClassImplementsMethodInfo;
 import com.styzf.link.parser.data.MethodAndArgs;
 import com.styzf.link.parser.extensions.code_parser.JarEntryOtherFileParser;
@@ -21,8 +21,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.jar.JarInputStream;
 
-import static com.styzf.link.parser.context.OldDataContext.CLASS_AND_JAR_NUM;
-import static com.styzf.link.parser.context.OldDataContext.javaCGConfInfo;
+import static com.styzf.link.parser.context.DataContext.CLASS_AND_JAR_NUM;
+import static com.styzf.link.parser.context.DataContext.javaCGConfInfo;
 
 /**
  * @author adrninistrator
@@ -108,16 +108,16 @@ public class JarEntryPreHandle1Parser extends AbstractJarEntryParser {
         // 记录接口的方法
         Method[] methods = interfaceClass.getMethods();
         if (methods != null && methods.length > 0 &&
-                OldDataContext.INTERFACE_METHOD_WITH_ARGS_MAP.get(interfaceName) == null) {
+                DataContext.INTERFACE_METHOD_WITH_ARGS_MAP.get(interfaceName) == null) {
             List<MethodAndArgs> interfaceMethodWithArgsList = JavaCGByteCodeUtil.genInterfaceMethodWithArgs(interfaceName, methods);
-            OldDataContext.INTERFACE_METHOD_WITH_ARGS_MAP.put(interfaceName, interfaceMethodWithArgsList);
+            DataContext.INTERFACE_METHOD_WITH_ARGS_MAP.put(interfaceName, interfaceMethodWithArgsList);
         }
 
         String[] superInterfaceNames = interfaceClass.getInterfaceNames();
         if (superInterfaceNames.length > 0) {
             // 记录涉及继承的接口
-            OldDataContext.INTERFACE_EXTENDS_SET.add(interfaceName);
-            OldDataContext.INTERFACE_EXTENDS_SET.addAll(Arrays.asList(superInterfaceNames));
+            DataContext.INTERFACE_EXTENDS_SET.add(interfaceName);
+            DataContext.INTERFACE_EXTENDS_SET.addAll(Arrays.asList(superInterfaceNames));
         }
     }
 
@@ -129,26 +129,26 @@ public class JarEntryPreHandle1Parser extends AbstractJarEntryParser {
 
         if (interfaceNames.length > 0 &&
                 methods != null && methods.length > 0 &&
-                OldDataContext.CLASS_IMPLEMENTS_METHOD_INFO_MAP.get(className) == null) {
+                DataContext.CLASS_IMPLEMENTS_METHOD_INFO_MAP.get(className) == null) {
             List<String> interfaceNameList = new ArrayList<>(interfaceNames.length);
             interfaceNameList.addAll(Arrays.asList(interfaceNames));
 
             // 记录类实现的接口，及类中可能涉及实现的相关方法
             List<MethodAndArgs> implClassMethodWithArgsList = JavaCGByteCodeUtil.genImplClassMethodWithArgs(className, methods);
-            OldDataContext.CLASS_IMPLEMENTS_METHOD_INFO_MAP.put(className, new ClassImplementsMethodInfo(interfaceNameList, implClassMethodWithArgsList));
+            DataContext.CLASS_IMPLEMENTS_METHOD_INFO_MAP.put(className, new ClassImplementsMethodInfo(interfaceNameList, implClassMethodWithArgsList));
 
             if (!javaClass.isAbstract()) {
                 if (interfaceNameList.contains(JavaCGCommonNameConstants.CLASS_NAME_RUNNABLE)) {
                     // 找到Runnable实现类
-                    OldDataContext.RUNNABLE_IMPL_CLASS_MAP.put(className, Boolean.FALSE);
+                    DataContext.RUNNABLE_IMPL_CLASS_MAP.put(className, Boolean.FALSE);
                 }
                 if (interfaceNameList.contains(JavaCGCommonNameConstants.CLASS_NAME_CALLABLE)) {
                     // 找到Callable实现类
-                    OldDataContext.CALLABLE_IMPL_CLASS_MAP.put(className, Boolean.FALSE);
+                    DataContext.CALLABLE_IMPL_CLASS_MAP.put(className, Boolean.FALSE);
                 }
                 if (interfaceNameList.contains(JavaCGCommonNameConstants.CLASS_NAME_TRANSACTION_CALLBACK)) {
                     // 找到TransactionCallback实现类
-                    OldDataContext.TRANSACTION_CALLBACK_IMPL_CLASS_MAP.put(className, Boolean.FALSE);
+                    DataContext.TRANSACTION_CALLBACK_IMPL_CLASS_MAP.put(className, Boolean.FALSE);
                 }
             }
         }
@@ -157,18 +157,18 @@ public class JarEntryPreHandle1Parser extends AbstractJarEntryParser {
         String superClassName = javaClass.getSuperclassName();
         if (JavaCGCommonNameConstants.CLASS_NAME_THREAD.equals(superClassName)) {
             // 找到Thread的子类
-            OldDataContext.THREAD_CHILD_CLASS_MAP.put(className, Boolean.FALSE);
+            DataContext.THREAD_CHILD_CLASS_MAP.put(className, Boolean.FALSE);
         } else if (JavaCGCommonNameConstants.CLASS_NAME_TIMER_TASK.equals(superClassName)) {
             // 找到TimerTask的子类，按照Runnable实现类处理
-            OldDataContext.RUNNABLE_IMPL_CLASS_MAP.put(className, Boolean.FALSE);
+            DataContext.RUNNABLE_IMPL_CLASS_MAP.put(className, Boolean.FALSE);
         } else if (JavaCGCommonNameConstants.CLASS_NAME_TRANSACTION_CALLBACK_WITHOUT_RESULT.equals(superClassName)) {
             // 找到TransactionCallbackWithoutResult实现类
-            OldDataContext.TRANSACTION_CALLBACK_WITHOUT_RESULT_CHILD_CLASS_MAP.put(className, Boolean.FALSE);
+            DataContext.TRANSACTION_CALLBACK_WITHOUT_RESULT_CHILD_CLASS_MAP.put(className, Boolean.FALSE);
         }
 
         if (!JavaCGUtil.isClassInJdk(superClassName)) {
-            OldDataContext.CLASS_EXTENDS_SET.add(className);
-            OldDataContext.CLASS_EXTENDS_SET.add(superClassName);
+            DataContext.CLASS_EXTENDS_SET.add(className);
+            DataContext.CLASS_EXTENDS_SET.add(superClassName);
         }
     }
 }

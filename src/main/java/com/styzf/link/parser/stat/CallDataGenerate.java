@@ -5,7 +5,7 @@ import com.styzf.link.parser.common.JavaCGConstants;
 import com.styzf.link.parser.common.enums.JavaCGCallTypeEnum;
 import com.styzf.link.parser.conf.JavaCGConfManager;
 import com.styzf.link.parser.conf.JavaCGConfigureWrapper;
-import com.styzf.link.parser.context.OldDataContext;
+import com.styzf.link.parser.context.DataContext;
 import com.styzf.link.parser.dto.call.MethodCall;
 import com.styzf.link.parser.dto.output.JavaCGOutputInfo;
 import com.styzf.link.parser.exceptions.JavaCGRuntimeException;
@@ -37,7 +37,7 @@ import java.util.Set;
 import static com.styzf.link.parser.context.CounterContext.CALL_ID_COUNTER;
 import static com.styzf.link.parser.context.CounterContext.CLASS_NUM_COUNTER;
 import static com.styzf.link.parser.context.CounterContext.METHOD_NUM_COUNTER;
-import static com.styzf.link.parser.context.OldDataContext.javaCGConfInfo;
+import static com.styzf.link.parser.context.DataContext.javaCGConfInfo;
 
 /**
  * 调用数据生成器
@@ -164,7 +164,7 @@ public class CallDataGenerate {
             }
         }
         
-        OldDataContext.JAR_INFO_MAP = new HashMap<>(jarList.size());
+        DataContext.JAR_INFO_MAP = new HashMap<>(jarList.size());
         
         Set<String> needHandlePackageSet = javaCGConfInfo.getNeedHandlePackageSet();
         // 对指定的jar包进行处理
@@ -272,16 +272,16 @@ public class CallDataGenerate {
     
     // 打印重复的类名
     private static void printDuplicateClasses() {
-        if (OldDataContext.DUPLICATE_CLASS_NAME_MAP.isEmpty()) {
+        if (DataContext.DUPLICATE_CLASS_NAME_MAP.isEmpty()) {
             JavaCGLogUtil.debugPrint("不存在重复的类名");
             return;
         }
         
-        List<String> duplicateClassNameList = new ArrayList<>(OldDataContext.DUPLICATE_CLASS_NAME_MAP.keySet());
+        List<String> duplicateClassNameList = new ArrayList<>(DataContext.DUPLICATE_CLASS_NAME_MAP.keySet());
         Collections.sort(duplicateClassNameList);
         
         for (String duplicateClassName : duplicateClassNameList) {
-            List<String> classFilePathList = OldDataContext.DUPLICATE_CLASS_NAME_MAP.get(duplicateClassName);
+            List<String> classFilePathList = DataContext.DUPLICATE_CLASS_NAME_MAP.get(duplicateClassName);
             JavaCGLogUtil.debugPrint("重复的类名 " + duplicateClassName + " 使用的class文件 " + classFilePathList.get(0));
             for (int i = 1; i < classFilePathList.size(); i++) {
                 JavaCGLogUtil.debugPrint("重复的类名 " + duplicateClassName + " 跳过的class文件 " + classFilePathList.get(i));

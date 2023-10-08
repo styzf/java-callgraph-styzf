@@ -1,5 +1,6 @@
 package com.styzf.link.parser.util;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ArrayUtil;
 import com.styzf.link.parser.common.JavaCGConstants;
 import com.styzf.link.parser.data.MethodAndArgs;
@@ -160,12 +161,6 @@ public class JavaCGMethodUtil {
     }
 
     public static MethodAndArgs getByQuery(List<MethodAndArgs> list, MethodAndArgs query) {
-        for (MethodAndArgs methodAndArgs : list) {
-            if (methodAndArgs.equals(query)) {
-                return methodAndArgs;
-            }
-        }
-        
-        return null;
+        return CollUtil.findOne(list, methodAndArgs -> methodAndArgs.equals(query));
     }
 }

@@ -16,7 +16,7 @@ public class ClassImplementsMethodInfo {
     /**
      * 类实现的接口
      */
-    private List<String> interfaceNameList;
+    private final List<String> interfaceNameList;
     /**
      * 接口的类实现信息
      */

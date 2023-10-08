@@ -1,7 +1,7 @@
 package com.styzf.link.parser.generator.xmind;
 
 import cn.hutool.core.util.StrUtil;
-import com.styzf.link.parser.context.OldDataContext;
+import com.styzf.link.parser.context.DataContext;
 import com.styzf.link.parser.dto.doc.DocDto;
 import com.styzf.link.parser.generator.FileGenerate;
 import com.styzf.link.parser.util.BaseUtil;
@@ -56,7 +56,7 @@ public abstract class AbstractXmindGenerator implements FileGenerate {
      */
     public void generateXmind(String methodName) {
         try {
-            String outputRootPath = OldDataContext.javaCGConfInfo.getOutputRootPath();
+            String outputRootPath = DataContext.javaCGConfInfo.getOutputRootPath();
             // 后缀大小写不对会导致打开软件没打开文件
             String path = new File(outputRootPath  + File.separator + "xmind" + File.separator,
                     BaseUtil.getEasyMethodName(methodName)

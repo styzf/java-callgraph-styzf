@@ -3,10 +3,10 @@ package com.styzf.link.parser.context;
 import cn.hutool.core.collection.CollUtil;
 import com.styzf.link.parser.common.JavaCGConstants;
 import com.styzf.link.parser.conf.JavaCGConfInfo;
+import com.styzf.link.parser.data.ClassExtendsMethodInfo;
 import com.styzf.link.parser.data.ClassImplementsMethodInfo;
 import com.styzf.link.parser.data.MethodAndArgs;
 import com.styzf.link.parser.dto.call.MethodCall;
-import com.styzf.link.parser.dto.classes.ClassExtendsMethodInfo;
 import com.styzf.link.parser.dto.doc.DocDto;
 import com.styzf.link.parser.dto.interfaces.InterfaceExtendsMethodInfo;
 import com.styzf.link.parser.dto.jar.ClassAndJarNum;
@@ -164,12 +164,6 @@ public class DataContext {
         List<MethodCall> methodCalleeList = DataContext.METHOD_CALLEE_MAP
                 .computeIfAbsent(methodCall.genCalleeFullMethod(), k -> new ArrayList<>());
         methodCalleeList.add(methodCall);
-        
-        String callerFullMethod = methodCall.genCallerFullMethod();
-        String calleeFullMethod = methodCall.genCalleeFullMethod();
-        
-        DataContext.METHOD_CALL_MAP.put(callerFullMethod, methodCallList);
-        DataContext.METHOD_CALLEE_MAP.put(calleeFullMethod, methodCalleeList);
     }
     
     public static String getRootMethodName(String rootMethodName) {

@@ -1,6 +1,6 @@
 package com.styzf.link.parser.generator.xmind;
 
-import com.styzf.link.parser.context.OldDataContext;
+import com.styzf.link.parser.context.DataContext;
 import com.styzf.link.parser.dto.call.MethodCall;
 import com.styzf.link.parser.generator.FilterUtil;
 import com.styzf.link.parser.parser.AbstractLinkParser;
@@ -40,7 +40,7 @@ public class BaseXmindGenerator extends AbstractXmindGenerator {
     
         @Override
         protected String rootHandle(String rootMethodName) {
-            this.rootMethodName = OldDataContext.getRootMethodName(rootMethodName);
+            this.rootMethodName = DataContext.getRootMethodName(rootMethodName);
             lastTopic.put(0, rootTopic);
             addTopic(this.rootMethodName, 0);
         

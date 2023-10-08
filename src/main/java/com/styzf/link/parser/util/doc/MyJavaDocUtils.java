@@ -4,7 +4,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.ZipUtil;
-import com.styzf.link.parser.context.OldDataContext;
+import com.styzf.link.parser.context.DataContext;
 import com.styzf.link.parser.dto.doc.DocDto;
 import com.styzf.link.parser.util.BaseUtil;
 import com.sun.javadoc.ClassDoc;
@@ -69,8 +69,8 @@ public class MyJavaDocUtils {
             key = key.replace(" ", "");
             DocDto doc = new DocDto(key);
             doc.setDoc(commentText);
-            OldDataContext.DOC_MAP.put(key, doc);
-            OldDataContext.DOC_MAP.put(key.substring(0, key.indexOf("(")), doc);
+            DataContext.DOC_MAP.put(key, doc);
+            DataContext.DOC_MAP.put(key.substring(0, key.indexOf("(")), doc);
         }
         
         return getDocByMethodName(methodName);
@@ -78,16 +78,16 @@ public class MyJavaDocUtils {
     
     private static DocDto getDocByMethodName(String methodName) {
         methodName = methodName.replace(":", ".");
-        DocDto doc = OldDataContext.DOC_MAP.get(methodName);
+        DocDto doc = DataContext.DOC_MAP.get(methodName);
         if (doc != null) {
             return doc;
         }
     
-        return OldDataContext.DOC_MAP.get(methodName.substring(0, methodName.indexOf("(")));
+        return DataContext.DOC_MAP.get(methodName.substring(0, methodName.indexOf("(")));
     }
     
     public static ClassDoc classDoc(String className) {
-        List<String> sourcesDirList = OldDataContext.javaCGConfInfo.getSourcesDirList();
+        List<String> sourcesDirList = DataContext.javaCGConfInfo.getSourcesDirList();
         if (CollUtil.isEmpty(sourcesDirList)) {
             return null;
         }
@@ -140,7 +140,7 @@ public class MyJavaDocUtils {
     }
     
     public static void delete() {
-        List<String> sourcesDirList = OldDataContext.javaCGConfInfo.getSourcesDirList();
+        List<String> sourcesDirList = DataContext.javaCGConfInfo.getSourcesDirList();
         if (CollUtil.isEmpty(sourcesDirList)) {
             return;
         }

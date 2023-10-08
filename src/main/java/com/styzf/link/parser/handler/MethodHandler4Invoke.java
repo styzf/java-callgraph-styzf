@@ -57,12 +57,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.styzf.link.parser.context.OldDataContext.CALLABLE_IMPL_CLASS_MAP;
-import static com.styzf.link.parser.context.OldDataContext.CLASS_AND_JAR_NUM;
-import static com.styzf.link.parser.context.OldDataContext.RUNNABLE_IMPL_CLASS_MAP;
-import static com.styzf.link.parser.context.OldDataContext.THREAD_CHILD_CLASS_MAP;
-import static com.styzf.link.parser.context.OldDataContext.TRANSACTION_CALLBACK_IMPL_CLASS_MAP;
-import static com.styzf.link.parser.context.OldDataContext.TRANSACTION_CALLBACK_WITHOUT_RESULT_CHILD_CLASS_MAP;
+import static com.styzf.link.parser.context.DataContext.CALLABLE_IMPL_CLASS_MAP;
+import static com.styzf.link.parser.context.DataContext.CLASS_AND_JAR_NUM;
+import static com.styzf.link.parser.context.DataContext.RUNNABLE_IMPL_CLASS_MAP;
+import static com.styzf.link.parser.context.DataContext.THREAD_CHILD_CLASS_MAP;
+import static com.styzf.link.parser.context.DataContext.TRANSACTION_CALLBACK_IMPL_CLASS_MAP;
+import static com.styzf.link.parser.context.DataContext.TRANSACTION_CALLBACK_WITHOUT_RESULT_CHILD_CLASS_MAP;
 
 /**
  * @author adrninistrator

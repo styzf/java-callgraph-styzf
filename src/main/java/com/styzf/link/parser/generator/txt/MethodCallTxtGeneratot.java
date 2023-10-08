@@ -1,7 +1,7 @@
 package com.styzf.link.parser.generator.txt;
 
 import com.styzf.link.parser.common.enums.JavaCGOutPutFileTypeEnum;
-import com.styzf.link.parser.context.OldDataContext;
+import com.styzf.link.parser.context.DataContext;
 import com.styzf.link.parser.dto.call.MethodCall;
 import com.styzf.link.parser.dto.output.JavaCGOutputInfo;
 import com.styzf.link.parser.util.JavaCGFileUtil;
@@ -19,22 +19,22 @@ import java.util.Collection;
 public class MethodCallTxtGeneratot extends AbstractTxtGenerator {
     @Override
     public void generate() {
-        OldDataContext.METHOD_CALL_MAP.values()
+        DataContext.METHOD_CALL_MAP.values()
                 .stream()
                 .flatMap(Collection::stream)
                 .sorted(MethodCall::compareTo)
                 .forEach(methodCall -> {
-                    String callerClassJarNum = OldDataContext.CLASS_AND_JAR_NUM.getJarNum(methodCall.getCallerClassName());
-                    String calleeClassJarNum = OldDataContext.CLASS_AND_JAR_NUM.getJarNum(methodCall.getCalleeClassName());
+                    String callerClassJarNum = DataContext.CLASS_AND_JAR_NUM.getJarNum(methodCall.getCallerClassName());
+                    String calleeClassJarNum = DataContext.CLASS_AND_JAR_NUM.getJarNum(methodCall.getCalleeClassName());
                     JavaCGFileUtil.write2FileWithTab(writer, methodCall.genCallContent(callerClassJarNum, calleeClassJarNum));
                 });
     }
     
     @Override
     protected Writer getWriter() {
-        String outputRootPath = OldDataContext.javaCGConfInfo.getOutputRootPath();
+        String outputRootPath = DataContext.javaCGConfInfo.getOutputRootPath();
         String dirPath = JavaCGUtil.addSeparator4FilePath(outputRootPath) + File.separator;
-        JavaCGOutputInfo outputInfo = new JavaCGOutputInfo(dirPath, OldDataContext.javaCGConfInfo.getOutputFileExt());
+        JavaCGOutputInfo outputInfo = new JavaCGOutputInfo(dirPath, DataContext.javaCGConfInfo.getOutputFileExt());
         try {
             return JavaCGFileUtil.genBufferedWriter(outputInfo.getMainFilePath(JavaCGOutPutFileTypeEnum.OPFTE_METHOD_CALL));
         } catch (FileNotFoundException e) {

@@ -4,8 +4,8 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
 import com.styzf.link.parser.common.JavaCGConstants;
+import com.styzf.link.parser.data.ClassExtendsMethodInfo;
 import com.styzf.link.parser.data.ClassImplementsMethodInfo;
-import com.styzf.link.parser.dto.classes.ClassExtendsMethodInfo;
 import com.styzf.link.parser.dto.interfaces.InterfaceExtendsMethodInfo;
 import com.styzf.link.parser.exceptions.JavaCGRuntimeException;
 

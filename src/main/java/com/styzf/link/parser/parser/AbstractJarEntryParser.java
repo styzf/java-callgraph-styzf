@@ -7,7 +7,6 @@ import org.apache.bcel.classfile.ClassParser;
 import org.apache.bcel.classfile.JavaClass;
 
 import java.io.BufferedInputStream;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -16,7 +15,7 @@ import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
-import static com.styzf.link.parser.context.OldDataContext.JAR_INFO_MAP;
+import static com.styzf.link.parser.context.DataContext.JAR_INFO_MAP;
 
 /**
  * @author adrninistrator
