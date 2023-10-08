@@ -31,9 +31,6 @@ public class UseSpringBeanByAnnotationHandler {
     // 类涉及继承的信息
     private final Map<String, ClassExtendsMethodInfo> classExtendsMethodInfoMap = DataContext.CLASS_EXTENDS_METHOD_INFO_MAP;
 
-    // 类实现的接口信息
-    private final Map<String, ClassImplementsMethodInfo> classImplementsMethodInfoMap = DataContext.CLASS_IMPLEMENTS_METHOD_INFO_MAP;
-
     // 接口涉及继承的信息
     private final Map<String, InterfaceExtendsMethodInfo> interfaceExtendsMethodInfoMap = DataContext.INTERFACE_EXTENDS_METHOD_INFO_MAP;
 
@@ -314,7 +311,7 @@ public class UseSpringBeanByAnnotationHandler {
         for (String springBeanType : springBeanTypeList) {
             if (springBeanType.equals(fieldType) ||
                     JavaCGUtil.isChildOf(springBeanType, fieldType, classExtendsMethodInfoMap) ||
-                    JavaCGUtil.isImplementationOf(springBeanType, fieldType, classExtendsMethodInfoMap, classImplementsMethodInfoMap, interfaceExtendsMethodInfoMap)) {
+                    JavaCGUtil.isImplementationOf(springBeanType, fieldType, classExtendsMethodInfoMap, interfaceExtendsMethodInfoMap)) {
                 /*
                     若满足以下任意条件，则认为类型匹配
                     当前字段的类型=Spring Bean类型

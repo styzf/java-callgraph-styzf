@@ -11,10 +11,12 @@ import com.styzf.link.parser.dto.doc.DocDto;
 import com.styzf.link.parser.dto.interfaces.InterfaceExtendsMethodInfo;
 import com.styzf.link.parser.dto.jar.ClassAndJarNum;
 import com.styzf.link.parser.dto.jar.JarInfo;
+import org.apache.bcel.classfile.Method;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -39,11 +41,18 @@ public class DataContext {
     public final static ClassAndJarNum CLASS_AND_JAR_NUM = new ClassAndJarNum();
     
     /**
+     * 接口与实现类关系
+     * key 接口名
+     * value 类名
+     */
+    public final static Map<String, List<String>> INTERFACE_IMPL_CLASS_MAP = new HashMap<>(JavaCGConstants.SIZE_200);
+    
+    /**
      * 类实现的接口，及类中的方法信息
      * key     类名
      * value   类实现的接口，及类中的方法信息
      */
-    public final static Map<String, ClassImplementsMethodInfo> CLASS_IMPLEMENTS_METHOD_INFO_MAP = new HashMap<>(JavaCGConstants.SIZE_200);
+    public final static Map<String, ClassImplementsMethodInfo> CLASS_IMPL_METHOD_INFO_MAP = new HashMap<>(JavaCGConstants.SIZE_200);
     
     /**
      * 接口中的方法信息
@@ -52,11 +61,16 @@ public class DataContext {
      */
     public final static Map<String, List<MethodAndArgs>> INTERFACE_METHOD_WITH_ARGS_MAP = new HashMap<>(JavaCGConstants.SIZE_200);
     /**
-     * 子父类中都没有进行实现的方法，可能在接口默认方法中实现
-     * key     类名
-     * value   类名中的方法信息
+     * 接口有默认方法的集合
      */
-    public final static Map<String, List<MethodAndArgs>> INTERFACE_METHOD_NONE_DONE_MAP = new HashMap<>(JavaCGConstants.SIZE_200);
+    public final static List<MethodAndArgs> INTERFACE_METHOD_DEFAULT_LIST = new LinkedList<>();
+    
+    public static void saveIfDefault(Method method, MethodAndArgs methodAndArgs) {
+        // 非抽象非静态，则为默认方法
+        if (!method.isAbstract() && !method.isStatic()) {
+            INTERFACE_METHOD_DEFAULT_LIST.add(methodAndArgs);
+        }
+    }
     
     // 第一次预处理相关
     /**

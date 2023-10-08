@@ -1,5 +1,6 @@
 package com.styzf.link.parser.parser;
 
+import com.styzf.link.parser.context.DataContext;
 import com.styzf.link.parser.data.ClassExtendsMethodInfo;
 import com.styzf.link.parser.data.MethodAndArgs;
 import com.styzf.link.parser.dto.interfaces.InterfaceExtendsMethodInfo;
@@ -24,6 +25,7 @@ import static com.styzf.link.parser.context.DataContext.CLASS_EXTENDS_METHOD_INF
 import static com.styzf.link.parser.context.DataContext.CLASS_EXTENDS_SET;
 import static com.styzf.link.parser.context.DataContext.INTERFACE_EXTENDS_METHOD_INFO_MAP;
 import static com.styzf.link.parser.context.DataContext.INTERFACE_EXTENDS_SET;
+import static com.styzf.link.parser.context.DataContext.INTERFACE_METHOD_DEFAULT_LIST;
 import static com.styzf.link.parser.context.DataContext.javaCGConfInfo;
 
 /**
@@ -115,7 +117,9 @@ public class JarEntryPreHandle2Parser extends AbstractJarEntryParser {
         // 记录当前接口的方法信息
         List<MethodAndArgs> methodAttributeList = new ArrayList<>();
         for (Method method : interfaceClass.getMethods()) {
-            methodAttributeList.add(new MethodAndArgs(interfaceName, method.getName(), method.getArgumentTypes(), method.getAccessFlags()));
+            MethodAndArgs methodAndArgs = new MethodAndArgs(interfaceName, method.getName(), method.getArgumentTypes(), method.getAccessFlags());
+            methodAttributeList.add(methodAndArgs);
+            DataContext.saveIfDefault(method, methodAndArgs);
         }
         INTERFACE_EXTENDS_METHOD_INFO_MAP.put(interfaceName, new InterfaceExtendsMethodInfo(Arrays.asList(superInterfaceNames), methodAttributeList));
     }

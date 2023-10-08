@@ -25,6 +25,7 @@ import java.util.Set;
 
 import static com.styzf.link.parser.common.JavaCGCommonNameConstants.CLASS_NAME_OBJECT;
 import static com.styzf.link.parser.common.JavaCGCommonNameConstants.METHOD_NAME_INIT;
+import static com.styzf.link.parser.context.DataContext.CLASS_IMPL_METHOD_INFO_MAP;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
@@ -346,23 +347,21 @@ public class JavaCGUtil {
      * @param className                     类名
      * @param interfaceName                 接口名
      * @param classExtendsMethodInfoMap     类涉及继承的信息
-     * @param classImplementsMethodInfoMap  类实现的接口信息
      * @param interfaceExtendsMethodInfoMap 接口涉及继承的信息
      * @return
      */
     public static boolean isImplementationOf(String className,
                                              String interfaceName,
                                              Map<String, ClassExtendsMethodInfo> classExtendsMethodInfoMap,
-                                             Map<String, ClassImplementsMethodInfo> classImplementsMethodInfoMap,
                                              Map<String, InterfaceExtendsMethodInfo> interfaceExtendsMethodInfoMap
     ) {
-        if (className == null || interfaceName == null || classExtendsMethodInfoMap == null || classImplementsMethodInfoMap == null || interfaceExtendsMethodInfoMap == null) {
+        if (className == null || interfaceName == null || classExtendsMethodInfoMap == null || interfaceExtendsMethodInfoMap == null) {
             throw new JavaCGRuntimeException("传入参数不允许为空");
         }
 
         String currentClassName = className;
         while (true) {
-            ClassImplementsMethodInfo classImplementsMethodInfo = classImplementsMethodInfoMap.get(currentClassName);
+            ClassImplementsMethodInfo classImplementsMethodInfo = CLASS_IMPL_METHOD_INFO_MAP.get(currentClassName);
             if (classImplementsMethodInfo != null) {
                 List<String> interfaceNameList = classImplementsMethodInfo.getInterfaceNameList();
                 if (interfaceNameList != null) {

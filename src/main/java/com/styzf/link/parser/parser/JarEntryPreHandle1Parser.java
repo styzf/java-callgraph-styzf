@@ -1,5 +1,6 @@
 package com.styzf.link.parser.parser;
 
+import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
 import com.styzf.link.parser.common.JavaCGCommonNameConstants;
 import com.styzf.link.parser.common.JavaCGConstants;
@@ -18,10 +19,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.jar.JarInputStream;
 
 import static com.styzf.link.parser.context.DataContext.CLASS_AND_JAR_NUM;
+import static com.styzf.link.parser.context.DataContext.CLASS_IMPL_METHOD_INFO_MAP;
+import static com.styzf.link.parser.context.DataContext.INTERFACE_IMPL_CLASS_MAP;
 import static com.styzf.link.parser.context.DataContext.javaCGConfInfo;
 
 /**
@@ -126,17 +130,24 @@ public class JarEntryPreHandle1Parser extends AbstractJarEntryParser {
         String className = javaClass.getClassName();
         String[] interfaceNames = javaClass.getInterfaceNames();
         Method[] methods = javaClass.getMethods();
-
+        
+        if (ArrayUtil.isNotEmpty(interfaceNames)) {
+            for (String interfaceName : interfaceNames) {
+                List<String> implList = INTERFACE_IMPL_CLASS_MAP.computeIfAbsent(interfaceName, k -> new LinkedList<>());
+                implList.add(className);
+            }
+        }
+        
         if (interfaceNames.length > 0 &&
                 methods != null && methods.length > 0 &&
-                DataContext.CLASS_IMPLEMENTS_METHOD_INFO_MAP.get(className) == null) {
+                CLASS_IMPL_METHOD_INFO_MAP.get(className) == null) {
             List<String> interfaceNameList = new ArrayList<>(interfaceNames.length);
             interfaceNameList.addAll(Arrays.asList(interfaceNames));
 
             // 记录类实现的接口，及类中可能涉及实现的相关方法
             List<MethodAndArgs> implClassMethodWithArgsList = JavaCGByteCodeUtil.genImplClassMethodWithArgs(className, methods);
-            DataContext.CLASS_IMPLEMENTS_METHOD_INFO_MAP.put(className, new ClassImplementsMethodInfo(interfaceNameList, implClassMethodWithArgsList));
-
+            CLASS_IMPL_METHOD_INFO_MAP.put(className, new ClassImplementsMethodInfo(interfaceNameList, implClassMethodWithArgsList));
+            
             if (!javaClass.isAbstract()) {
                 if (interfaceNameList.contains(JavaCGCommonNameConstants.CLASS_NAME_RUNNABLE)) {
                     // 找到Runnable实现类

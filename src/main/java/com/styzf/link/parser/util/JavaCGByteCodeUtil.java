@@ -4,6 +4,7 @@ import cn.hutool.core.util.StrUtil;
 import com.styzf.link.parser.common.JavaCGConstants;
 import com.styzf.link.parser.common.TypeConstants;
 import com.styzf.link.parser.common.enums.JavaCGConstantTypeEnum;
+import com.styzf.link.parser.context.DataContext;
 import com.styzf.link.parser.data.MethodAndArgs;
 import com.styzf.link.parser.dto.classes.InnerClassInfo;
 import org.apache.bcel.Const;
@@ -101,6 +102,8 @@ public class JavaCGByteCodeUtil {
             MethodAndArgs methodAndArgs = new MethodAndArgs(className, method.getName(), JavaCGMethodUtil.getArgListStr(method.getArgumentTypes()), method.getAccessFlags());
             methodAndArgs.setAccessFlags(method.getAccessFlags());
             methodInfoList.add(methodAndArgs);
+            
+            DataContext.saveIfDefault(method, methodAndArgs);
         }
         return methodInfoList;
     }

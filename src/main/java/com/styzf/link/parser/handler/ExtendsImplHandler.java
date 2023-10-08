@@ -10,7 +10,6 @@ import com.styzf.link.parser.conf.JavaCGConfInfo;
 import com.styzf.link.parser.data.ClassExtendsMethodInfo;
 import com.styzf.link.parser.data.ClassImplementsMethodInfo;
 import com.styzf.link.parser.data.MethodAndArgs;
-import com.styzf.link.parser.dto.access_flag.JavaCGAccessFlags;
 import com.styzf.link.parser.dto.call.MethodCall;
 import com.styzf.link.parser.dto.classes.Node4ClassExtendsMethod;
 import com.styzf.link.parser.dto.interfaces.InterfaceExtendsMethodInfo;
@@ -25,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -36,9 +34,10 @@ import static com.styzf.link.parser.context.DataContext.CHILDREN_CLASS_MAP;
 import static com.styzf.link.parser.context.DataContext.CHILDREN_INTERFACE_MAP;
 import static com.styzf.link.parser.context.DataContext.CLASS_AND_JAR_NUM;
 import static com.styzf.link.parser.context.DataContext.CLASS_EXTENDS_METHOD_INFO_MAP;
-import static com.styzf.link.parser.context.DataContext.CLASS_IMPLEMENTS_METHOD_INFO_MAP;
+import static com.styzf.link.parser.context.DataContext.CLASS_IMPL_METHOD_INFO_MAP;
 import static com.styzf.link.parser.context.DataContext.INTERFACE_EXTENDS_METHOD_INFO_MAP;
-import static com.styzf.link.parser.context.DataContext.INTERFACE_METHOD_NONE_DONE_MAP;
+import static com.styzf.link.parser.context.DataContext.INTERFACE_IMPL_CLASS_MAP;
+import static com.styzf.link.parser.context.DataContext.INTERFACE_METHOD_DEFAULT_LIST;
 import static com.styzf.link.parser.context.DataContext.INTERFACE_METHOD_WITH_ARGS_MAP;
 import static java.lang.System.err;
 
@@ -55,52 +54,119 @@ public class ExtendsImplHandler {
         addInterfaceMethod4SuperAbstractClass();
         recordClassExtendsMethod();
         recordInterfaceCallClassMethod();
-        recordNoneDoneMethod();
+        recordDefaultMethod();
     }
     
     /**
-     * 记录没有实际方法实现的方法，向上查找是否有接口实现
+     * 处理默认方法
      */
-    private void recordNoneDoneMethod() {
-        for (Map.Entry<String, List<MethodAndArgs>> entry : INTERFACE_METHOD_NONE_DONE_MAP.entrySet()) {
-            String className = entry.getKey();
-            List<MethodAndArgs> methodAndArgsList = entry.getValue();
-            ClassImplementsMethodInfo interfaceClassImplementsMethodInfo = getInterfaceClassImplementsMethodInfo(className, methodAndArgsList, className);
-            
-            if (interfaceClassImplementsMethodInfo == null) {
-                continue;
-            }
-            
-            iteratorAllInterface(className, methodAndArgsList, interfaceClassImplementsMethodInfo);
+    private void recordDefaultMethod() {
+        for (MethodAndArgs methodAndArgs : INTERFACE_METHOD_DEFAULT_LIST) {
+            String interfaceName = methodAndArgs.getClassName();
+            recordChildrenInterfaceDefaultMethod(interfaceName, methodAndArgs);
+            recordImplDefaultMethod(interfaceName, methodAndArgs);
         }
     }
     
     /**
-     * TODO 该数据结构无法满足要求
-     * 遍历所有的接口
-     * @param className 类名
-     * @param methodAndArgsList 需要解析的方法列表
-     * @param interfaceClassImplementsMethodInfo 接口以及实现
+     * 处理实现默认方法调用
+     * @param interfaceName 接口名称
      */
-    private void iteratorAllInterface(String className, List<MethodAndArgs> methodAndArgsList, ClassImplementsMethodInfo interfaceClassImplementsMethodInfo) {
-        List<MethodAndArgs> methodWithArgsList = interfaceClassImplementsMethodInfo.getMethodWithArgsList();
-        Iterator<MethodAndArgs> iterator = methodAndArgsList.iterator();
-        while (iterator.hasNext()) {
-            MethodAndArgs methodAndArgs = iterator.next();
-            MethodAndArgs interfaceMethodAndArgs = JavaCGMethodUtil.getByQuery(methodWithArgsList, methodAndArgs);
-            if (interfaceMethodAndArgs == null
-                    || !interfaceMethodAndArgs.isDone()) {
+    private void recordImplDefaultMethod(String interfaceName, MethodAndArgs methodAndArgs) {
+        List<String> classNameList = INTERFACE_IMPL_CLASS_MAP.get(interfaceName);
+        if (CollUtil.isEmpty(classNameList)) {
+            return;
+        }
+        
+        a:for (String className : classNameList) {
+            ClassImplementsMethodInfo classImplementsMethodInfo = CLASS_IMPL_METHOD_INFO_MAP.get(className);
+            if (classImplementsMethodInfo == null) {
                 continue;
             }
-            // 接口有默认实现
+            
+            List<MethodAndArgs> methodWithArgsList = classImplementsMethodInfo.getMethodWithArgsList();
+            for (MethodAndArgs methodWithArgs : methodWithArgsList) {
+                if (methodWithArgs.getMethodName().equals(methodAndArgs.getMethodName())
+                        && methodWithArgs.getMethodArgs().equals(methodAndArgs.getMethodArgs())
+                        && methodWithArgs.isDone()) {
+                    continue a;
+                }
+            }
+            
             addExtraMethodCall(className,
                     methodAndArgs.getMethodName(),
                     methodAndArgs.getMethodArgs(),
-                    JavaCGCallTypeEnum.CTE_CHILD_CALL_SUPER,
-                    interfaceClassImplementsMethodInfo.getInterfaceNameList().get(0),
-                    interfaceMethodAndArgs.getMethodName(),
-                    interfaceMethodAndArgs.getMethodArgs());
-            iterator.remove();
+                    JavaCGCallTypeEnum.CTE_IMPL_CLASS_CALL_SUPER_INTERFACE_DEFAULT,
+                    methodAndArgs.getClassName(),
+                    methodAndArgs.getMethodName(),
+                    methodAndArgs.getMethodArgs());
+            recordImplChildrenDefaultMethod(className, methodAndArgs);
+        }
+    }
+    
+    /**
+     * 处理实现类子类默认方法调用
+     * @param className 类名
+     */
+    private void recordImplChildrenDefaultMethod(String className, MethodAndArgs methodAndArgs) {
+        List<String> childrenClassNameList = CHILDREN_CLASS_MAP.get(className);
+        if (CollUtil.isEmpty(childrenClassNameList)) {
+            return;
+        }
+        
+        a:for (String childrenClassName : childrenClassNameList) {
+            ClassImplementsMethodInfo classImplementsMethodInfo = CLASS_IMPL_METHOD_INFO_MAP.get(childrenClassName);
+            if (classImplementsMethodInfo == null) {
+                continue;
+            }
+            
+            List<MethodAndArgs> methodWithArgsList = classImplementsMethodInfo.getMethodWithArgsList();
+            for (MethodAndArgs methodWithArgs : methodWithArgsList) {
+                if (methodWithArgs.getMethodName().equals(methodAndArgs.getMethodName())
+                        && methodWithArgs.getMethodArgs().equals(methodAndArgs.getMethodArgs())) {
+                    continue a;
+                }
+            }
+            
+            addExtraMethodCall(childrenClassName,
+                    methodAndArgs.getMethodName(),
+                    methodAndArgs.getMethodArgs(),
+                    JavaCGCallTypeEnum.CTE_IMPL_CLASS_CALL_SUPER_INTERFACE_DEFAULT,
+                    methodAndArgs.getClassName(),
+                    methodAndArgs.getMethodName(),
+                    methodAndArgs.getMethodArgs());
+            recordImplChildrenDefaultMethod(childrenClassName, methodAndArgs);
+        }
+    }
+    
+    /**
+     * 处理接口默认方法调用
+     * @param interfaceName 接口名
+     */
+    private void recordChildrenInterfaceDefaultMethod(String interfaceName, MethodAndArgs methodAndArgs) {
+        List<String> childrenInterfaceList = CHILDREN_INTERFACE_MAP.get(interfaceName);
+        if (CollUtil.isEmpty(childrenInterfaceList)) {
+            return;
+        }
+        a:for (String childrenInterface : childrenInterfaceList) {
+            // 1、如果子接口没有对应的默认实现，添加子类接口调用父类默认实现的方法
+            List<MethodAndArgs> childrenInterfaceMethodList = INTERFACE_METHOD_WITH_ARGS_MAP.get(childrenInterface);
+            for (MethodAndArgs childrenInterfaceMethod : childrenInterfaceMethodList) {
+                if (childrenInterfaceMethod.getMethodName().equals(methodAndArgs.getMethodName())
+                        && childrenInterfaceMethod.getMethodArgs().equals(methodAndArgs.getMethodArgs())) {
+                    continue a;
+                }
+            }
+            addExtraMethodCall(childrenInterface,
+                    methodAndArgs.getMethodName(),
+                    methodAndArgs.getMethodArgs(),
+                    JavaCGCallTypeEnum.CTE_CHILD_CALL_SUPER_INTERFACE_DEFAULT,
+                    methodAndArgs.getClassName(),
+                    methodAndArgs.getMethodName(),
+                    methodAndArgs.getMethodArgs());
+            
+            recordChildrenInterfaceDefaultMethod(childrenInterface, methodAndArgs);
+            recordImplDefaultMethod(childrenInterface, methodAndArgs);
         }
     }
     
@@ -112,7 +178,7 @@ public class ExtendsImplHandler {
      * @return 接口方法
      */
     private ClassImplementsMethodInfo getInterfaceClassImplementsMethodInfo(String className, List<MethodAndArgs> methodAndArgsList, String sourceClassName) {
-        ClassImplementsMethodInfo classImplementsMethodInfo = CLASS_IMPLEMENTS_METHOD_INFO_MAP.get(className);
+        ClassImplementsMethodInfo classImplementsMethodInfo = CLASS_IMPL_METHOD_INFO_MAP.get(className);
         if (classImplementsMethodInfo != null) {
             return classImplementsMethodInfo;
         }
@@ -241,7 +307,7 @@ public class ExtendsImplHandler {
                 continue;
             }
 
-            ClassImplementsMethodInfo classImplementsMethodInfo = CLASS_IMPLEMENTS_METHOD_INFO_MAP.get(superClassName);
+            ClassImplementsMethodInfo classImplementsMethodInfo = CLASS_IMPL_METHOD_INFO_MAP.get(superClassName);
             if (classImplementsMethodInfo == null) {
                 continue;
             }
@@ -367,7 +433,6 @@ public class ExtendsImplHandler {
         List<MethodAndArgs> superMethodAndArgsList = superClassMethodInfo.getMethodWithArgsList();
         List<MethodAndArgs> childMethodWithArgsMap = childClassMethodInfo.getMethodWithArgsList();
 
-        List<MethodAndArgs> noneDoneList = new LinkedList<>();
         // 对父类方法进行排序
         superMethodAndArgsList.sort(MethodAndArgsComparator.getInstance());
         // 遍历父类方法
@@ -381,11 +446,6 @@ public class ExtendsImplHandler {
                 addExtraMethodCall(superClassName, superMethodWithArgs.getMethodName(), superMethodWithArgs.getMethodArgs(),
                         JavaCGCallTypeEnum.CTE_SUPER_CALL_CHILD, childClassName, superMethodWithArgs.getMethodName(), superMethodWithArgs.getMethodArgs());
                 MethodAndArgs childMethodWithArgs = JavaCGMethodUtil.getByQuery(childMethodWithArgsMap, superMethodWithArgs);
-                if (!superMethodWithArgs.isDone()
-                        && childMethodWithArgs != null
-                        && !childMethodWithArgs.isDone()) {
-                    noneDoneList.add(childMethodWithArgs);
-                }
                 continue;
             }
 
@@ -411,26 +471,22 @@ public class ExtendsImplHandler {
                         JavaCGCallTypeEnum.CTE_CHILD_CALL_SUPER, superClassName, superMethodWithArgs.getMethodName(), superMethodWithArgs.getMethodArgs());
             }
         }
-        
-        if (CollUtil.isNotEmpty(noneDoneList)) {
-            INTERFACE_METHOD_NONE_DONE_MAP.put(childClassName, noneDoneList);
-        }
     }
     
     /**
      * 记录接口调用实现类方法
      */
     private void recordInterfaceCallClassMethod() {
-        if (CLASS_IMPLEMENTS_METHOD_INFO_MAP.isEmpty() || INTERFACE_METHOD_WITH_ARGS_MAP.isEmpty()) {
+        if (CLASS_IMPL_METHOD_INFO_MAP.isEmpty() || INTERFACE_METHOD_WITH_ARGS_MAP.isEmpty()) {
             return;
         }
 
-        List<String> classNameList = new ArrayList<>(CLASS_IMPLEMENTS_METHOD_INFO_MAP.keySet());
+        List<String> classNameList = new ArrayList<>(CLASS_IMPL_METHOD_INFO_MAP.keySet());
         // 对类名进行排序
         Collections.sort(classNameList);
         // 对类名进行遍历
         for (String className : classNameList) {
-            ClassImplementsMethodInfo classImplementsMethodInfo = CLASS_IMPLEMENTS_METHOD_INFO_MAP.get(className);
+            ClassImplementsMethodInfo classImplementsMethodInfo = CLASS_IMPL_METHOD_INFO_MAP.get(className);
             List<String> interfaceNameList = classImplementsMethodInfo.getInterfaceNameList();
             // 对实现的接口进行排序
             Collections.sort(interfaceNameList);
