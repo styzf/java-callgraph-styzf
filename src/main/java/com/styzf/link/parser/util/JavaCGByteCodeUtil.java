@@ -4,8 +4,8 @@ import cn.hutool.core.util.StrUtil;
 import com.styzf.link.parser.common.JavaCGConstants;
 import com.styzf.link.parser.common.TypeConstants;
 import com.styzf.link.parser.common.enums.JavaCGConstantTypeEnum;
+import com.styzf.link.parser.data.MethodAndArgs;
 import com.styzf.link.parser.dto.classes.InnerClassInfo;
-import com.styzf.link.parser.dto.method.MethodAndArgs;
 import org.apache.bcel.Const;
 import org.apache.bcel.classfile.AccessFlags;
 import org.apache.bcel.classfile.Attribute;
@@ -77,13 +77,13 @@ public class JavaCGByteCodeUtil {
      * @param methods
      * @return
      */
-    public static List<MethodAndArgs> genImplClassMethodWithArgs(Method[] methods) {
+    public static List<MethodAndArgs> genImplClassMethodWithArgs(String className, Method[] methods) {
         List<MethodAndArgs> methodInfoList = new ArrayList<>(methods.length);
         for (Method method : methods) {
             String methodName = method.getName();
             if (checkImplMethod(methodName, method)) {
                 // 记录可能涉及实现的方法
-                methodInfoList.add(new MethodAndArgs(methodName, JavaCGMethodUtil.getArgListStr(method.getArgumentTypes())));
+                methodInfoList.add(new MethodAndArgs(className, methodName, JavaCGMethodUtil.getArgListStr(method.getArgumentTypes()), method.getAccessFlags()));
             }
         }
         return methodInfoList;
@@ -95,10 +95,10 @@ public class JavaCGByteCodeUtil {
      * @param methods
      * @return
      */
-    public static List<MethodAndArgs> genInterfaceMethodWithArgs(Method[] methods) {
+    public static List<MethodAndArgs> genInterfaceMethodWithArgs(String className, Method[] methods) {
         List<MethodAndArgs> methodInfoList = new ArrayList<>(methods.length);
         for (Method method : methods) {
-            MethodAndArgs methodAndArgs = new MethodAndArgs(method.getName(), JavaCGMethodUtil.getArgListStr(method.getArgumentTypes()));
+            MethodAndArgs methodAndArgs = new MethodAndArgs(className, method.getName(), JavaCGMethodUtil.getArgListStr(method.getArgumentTypes()), method.getAccessFlags());
             methodAndArgs.setAccessFlags(method.getAccessFlags());
             methodInfoList.add(methodAndArgs);
         }

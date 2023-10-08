@@ -7,13 +7,13 @@ import com.styzf.link.parser.common.JavaCGConstants;
 import com.styzf.link.parser.common.enums.JavaCGCallTypeEnum;
 import com.styzf.link.parser.comparator.MethodAndArgsComparator;
 import com.styzf.link.parser.conf.JavaCGConfInfo;
+import com.styzf.link.parser.data.ClassImplementsMethodInfo;
+import com.styzf.link.parser.data.MethodAndArgs;
 import com.styzf.link.parser.dto.access_flag.JavaCGAccessFlags;
 import com.styzf.link.parser.dto.call.MethodCall;
 import com.styzf.link.parser.dto.classes.ClassExtendsMethodInfo;
-import com.styzf.link.parser.dto.classes.ClassImplementsMethodInfo;
 import com.styzf.link.parser.dto.classes.Node4ClassExtendsMethod;
 import com.styzf.link.parser.dto.interfaces.InterfaceExtendsMethodInfo;
-import com.styzf.link.parser.dto.method.MethodAndArgs;
 import com.styzf.link.parser.dto.stack.ListAsStack;
 import com.styzf.link.parser.util.JavaCGByteCodeUtil;
 import com.styzf.link.parser.util.JavaCGLogUtil;
@@ -260,7 +260,7 @@ public class ExtendsImplHandler {
                 }
 
                 for (MethodAndArgs interfaceMethodWithArgs : interfaceMethodWithArgsList) {
-                    classExtendsMethodInfo.putMethodAndArgs(interfaceMethodWithArgs, accessFlags);
+                    classExtendsMethodInfo.putMethodAndArgs(superClassName, interfaceMethodWithArgs, accessFlags);
                 }
             }
         }
@@ -378,7 +378,7 @@ public class ExtendsImplHandler {
             if (JavaCGByteCodeUtil.isAbstractFlag(superMethodAccessFlags)) {
                 // 处理父类抽象方法
                 // 添加时不覆盖现有的值
-                childClassMethodInfo.putMethodAndArgs(superMethodWithArgs, superMethodAccessFlags);
+                childClassMethodInfo.putMethodAndArgs(superClassName, superMethodWithArgs, superMethodAccessFlags);
                 // 添加父类调用子类的方法调用
                 addExtraMethodCall(superClassName, superMethodWithArgs.getMethodName(), superMethodWithArgs.getMethodArgs(),
                         JavaCGCallTypeEnum.CTE_SUPER_CALL_CHILD, childClassName, superMethodWithArgs.getMethodName(), superMethodWithArgs.getMethodArgs());
@@ -407,7 +407,7 @@ public class ExtendsImplHandler {
                     continue;
                 }
 
-                childClassMethodInfo.putMethodAndArgs(superMethodWithArgs, superMethodAccessFlags);
+                childClassMethodInfo.putMethodAndArgs(superClassName, superMethodWithArgs, superMethodAccessFlags);
                 // 添加子类调用父类方法
                 addExtraMethodCall(childClassName, superMethodWithArgs.getMethodName(), superMethodWithArgs.getMethodArgs(),
                         JavaCGCallTypeEnum.CTE_CHILD_CALL_SUPER, superClassName, superMethodWithArgs.getMethodName(), superMethodWithArgs.getMethodArgs());

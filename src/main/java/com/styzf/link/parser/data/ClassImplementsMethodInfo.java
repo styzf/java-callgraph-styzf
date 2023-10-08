@@ -1,8 +1,10 @@
 package com.styzf.link.parser.data;
 
-import com.styzf.link.parser.dto.method.MethodAndArgs;
+import cn.hutool.core.collection.CollUtil;
 
+import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 类实现的接口，及类中的方法信息
@@ -12,13 +14,18 @@ import java.util.List;
 public class ClassImplementsMethodInfo {
     
     /**
+     * 类实现的接口
+     */
+    private List<String> interfaceNameList;
+    /**
      * 接口的类实现信息
      */
     private final List<MethodAndArgs> methodWithArgsList;
     
     private String className;
 
-    public ClassImplementsMethodInfo(List<MethodAndArgs> methodWithArgsList) {
+    public ClassImplementsMethodInfo(List<String> interfaceNameList, List<MethodAndArgs> methodWithArgsList) {
+        this.interfaceNameList = interfaceNameList;
         this.methodWithArgsList = methodWithArgsList;
     }
 
@@ -32,5 +39,9 @@ public class ClassImplementsMethodInfo {
     
     public void setClassName(String className) {
         this.className = className;
+    }
+    
+    public List<String> getInterfaceNameList() {
+        return interfaceNameList;
     }
 }

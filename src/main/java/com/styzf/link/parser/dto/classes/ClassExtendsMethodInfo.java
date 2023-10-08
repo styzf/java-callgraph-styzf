@@ -1,6 +1,6 @@
 package com.styzf.link.parser.dto.classes;
 
-import com.styzf.link.parser.dto.method.MethodAndArgs;
+import com.styzf.link.parser.data.MethodAndArgs;
 
 import java.util.Map;
 
@@ -43,11 +43,11 @@ public class ClassExtendsMethodInfo {
         return methodWithArgsMap;
     }
     
-    public void putMethodAndArgs(MethodAndArgs methodAndArgs, int accessFlags) {
+    public void putMethodAndArgs(String className, MethodAndArgs methodAndArgs, int accessFlags) {
         Integer flag = methodWithArgsMap.get(methodAndArgs);
         if (flag == null) {
             // 为空则没有对应的数据，则新创建一个类，并标识为虚处理
-            MethodAndArgs methodAndArgsNew = new MethodAndArgs(methodAndArgs.getMethodName(), methodAndArgs.getMethodArgs());
+            MethodAndArgs methodAndArgsNew = new MethodAndArgs(className, methodAndArgs.getMethodName(), methodAndArgs.getMethodArgs(), accessFlags);
             methodAndArgsNew.setDone(false);
             methodAndArgsNew.setAccessFlags(accessFlags);
             methodWithArgsMap.putIfAbsent(methodAndArgsNew, accessFlags);

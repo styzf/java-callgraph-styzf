@@ -1,6 +1,6 @@
 package com.styzf.link.parser.comparator;
 
-import com.styzf.link.parser.dto.method.MethodAndArgs;
+import com.styzf.link.parser.data.MethodAndArgs;
 
 import java.util.Comparator;
 

@@ -4,8 +4,8 @@ import cn.hutool.core.util.StrUtil;
 import com.styzf.link.parser.common.JavaCGCommonNameConstants;
 import com.styzf.link.parser.common.JavaCGConstants;
 import com.styzf.link.parser.context.OldDataContext;
-import com.styzf.link.parser.dto.classes.ClassImplementsMethodInfo;
-import com.styzf.link.parser.dto.method.MethodAndArgs;
+import com.styzf.link.parser.data.ClassImplementsMethodInfo;
+import com.styzf.link.parser.data.MethodAndArgs;
 import com.styzf.link.parser.extensions.code_parser.JarEntryOtherFileParser;
 import com.styzf.link.parser.extensions.manager.ExtensionsManager;
 import com.styzf.link.parser.spring.DefineSpringBeanByAnnotationHandler;
@@ -109,7 +109,7 @@ public class JarEntryPreHandle1Parser extends AbstractJarEntryParser {
         Method[] methods = interfaceClass.getMethods();
         if (methods != null && methods.length > 0 &&
                 OldDataContext.INTERFACE_METHOD_WITH_ARGS_MAP.get(interfaceName) == null) {
-            List<MethodAndArgs> interfaceMethodWithArgsList = JavaCGByteCodeUtil.genInterfaceMethodWithArgs(methods);
+            List<MethodAndArgs> interfaceMethodWithArgsList = JavaCGByteCodeUtil.genInterfaceMethodWithArgs(interfaceName, methods);
             OldDataContext.INTERFACE_METHOD_WITH_ARGS_MAP.put(interfaceName, interfaceMethodWithArgsList);
         }
 
@@ -134,7 +134,7 @@ public class JarEntryPreHandle1Parser extends AbstractJarEntryParser {
             interfaceNameList.addAll(Arrays.asList(interfaceNames));
 
             // 记录类实现的接口，及类中可能涉及实现的相关方法
-            List<MethodAndArgs> implClassMethodWithArgsList = JavaCGByteCodeUtil.genImplClassMethodWithArgs(methods);
+            List<MethodAndArgs> implClassMethodWithArgsList = JavaCGByteCodeUtil.genImplClassMethodWithArgs(className, methods);
             OldDataContext.CLASS_IMPLEMENTS_METHOD_INFO_MAP.put(className, new ClassImplementsMethodInfo(interfaceNameList, implClassMethodWithArgsList));
 
             if (!javaClass.isAbstract()) {

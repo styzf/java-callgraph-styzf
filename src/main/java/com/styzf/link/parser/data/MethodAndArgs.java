@@ -37,13 +37,13 @@ public class MethodAndArgs {
      */
     private boolean define = false;
     
-    public MethodAndArgs(String methodName, Type[] argTypes, int accessFlags) {
+    public MethodAndArgs(String className, String methodName, Type[] argTypes, int accessFlags) {
         this.methodName = methodName;
         this.methodArgs = JavaCGMethodUtil.getArgListStr(argTypes);
         setAccessFlags(accessFlags);
     }
 
-    public MethodAndArgs(String methodName, String methodArgs, int accessFlags) {
+    public MethodAndArgs(String className, String methodName, String methodArgs, int accessFlags) {
         this.methodName = methodName;
         this.methodArgs = methodArgs;
         setAccessFlags(accessFlags);

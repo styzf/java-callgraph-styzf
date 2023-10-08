@@ -64,8 +64,8 @@ public class JavaCGFileUtil {
         try {
             writer.write(StrUtil.join(JavaCGConstants.FILE_COLUMN_SEPARATOR, data) + JavaCGConstants.NEW_LINE);
             writer.flush();
-        } catch (Exception ignored){
-            System.out.println(ignored);
+        } catch (Exception e){
+            System.out.println(e);
         }
     }
 

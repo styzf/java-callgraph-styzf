@@ -1,9 +1,6 @@
 package com.styzf.link.parser.data;
 
-import com.styzf.link.parser.dto.method.MethodAndArgs;
-
 import java.util.List;
-import java.util.Map;
 
 /**
  *
