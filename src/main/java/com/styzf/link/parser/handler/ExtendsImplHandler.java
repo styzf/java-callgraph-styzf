@@ -86,8 +86,7 @@ public class ExtendsImplHandler {
             
             List<MethodAndArgs> methodWithArgsList = classImplementsMethodInfo.getMethodWithArgsList();
             for (MethodAndArgs methodWithArgs : methodWithArgsList) {
-                if (methodWithArgs.getMethodName().equals(methodAndArgs.getMethodName())
-                        && methodWithArgs.getMethodArgs().equals(methodAndArgs.getMethodArgs())
+                if (methodWithArgs.equals(methodAndArgs)
                         && methodWithArgs.isDone()) {
                     continue a;
                 }
@@ -122,8 +121,7 @@ public class ExtendsImplHandler {
             
             List<MethodAndArgs> methodWithArgsList = classImplementsMethodInfo.getMethodWithArgsList();
             for (MethodAndArgs methodWithArgs : methodWithArgsList) {
-                if (methodWithArgs.getMethodName().equals(methodAndArgs.getMethodName())
-                        && methodWithArgs.getMethodArgs().equals(methodAndArgs.getMethodArgs())) {
+                if (methodWithArgs.equals(methodAndArgs)) {
                     continue a;
                 }
             }
@@ -152,8 +150,7 @@ public class ExtendsImplHandler {
             // 1、如果子接口没有对应的默认实现，添加子类接口调用父类默认实现的方法
             List<MethodAndArgs> childrenInterfaceMethodList = INTERFACE_METHOD_WITH_ARGS_MAP.get(childrenInterface);
             for (MethodAndArgs childrenInterfaceMethod : childrenInterfaceMethodList) {
-                if (childrenInterfaceMethod.getMethodName().equals(methodAndArgs.getMethodName())
-                        && childrenInterfaceMethod.getMethodArgs().equals(methodAndArgs.getMethodArgs())) {
+                if (childrenInterfaceMethod.equals(methodAndArgs)) {
                     continue a;
                 }
             }
