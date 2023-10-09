@@ -35,7 +35,7 @@ public class MethodAndArgs {
     /**
      * 是否有定义
      */
-    private boolean define = false;
+    private boolean define = true;
     
     public MethodAndArgs(String className, String methodName, Type[] argTypes, int accessFlags) {
         this(className, methodName, JavaCGMethodUtil.getArgListStr(argTypes), accessFlags);
@@ -46,8 +46,13 @@ public class MethodAndArgs {
         this.methodName = methodName;
         this.methodArgs = methodArgs;
         setAccessFlags(accessFlags);
+        setDone();
     }
 
+    private void setDone() {
+        this.done = ! this.accessFlags.isAbstract();
+    }
+    
     @Override
     public String toString() {
         return methodName + methodArgs;

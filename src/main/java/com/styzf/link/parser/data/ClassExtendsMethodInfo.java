@@ -50,6 +50,7 @@ public class ClassExtendsMethodInfo {
             // 为空则没有对应的数据，则新创建一个类，并标识为虚处理，这个虚处理待验证
             MethodAndArgs methodAndArgsNew = new MethodAndArgs(className, methodAndArgs.getMethodName(), methodAndArgs.getMethodArgs(), accessFlags);
             methodAndArgsNew.setDone(false);
+            methodAndArgsNew.setDefine(false);
             methodAndArgsNew.setAccessFlags(accessFlags);
             methodWithArgsList.add(methodAndArgsNew);
         }
