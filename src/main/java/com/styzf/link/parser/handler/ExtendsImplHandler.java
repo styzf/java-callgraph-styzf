@@ -114,14 +114,15 @@ public class ExtendsImplHandler {
         }
         
         a:for (String childrenClassName : childrenClassNameList) {
-            ClassImplementsMethodInfo classImplementsMethodInfo = CLASS_IMPL_METHOD_INFO_MAP.get(childrenClassName);
-            if (classImplementsMethodInfo == null) {
+            ClassExtendsMethodInfo classExtendsMethodInfo = CLASS_EXTENDS_METHOD_INFO_MAP.get(childrenClassName);
+            if (classExtendsMethodInfo == null) {
                 continue;
             }
             
-            List<MethodAndArgs> methodWithArgsList = classImplementsMethodInfo.getMethodWithArgsList();
+            List<MethodAndArgs> methodWithArgsList = classExtendsMethodInfo.getMethodWithArgsList();
             for (MethodAndArgs methodWithArgs : methodWithArgsList) {
-                if (methodWithArgs.equals(methodAndArgs)) {
+                if (methodWithArgs.equals(methodAndArgs)
+                        && methodWithArgs.isDone()) {
                     continue a;
                 }
             }
@@ -503,10 +504,17 @@ public class ExtendsImplHandler {
                 methodWithArgsList.sort(MethodAndArgsComparator.getInstance());
                 // 对方法进行遍历
                 for (MethodAndArgs methodWithArgs : methodWithArgsList) {
-                    if (!interfaceMethodWithArgsList.contains(methodWithArgs)) {
+                    MethodAndArgs interfaceMethodWithArgs = CollUtil.findOne(interfaceMethodWithArgsList, im -> im.equals(methodWithArgs));
+                    if (interfaceMethodWithArgs == null) {
                         // 接口中不包含的方法，跳过
                         continue;
                     }
+                    
+                    // 接口有默认实现，实现类中没有默认实现，则不添加调用，因为这个时候应该是子类调用接口的默认
+                    if (interfaceMethodWithArgs.isDone() && ! methodWithArgs.isDone()) {
+                        continue;
+                    }
+                    
                     // 添加接口调用实现类方法
                     addExtraMethodCall(interfaceName, methodWithArgs.getMethodName(), methodWithArgs.getMethodArgs(),
                             JavaCGCallTypeEnum.CTE_INTERFACE_CALL_IMPL_CLASS, className, methodWithArgs.getMethodName(), methodWithArgs.getMethodArgs());
